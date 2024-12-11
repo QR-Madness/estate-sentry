@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import useSWR from 'swr';
-import { Sensor } from '@/types';
+import { Sensor } from '@/types/interfaces';
 
 export const SensorGrid = () => {
     const [sensors, setSensors] = useState<Sensor[]>([]);

@@ -1,0 +1,76 @@
+openapi: 3.1.0
+info:
+  title: Estate Sentry APIs
+  description: APIs for authentication and communication with Estate Sentry services.
+  version: 1.0.0
+servers:
+  - url: https://server.com:13739
+    description: "Estate Sentry API"
+  - url: https://localhost:10842
+    description: "Estate Sentry HQ - client UI for API"
+paths:
+  /authenticate:
+    post:
+      summary: Authenticate a user
+      description: Authenticates user credentials and returns an authentication token.
+      requestBody:
+        description: User credentials for authentication
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: The user's username
+                  required: true
+                password:
+                  type: string
+                  description: The user's password
+                  required: true
+      responses:
+        200:
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: The authentication token
+        401:
+          description: Unauthorized - Invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+    get:
+      summary: Check authentication status
+      description: Simple endpoint to verify the authentication status of a user.
+      responses:
+        200:
+          description: Authentication status confirmed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: The status of the authentication (e.g., "authenticated")
+        401:
+          description: Unauthorized - User not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
