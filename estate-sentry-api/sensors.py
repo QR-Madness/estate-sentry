@@ -3,10 +3,10 @@ Sensors API: Manage/access sensor equipment.
 """
 from flask import Blueprint, request
 
-auth_blueprint = Blueprint('EstateSentry:API:Sensors', __name__)
+sensors_blueprint = Blueprint('EstateSentry:API:Sensors', __name__)
 
 
-@auth_blueprint.route('/sensor', methods=['GET', 'POST'])
+@sensors_blueprint.route('/sensor', methods=['GET', 'POST'])
 def sensor():
     """
     Retrieves info about a registered sensor.
@@ -21,7 +21,7 @@ def sensor():
         pass
 
 
-@auth_blueprint.route('/cctv/<camera_id>', methods=['GET'], defaults={'camera_id': None})
+@sensors_blueprint.route('/cctv/<camera_id>', methods=['GET'], defaults={'camera_id': None})
 def cctv(camera_id: str):
     """
     View a CCTV feed of a camera sensor.
@@ -30,7 +30,7 @@ def cctv(camera_id: str):
     pass
 
 
-@auth_blueprint.route('/sensors', methods=['GET'])
+@sensors_blueprint.route('/sensors', methods=['GET'])
 def sensors():
     """
     Retrieves info about current and available sensors.

@@ -1,8 +1,6 @@
-"""
-Main: API Deployment Script
-"""
-from flask import Flask, request, jsonify
+from flask import Flask
 from waitress import serve
+
 from auth import auth_blueprint
 
 api = Flask(__name__)
