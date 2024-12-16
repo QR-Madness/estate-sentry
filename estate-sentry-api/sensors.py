@@ -32,10 +32,14 @@ def sensors():
         pass
 
 
-@sensors_blueprint.route('/cctv/<camera_id>', methods=['GET'], defaults={'camera_id': None})
-def cctv(camera_id: str):
+@sensors_blueprint.route('/viewer/<sensor_id>', methods=['GET'])
+def stream(sensor_id: str):
     """
-    View a CCTV feed of a camera sensor.
-    :param camera_id: Sensor ID of camera.
+    Streaming viewer of sensor data, can be used for CCTV, realtime, etc.
+    :param sensor_id: Sensor ID
+    :return: Streaming response
     """
+    # TODO get sensor info, type, etc.
+    # TODO get stream handler for sensor type
+    # TODO transmit stream
     pass
