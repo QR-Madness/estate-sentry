@@ -29,7 +29,7 @@ def app():
     """
     Create and configure a Flask app for testing.
     """
-    from flask_app import create_app
+    from api import create_app
 
     # Use the shared engine/session; pass test_mode=True or adjust as needed
     app = create_app(test_mode=True, debug=True)

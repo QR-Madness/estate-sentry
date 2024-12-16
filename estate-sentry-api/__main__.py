@@ -1,5 +1,6 @@
 from waitress import serve
-from flask_app import create_app
+
+from api import create_app
 
 if __name__ == '__main__':
     api = create_app(debug=True)
