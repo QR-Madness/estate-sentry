@@ -1,7 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Run Estate Sentry" type="CompoundRunConfigurationType">
     <toRun name="Start Client" type="js.build_tools.npm" />
-    <toRun name="Start API" type="PythonConfigurationType" />
     <method v="2" />
   </configuration>
 </component>
