@@ -1,0 +1,454 @@
+version: '3'
+
+vars:
+  API_DIR: estate-sentry-api
+  HQ_DIR: estate-sentry-hq
+  VENV_ACTIVATE: '{{.API_DIR}}/.venv/Scripts/activate'
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  # Setup and Installation Tasks
+  setup:
+    desc: Complete project setup (API + HQ)
+    cmds:
+      - task: setup:venv
+      - task: install
+      - task: api:migrate
+      - echo "✅ Setup complete! Run 'task dev' to start both servers"
+
+  setup:venv:
+    desc: Create Python virtual environment for API
+    dir: '{{.API_DIR}}'
+    cmds:
+      - python -m venv .venv
+      - echo "✅ Virtual environment created at {{.API_DIR}}/.venv"
+    status:
+      - test -d .venv
+
+  install:
+    desc: Install all dependencies (API + HQ)
+    cmds:
+      - task: api:install
+      - task: hq:install
+
+  # Development Tasks
+  dev:
+    desc: Start both API and HQ development servers
+    deps:
+      - api:dev
+      - hq:dev
+
+  clean:
+    desc: Remove build artifacts and caches
+    cmds:
+      - task: api:clean
+      - task: hq:clean
+      - echo "✅ Cleanup complete"
+
+  # API Tasks
+  api:install:
+    desc: Install API dependencies
+    dir: '{{.API_DIR}}'
+    cmds:
+      - .venv/Scripts/pip install -r requirements.txt
+      - echo "✅ API dependencies installed"
+
+  api:dev:
+    desc: Start API development server
+    dir: '{{.API_DIR}}'
+    cmds:
+      - echo "🚀 Starting Django development server on http://localhost:8000"
+      - .venv/Scripts/python manage.py runserver
+
+  api:shell:
+    desc: Open Django shell
+    dir: '{{.API_DIR}}'
+    cmds:
+      - .venv/Scripts/python manage.py shell
+
+  api:migrate:
+    desc: Run database migrations
+    dir: '{{.API_DIR}}'
+    cmds:
+      - .venv/Scripts/python manage.py migrate
+      - echo "✅ Migrations applied"
+
+  api:makemigrations:
+    desc: Create new database migrations
+    dir: '{{.API_DIR}}'
+    cmds:
+      - .venv/Scripts/python manage.py makemigrations
+      - echo "✅ Migrations created"
+
+  api:superuser:
+    desc: Create Django superuser
+    dir: '{{.API_DIR}}'
+    cmds:
+      - .venv/Scripts/python manage.py createsuperuser
+
+  api:test:
+    desc: Run API tests
+    dir: '{{.API_DIR}}'
+    cmds:
+      - .venv/Scripts/python manage.py test
+
+  api:test:verbose:
+    desc: Run API tests with verbose output
+    dir: '{{.API_DIR}}'
+    cmds:
+      - .venv/Scripts/python manage.py test --verbosity=2
+
+  api:test:coverage:
+    desc: Run API tests with coverage report
+    dir: '{{.API_DIR}}'
+    cmds:
+      - .venv/Scripts/python -m pytest --cov=. --cov-report=html --cov-report=term
+
+  api:lint:
+    desc: Lint API code with flake8
+    dir: '{{.API_DIR}}'
+    cmds:
+      - .venv/Scripts/flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+      - .venv/Scripts/flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+  api:check:
+    desc: Run Django system checks
+    dir: '{{.API_DIR}}'
+    cmds:
+      - .venv/Scripts/python manage.py check
+
+  api:clean:
+    desc: Remove API build artifacts and caches
+    dir: '{{.API_DIR}}'
+    cmds:
+      - find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+      - find . -type f -name "*.pyc" -delete 2>/dev/null || true
+      - find . -type f -name "*.pyo" -delete 2>/dev/null || true
+      - rm -rf .pytest_cache htmlcov .coverage 2>/dev/null || true
+      - echo "✅ API cleanup complete"
+
+  api:reset-db:
+    desc: Reset database (CAUTION - deletes all data)
+    dir: '{{.API_DIR}}'
+    prompt: This will delete all data. Continue?
+    cmds:
+      - rm -f db.sqlite3
+      - .venv/Scripts/python manage.py migrate
+      - echo "✅ Database reset complete"
+
+  # HQ (Frontend) Tasks
+  hq:install:
+    desc: Install HQ dependencies
+    dir: '{{.HQ_DIR}}'
+    cmds:
+      - npm install
+      - echo "✅ HQ dependencies installed"
+
+  hq:dev:
+    desc: Start HQ development server
+    dir: '{{.HQ_DIR}}'
+    cmds:
+      - echo "🚀 Starting Next.js development server on http://localhost:3000"
+      - npm run dev
+
+  hq:build:
+    desc: Build HQ for production
+    dir: '{{.HQ_DIR}}'
+    cmds:
+      - npm run build
+      - echo "✅ HQ built successfully"
+
+  hq:start:
+    desc: Start HQ production server
+    dir: '{{.HQ_DIR}}'
+    cmds:
+      - npm run start
+
+  hq:lint:
+    desc: Lint HQ code
+    dir: '{{.HQ_DIR}}'
+    cmds:
+      - npm run lint
+
+  hq:test:
+    desc: Run HQ tests
+    dir: '{{.HQ_DIR}}'
+    cmds:
+      - npm test
+
+  hq:clean:
+    desc: Remove HQ build artifacts
+    dir: '{{.HQ_DIR}}'
+    cmds:
+      - rm -rf .next out node_modules/.cache 2>/dev/null || true
+      - echo "✅ HQ cleanup complete"
+
+  # Testing Tasks
+  test:
+    desc: Run all tests (API + HQ)
+    cmds:
+      - task: api:test
+      - task: hq:test
+
+  test:watch:
+    desc: Run tests in watch mode
+    deps:
+      - api:test
+      - hq:test
+
+  # Utility Tasks
+  check:
+    desc: Run all checks (lint, test, system checks)
+    cmds:
+      - task: api:check
+      - task: api:lint
+      - task: hq:lint
+      - echo "✅ All checks passed"
+
+  format:
+    desc: Format code (if formatters are installed)
+    cmds:
+      - echo "Formatting Python code..."
+      - cd {{.API_DIR}} && .venv/Scripts/black . || echo "black not installed"
+      - echo "Formatting TypeScript code..."
+      - cd {{.HQ_DIR}} && npm run format || echo "prettier not installed"
+
+  logs:api:
+    desc: Show API logs
+    dir: '{{.API_DIR}}'
+    cmds:
+      - tail -f *.log 2>/dev/null || echo "No log files found"
+
+  # Docker Tasks
+  docker:build:
+    desc: Build all Docker images
+    cmds:
+      - docker-compose build
+      - echo "✅ Docker images built successfully"
+
+  docker:build:api:
+    desc: Build API Docker image only
+    cmds:
+      - docker-compose build api
+      - echo "✅ API image built (estate-sentry-api)"
+
+  docker:build:hq:
+    desc: Build HQ Docker image only
+    cmds:
+      - docker-compose build hq
+      - echo "✅ HQ image built (estate-sentry-hq)"
+
+  docker:up:
+    desc: Start all services with Docker Compose
+    cmds:
+      - docker-compose up -d
+      - echo "✅ Services started"
+      - echo "API: http://localhost:8000"
+      - echo "HQ: http://localhost:3000"
+      - echo "Neo4j Browser: http://localhost:7474"
+
+  docker:up:logs:
+    desc: Start services and follow logs
+    cmds:
+      - docker-compose up
+
+  docker:down:
+    desc: Stop and remove Docker containers
+    cmds:
+      - docker-compose down
+      - echo "✅ Services stopped"
+
+  docker:down:volumes:
+    desc: Stop containers and remove volumes (⚠️ deletes data)
+    prompt: This will delete all Docker volumes including databases. Continue?
+    cmds:
+      - docker-compose down -v
+      - echo "✅ Services and volumes removed"
+
+  docker:restart:
+    desc: Restart all Docker services
+    cmds:
+      - docker-compose restart
+      - echo "✅ Services restarted"
+
+  docker:restart:api:
+    desc: Restart API service only
+    cmds:
+      - docker-compose restart api
+      - echo "✅ API service restarted"
+
+  docker:restart:hq:
+    desc: Restart HQ service only
+    cmds:
+      - docker-compose restart hq
+      - echo "✅ HQ service restarted"
+
+  docker:logs:
+    desc: View logs from all services
+    cmds:
+      - docker-compose logs -f
+
+  docker:logs:api:
+    desc: View API logs only
+    cmds:
+      - docker-compose logs -f api
+
+  docker:logs:hq:
+    desc: View HQ logs only
+    cmds:
+      - docker-compose logs -f hq
+
+  docker:logs:postgres:
+    desc: View PostgreSQL logs
+    cmds:
+      - docker-compose logs -f postgres
+
+  docker:logs:neo4j:
+    desc: View Neo4j logs
+    cmds:
+      - docker-compose logs -f neo4j
+
+  docker:ps:
+    desc: Show running Docker containers
+    cmds:
+      - docker-compose ps
+
+  docker:shell:api:
+    desc: Open shell in API container
+    cmds:
+      - docker-compose exec api /bin/bash
+
+  docker:shell:postgres:
+    desc: Open PostgreSQL shell
+    cmds:
+      - docker-compose exec postgres psql -U estate_sentry -d estate_sentry
+
+  docker:shell:neo4j:
+    desc: Open Neo4j Cypher shell
+    cmds:
+      - docker-compose exec neo4j cypher-shell -u neo4j -p changeme
+
+  docker:clean:
+    desc: Remove all stopped containers and unused images
+    cmds:
+      - docker-compose down
+      - docker system prune -f
+      - echo "✅ Docker cleanup complete"
+
+  # CI/CD Tasks
+  ci:test:
+    desc: Run CI tests (mimics CI environment)
+    cmds:
+      - task: api:lint
+      - task: api:test
+      - task: hq:lint
+      - echo "✅ CI checks complete"
+
+  # Documentation
+  docs:serve:
+    desc: Serve documentation locally (if using MkDocs or similar)
+    cmds:
+      - echo "Documentation server not set up yet"
+
+  # Database Tasks
+  db:backup:
+    desc: Backup SQLite database
+    dir: '{{.API_DIR}}'
+    cmds:
+      - cp db.sqlite3 "db.sqlite3.backup.$(date +%Y%m%d_%H%M%S)"
+      - echo "✅ Database backed up"
+
+  db:restore:
+    desc: Restore latest database backup
+    dir: '{{.API_DIR}}'
+    cmds:
+      - cp "$(ls -t db.sqlite3.backup.* | head -1)" db.sqlite3
+      - echo "✅ Database restored"
+
+  db:postgres:backup:
+    desc: Backup PostgreSQL database from Docker
+    cmds:
+      - mkdir -p data/backups
+      - docker-compose exec -T postgres pg_dump -U estate_sentry estate_sentry > "data/backups/postgres_backup_$(date +%Y%m%d_%H%M%S).sql"
+      - echo "✅ PostgreSQL backup created in data/backups/"
+
+  db:postgres:restore:
+    desc: Restore PostgreSQL database from latest backup
+    cmds:
+      - docker-compose exec -T postgres psql -U estate_sentry -d estate_sentry < "$(ls -t data/backups/postgres_backup_*.sql | head -1)"
+      - echo "✅ PostgreSQL database restored"
+
+  db:neo4j:export:
+    desc: Export Neo4j database to data/neo4j/export
+    cmds:
+      - mkdir -p data/neo4j/export
+      - docker-compose exec neo4j cypher-shell -u neo4j -p changeme "CALL apoc.export.cypher.all('/var/lib/neo4j/export/backup_$(date +%Y%m%d_%H%M%S).cypher', {format:'cypher-shell'})"
+      - echo "✅ Neo4j database exported to data/neo4j/export/"
+
+  db:neo4j:import:
+    desc: Import Neo4j database from latest export
+    cmds:
+      - docker-compose exec neo4j cypher-shell -u neo4j -p changeme < "$(ls -t data/neo4j/export/*.cypher | head -1)"
+      - echo "✅ Neo4j database imported"
+
+  db:neo4j:sync:
+    desc: Sync Neo4j data to local data/ directory
+    cmds:
+      - echo "📦 Neo4j data is automatically synced to data/neo4j/"
+      - echo "Data directory: ./data/neo4j/data/"
+      - echo "Logs directory: ./data/neo4j/logs/"
+      - echo "Import directory: ./data/neo4j/import/"
+      - echo "Plugins directory: ./data/neo4j/plugins/"
+      - ls -lh data/neo4j/
+
+  db:neo4j:clear:
+    desc: Clear all Neo4j data (⚠️ deletes all graph data)
+    prompt: This will delete all Neo4j graph data. Continue?
+    cmds:
+      - docker-compose exec neo4j cypher-shell -u neo4j -p changeme "MATCH (n) DETACH DELETE n"
+      - echo "✅ Neo4j database cleared"
+
+  db:migrate:docker:
+    desc: Run Django migrations in Docker container
+    cmds:
+      - docker-compose exec api python manage.py migrate
+      - echo "✅ Migrations applied in Docker"
+
+  db:reset:docker:
+    desc: Reset PostgreSQL database in Docker (⚠️ deletes all data)
+    prompt: This will delete all data in PostgreSQL. Continue?
+    cmds:
+      - docker-compose exec postgres psql -U estate_sentry -c "DROP DATABASE IF EXISTS estate_sentry;"
+      - docker-compose exec postgres psql -U estate_sentry -c "CREATE DATABASE estate_sentry;"
+      - docker-compose exec api python manage.py migrate
+      - echo "✅ PostgreSQL database reset and migrations applied"
+
+  # Help and Info
+  info:
+    desc: Show project information
+    cmds:
+      - echo "Estate Sentry - Home Threat Intelligence System"
+      - echo ""
+      - echo "API Server: http://localhost:8000"
+      - echo "HQ Dashboard: http://localhost:3000"
+      - echo "Admin Interface: http://localhost:8000/admin"
+      - echo ""
+      - echo "Quick Commands:"
+      - echo "  task setup          - Initial project setup"
+      - echo "  task dev            - Start both servers"
+      - echo "  task api:dev        - Start API only"
+      - echo "  task hq:dev         - Start HQ only"
+      - echo "  task test           - Run all tests"
+      - echo "  task clean          - Clean build artifacts"
+
+  version:
+    desc: Show versions of tools
+    cmds:
+      - echo "Python:" && python --version || echo "  Not found"
+      - echo "Node.js:" && node --version || echo "  Not found"
+      - echo "npm:" && npm --version || echo "  Not found"
+      - cd {{.API_DIR}} && echo "Django:" && .venv/Scripts/python -c "import django; print(f'  {django.get_version()}')" || echo "  Not installed"
