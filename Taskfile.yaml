@@ -247,9 +247,9 @@ tasks:
     cmds:
       - docker-compose up -d
       - echo "✅ Services started"
-      - echo "API: http://localhost:8000"
-      - echo "HQ: http://localhost:3000"
-      - echo "Neo4j Browser: http://localhost:7474"
+      - echo "API - http://localhost:8000"
+      - echo "HQ - http://localhost:3000"
+      - echo "Neo4j Browser - http://localhost:7474"
 
   docker:up:logs:
     desc: Start services and follow logs
@@ -399,10 +399,10 @@ tasks:
     desc: Sync Neo4j data to local data/ directory
     cmds:
       - echo "📦 Neo4j data is automatically synced to data/neo4j/"
-      - echo "Data directory: ./data/neo4j/data/"
-      - echo "Logs directory: ./data/neo4j/logs/"
-      - echo "Import directory: ./data/neo4j/import/"
-      - echo "Plugins directory: ./data/neo4j/plugins/"
+      - echo "Data directory - ./data/neo4j/data/"
+      - echo "Logs directory - ./data/neo4j/logs/"
+      - echo "Import directory - ./data/neo4j/import/"
+      - echo "Plugins directory - ./data/neo4j/plugins/"
       - ls -lh data/neo4j/
 
   db:neo4j:clear:
@@ -433,9 +433,9 @@ tasks:
     cmds:
       - echo "Estate Sentry - Home Threat Intelligence System"
       - echo ""
-      - echo "API Server: http://localhost:8000"
-      - echo "HQ Dashboard: http://localhost:3000"
-      - echo "Admin Interface: http://localhost:8000/admin"
+      - echo "API Server - http://localhost:8000"
+      - echo "HQ Dashboard - http://localhost:3000"
+      - echo "Admin Interface - http://localhost:8000/admin"
       - echo ""
       - echo "Quick Commands:"
       - echo "  task setup          - Initial project setup"

@@ -8,7 +8,7 @@ Why wouldn't you want the world to be safer? Yet, commercial home security syste
 
 ## What is Estate Sentry?
 
-Estate Sentry is a comprehensive threat detection and analysis platform that integrates with various security sensors to monitor and protect your home:
+Estate Sentry is a comprehensive threat detection and analysis platform that integrates with various security sensors:
 
 - **Camera Systems** - Video surveillance with planned single-shot recognition capabilities
 - **Door & Window Contacts** - Intrusion detection for entry points
@@ -19,37 +19,28 @@ Estate Sentry is a comprehensive threat detection and analysis platform that int
 
 The system processes sensor data in real-time, analyzes threats, and provides intelligent alerts through the Estate Sentry HQ dashboard.
 
-## Project Status
+## Quick Start
 
-Estate Sentry is currently in active development with a focus on building robust sensor integration frameworks and core architecture. Future roadmap includes:
-
-- ✅ Core sensor framework and API
-- ✅ Real-time sensor data processing
-- 🚧 Single-shot recognition for camera systems
-- 🚧 Advanced threat analysis algorithms
-- 🚧 Mobile applications for iOS and Android
-
-# Setup & Installation
-
-There are three ways to get started with Estate Sentry:
-
-1. [Docker Setup](#docker-setup-recommended) - **recommended for production**
-2. [Easy Installation with Task](#easy-installation-with-task) - **recommended for development**
-3. [Manual Setup](#manual-setup) - For those who prefer full control
-
-## Docker Setup (Recommended)
-
-The fastest way to get Estate Sentry running with production databases (PostgreSQL + Neo4j):
+### Using Task (Recommended)
 
 ```bash
-# 1. Copy and configure environment
-cp .env.example .env
+# Complete setup
+task setup
 
-# 2. Build and start all services
+# Start both servers
+task dev
+
+# Create admin user
+task api:superuser
+```
+
+### Using Docker (Production)
+
+```bash
+# Setup and start services
+cp .env.example .env
 task docker:build
 task docker:up
-
-# 3. Run migrations
 task db:migrate:docker
 ```
 
@@ -58,130 +49,75 @@ Your services will be available at:
 - **Dashboard**: http://localhost:3000
 - **Neo4j Browser**: http://localhost:7474
 
-See [DOCKER.md](DOCKER.md) for complete Docker documentation.
+## Documentation
 
-## Easy Installation with Task
+### For Users (Non-Developers)
 
-## Setup & Build from Source
-
-### Prerequisites
-
-- Python 3.10 or higher
-- Node.js 18 or higher
-- [Task](https://taskfile.dev/) (optional, for easier development)
-  - Install: `npm install -g @go-task/cli` or see [installation guide](https://taskfile.dev/installation/)
-
-### Installation Steps
-
-#### Option 1: Using Task (Recommended)
+**View the full documentation:**
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/estate-sentry.git
-cd estate-sentry
+# Install mkdocs (one-time setup)
+pip install mkdocs mkdocs-material pymdown-extensions
+# OR; if you are using the new version manager from Python:
+python -m pip install mkdocs mkdocs-material pymdown-extensions
 
-# Complete setup (API + Frontend)
-task setup
-
-# Start both servers
-task dev
+# View documentation locally
+mkdocs serve
 ```
 
-#### Option 2: Manual Setup
+Then open your browser to **http://localhost:8001** to access the complete documentation with:
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/estate-sentry.git
-   cd estate-sentry
-   ```
+- Installation guides
+- Quick start tutorials
+- API usage examples
+- Architecture explanations
 
-2. **Set up the Django API Backend**
-   ```bash
-   # Navigate to API directory
-   cd estate-sentry-api
+### For Developers
 
-   # Create and activate virtual environment
-   python -m venv .venv
-   source .venv/Scripts/activate  # On Windows Git Bash
-   # or: .venv\Scripts\activate  # On Windows CMD
+See [CLAUDE.md](CLAUDE.md) for detailed development guidelines and architecture documentation.
 
-   # Install Python dependencies
-   pip install -r requirements.txt
+## Available Commands
 
-   # Run database migrations
-   python manage.py migrate
-
-   # Create a superuser (for admin access)
-   python manage.py createsuperuser
-
-   # Start the development server
-   python manage.py runserver
-   ```
-   The API will be available at `http://localhost:8000`
-
-3. **Set up the Estate Sentry HQ (Frontend)**
-   ```bash
-   # Navigate to client directory
-   cd estate-sentry-hq
-
-   # Install dependencies
-   npm install
-
-   # Start development server
-   npm run dev
-   ```
-   The dashboard will be available at `http://localhost:3000`
-
-### Running Tests
-
-**Using Task:**
-```bash
-task test              # Run all tests
-task api:test          # Run API tests only
-task hq:test           # Run HQ tests only
-task api:test:verbose  # Run API tests with verbose output
-```
-
-**Manual:**
-```bash
-# Backend Tests
-cd estate-sentry-api
-source .venv/Scripts/activate
-python manage.py test
-
-# Frontend Tests
-cd estate-sentry-hq
-npm test
-```
-
-### Common Development Tasks
+Run `task --list` to see all available commands:
 
 ```bash
-task                    # List all available tasks
-task setup             # Initial project setup
-task dev               # Start both API and HQ servers
-task api:dev           # Start API server only
-task hq:dev            # Start HQ server only
-task api:migrate       # Run database migrations
-task api:superuser     # Create Django superuser
-task api:shell         # Open Django shell
-task clean             # Clean build artifacts
-task check             # Run linting and checks
-task info              # Show project information
+task setup              # Complete project setup
+task dev                # Start both API and HQ servers
+task api:dev            # Start API server only
+task hq:dev             # Start HQ server only
+task test               # Run all tests
+task docker:build       # Build Docker images
+task docker:up          # Start Docker services
 ```
 
 ## Architecture
 
 Estate Sentry consists of two main components:
 
-- **Django REST API Backend** - Handles sensor data ingestion, threat analysis, user authentication, and data persistence
-- **Next.js/React Frontend (HQ)** - Real-time dashboard for monitoring sensors, viewing alerts, and managing your security system
+- **Django REST API Backend** (`estate-sentry-api`) - Handles sensor data ingestion, threat analysis, user authentication, and data persistence
+- **Next.js/React Frontend** (`estate-sentry-hq`) - Real-time dashboard for monitoring sensors, viewing alerts, and managing your security system
+
+### Databases
+
+- **PostgreSQL** - Relational data (users, sensors, readings, alerts)
+- **Neo4j** - Graph database for threat intelligence and relationships
+
+## Project Status
+
+Estate Sentry is currently in active development with a focus on building robust sensor integration frameworks and core architecture.
+
+- ✅ Core sensor framework and API
+- ✅ Real-time sensor data processing
+- ✅ Docker support with PostgreSQL and Neo4j
+- 🚧 Single-shot recognition for camera systems
+- 🚧 Advanced threat analysis algorithms
+- 🚧 Mobile applications for iOS and Android
 
 ## Contributing
 
 We welcome contributors! Estate Sentry is an open-source project dedicated to making home security accessible to everyone.
 
-Currently, Estate Sentry has no public contributors - let's change this and make the world a safer place!
+See the documentation's [Development Guide](docs/contributing/development.md) for detailed contribution guidelines.
 
 ## License
 
