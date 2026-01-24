@@ -1,0 +1,184 @@
+[project]
+name = "estate-sentry-api"
+version = "0.1.0"
+description = "Estate Sentry - Open-Source Home Threat Intelligence System API"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+    { name = "Estate Sentry Contributors" }
+]
+keywords = ["security", "home-automation", "threat-detection", "django", "rest-api"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Web Environment",
+    "Framework :: Django :: 5.0",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Home Automation",
+    "Topic :: Security",
+]
+
+dependencies = [
+    "django>=5.0.0,<5.2.0",
+    "djangorestframework>=3.14.0,<4.0.0",
+    "djangorestframework-simplejwt>=5.3.0,<6.0.0",
+    "django-cors-headers>=4.3.0,<5.0.0",
+    "pillow>=10.4.0",
+    # PostgreSQL support
+    "psycopg2-binary>=2.9.9",
+    # Production server
+    "gunicorn>=21.0.0",
+    # Neo4j driver
+    "neo4j>=5.15.0",
+    # NATS client
+    "nats-py>=2.6.0",
+    # MinIO client
+    "minio>=7.2.0",
+    # ChromaDB client
+    "chromadb>=0.4.0",
+    # Environment variables
+    "python-dotenv>=1.0.0",
+    # HTTP client for health checks
+    "httpx>=0.26.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0,<9.0.0",
+    "pytest-django>=4.7.0,<5.0.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.23.0",
+    "ruff>=0.3.0",
+    "mypy>=1.8.0",
+    "django-stubs>=4.2.0",
+    "djangorestframework-stubs>=3.14.0",
+    "pre-commit>=3.6.0",
+]
+
+test = [
+    "pytest>=8.3.0,<9.0.0",
+    "pytest-django>=4.7.0,<5.0.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.23.0",
+    "factory-boy>=3.3.0",
+    "faker>=22.0.0",
+]
+
+docs = [
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.5.0",
+    "pymdown-extensions>=10.7.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/estate-sentry"
+Documentation = "https://yourusername.github.io/estate-sentry"
+Repository = "https://github.com/yourusername/estate-sentry"
+Issues = "https://github.com/yourusername/estate-sentry/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "estate_sentry",
+    "authentication",
+    "sensors",
+    "alerts",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.3.0,<9.0.0",
+    "pytest-django>=4.7.0,<5.0.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.3.0",
+    "mypy>=1.8.0",
+    "pre-commit>=3.6.0",
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "estate_sentry.settings"
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "-ra",
+    "-q",
+]
+testpaths = ["tests", "authentication", "sensors", "alerts"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+exclude = [
+    ".eggs",
+    ".git",
+    ".mypy_cache",
+    ".ruff_cache",
+    ".venv",
+    "build",
+    "dist",
+    "migrations",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "DJ",     # flake8-django
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "B008",   # do not perform function calls in argument defaults
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["estate_sentry", "authentication", "sensors", "alerts"]
+section-order = ["future", "standard-library", "django", "third-party", "first-party", "local-folder"]
+
+[tool.ruff.lint.isort.sections]
+django = ["django", "rest_framework"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.mypy]
+python_version = "3.11"
+plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+exclude = ["migrations", ".venv"]
+
+[tool.django-stubs]
+django_settings_module = "estate_sentry.settings"
+
+[tool.coverage.run]
+source = ["authentication", "sensors", "alerts"]
+omit = ["*/migrations/*", "*/tests/*"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]
