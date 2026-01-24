@@ -8,16 +8,35 @@ Why wouldn't you want the world to be safer? Yet, commercial home security syste
 
 ## What is Estate Sentry?
 
-Estate Sentry is a comprehensive threat detection and analysis platform that integrates with various security sensors:
+Estate Sentry is a comprehensive, decentralized threat detection and analysis platform designed to scale from a single home to large estates with full redundancy.
 
-- **Camera Systems** - Video surveillance with planned single-shot recognition capabilities
-- **Door & Window Contacts** - Intrusion detection for entry points
-- **Glass Break Sensors** - Detect forced entry attempts
-- **Motion Detectors** - Monitor movement in protected areas
-- **Environmental Sensors** - Smoke, CO, water leak detection
-- **Custom Sensor Support** - Extensible framework for any sensor type
+### Supported Devices
 
-The system processes sensor data in real-time, analyzes threats, and provides intelligent alerts through the Estate Sentry HQ dashboard.
+**Sensors (Read-only):**
+- Camera Systems - Video surveillance with AI-powered analysis
+- Door & Window Contacts - Intrusion detection for entry points
+- Glass Break Sensors - Detect forced entry attempts
+- Motion Detectors - Monitor movement in protected areas
+- Environmental Sensors - Smoke, CO, water leak, temperature
+
+**Actuators (Control):**
+- Lighting Systems - Visible, infrared, security lighting
+- Smart Locks - Entry point control
+- Sirens/Alarms - Alert systems
+
+**Controllers (Bidirectional):**
+- PLCs - Industrial and custom automation
+- Hubs/Gateways - Protocol bridges
+- Custom Devices - Extensible framework for any device type
+
+### Key Features
+
+- **Decentralized Architecture** - Deploy across multiple nodes for redundancy
+- **AI-Powered Intelligence** - MCP integration with Claude for threat analysis
+- **Plugin System** - Easy extension for new device types
+- **Protocol Flexibility** - MQTT, REST, Modbus, Zigbee, and more
+- **Real-time Processing** - Immediate threat detection and alerts
+- **Case Reports** - Automated security investigation reports
 
 ## Quick Start
 
@@ -51,30 +70,42 @@ Your services will be available at:
 
 ## Documentation
 
-### For Users (Non-Developers)
-
-**View the full documentation:**
+### View Documentation
 
 ```bash
 # Install mkdocs (one-time setup)
 pip install mkdocs mkdocs-material pymdown-extensions
-# OR; if you are using the new version manager from Python:
-python -m pip install mkdocs mkdocs-material pymdown-extensions
 
-# View documentation locally
+# Serve documentation locally
 mkdocs serve
 ```
 
-Then open your browser to **http://localhost:8001** to access the complete documentation with:
+Open **http://localhost:8001** to access the complete documentation:
 
-- Installation guides
+**Getting Started:**
+- Installation guides (Docker, Task, Manual)
 - Quick start tutorials
-- API usage examples
-- Architecture explanations
+- Docker setup
+
+**Architecture:**
+- [System Overview](docs/architecture/overview.md)
+- [Decentralization](docs/architecture/decentralization.md)
+- [Switchboard](docs/architecture/switchboard.md)
+- [Security](docs/architecture/security.md)
+- [Sentry Intelligence](docs/architecture/sentry-intelligence.md)
+
+**Guides:**
+- [API Usage](docs/guides/api-usage.md)
+- [Plugin Development](docs/guides/plugin-development.md)
+- [Node Deployment](docs/guides/node-deployment.md)
+- [MCP Integration](docs/guides/mcp-integration.md)
+
+**Operations:**
+- [Monitoring](docs/operations/monitoring.md)
 
 ### For Developers
 
-See [CLAUDE.md](CLAUDE.md) for detailed development guidelines and architecture documentation.
+See [CLAUDE.md](CLAUDE.md) for detailed development guidelines.
 
 ## Available Commands
 
@@ -92,26 +123,63 @@ task docker:up          # Start Docker services
 
 ## Architecture
 
-Estate Sentry consists of two main components:
+```
++------------------------------------------------------------------+
+|                         ESTATE SENTRY                             |
+|  +------------------+    +------------------+    +--------------+ |
+|  |   Zone Nodes     |    |   Switchboard    |    |   Sentry     | |
+|  |   (Distributed)  |<-->|   (Data Router)  |<-->|  (AI Intel)  | |
+|  +------------------+    +------------------+    +--------------+ |
++------------------------------------------------------------------+
+         |                         |                      |
++--------v--------+     +----------v----------+    +------v-------+
+|  HQ Dashboard   |     |  Sensors/Devices    |    |  Claude/AI   |
+|  (Next.js)      |     |  (MQTT/REST/etc)    |    |  (Analysis)  |
++-----------------+     +---------------------+    +--------------+
+```
 
-- **Django REST API Backend** (`estate-sentry-api`) - Handles sensor data ingestion, threat analysis, user authentication, and data persistence
-- **Next.js/React Frontend** (`estate-sentry-hq`) - Real-time dashboard for monitoring sensors, viewing alerts, and managing your security system
+### Core Components
+
+| Component | Description |
+|-----------|-------------|
+| **Estate Sentry API** | Django REST backend for data and authentication |
+| **Estate Sentry HQ** | Next.js dashboard for monitoring and control |
+| **Switchboard** | NATS + MinIO data routing backbone |
+| **Sentry Intelligence** | AI-powered threat analysis with MCP |
+| **Zone Nodes** | Distributed compute units with auto-failover |
 
 ### Databases
 
-- **PostgreSQL** - Relational data (users, sensors, readings, alerts)
-- **Neo4j** - Graph database for threat intelligence and relationships
+| Database | Purpose |
+|----------|---------|
+| **PostgreSQL + TimescaleDB** | Relational data and time-series readings |
+| **Neo4j** | Graph relationships for threat intelligence |
+| **ChromaDB** | Vector embeddings for AI pattern matching |
+| **MinIO** | Object storage for media files |
 
 ## Project Status
 
-Estate Sentry is currently in active development with a focus on building robust sensor integration frameworks and core architecture.
+Estate Sentry is in active architectural development, building the foundation for a production-ready system.
 
+**Completed:**
 - ✅ Core sensor framework and API
 - ✅ Real-time sensor data processing
 - ✅ Docker support with PostgreSQL and Neo4j
-- 🚧 Single-shot recognition for camera systems
-- 🚧 Advanced threat analysis algorithms
-- 🚧 Mobile applications for iOS and Android
+- ✅ Comprehensive architecture documentation
+- ✅ Plugin-based handler system design
+
+**In Progress:**
+- 🚧 Security hardening (PIN hashing, rate limiting)
+- 🚧 Handler registry with auto-discovery
+- 🚧 Switchboard data routing
+
+**Planned:**
+- 📋 Multi-node decentralization
+- 📋 Sentry Intelligence with MCP
+- 📋 Camera AI analysis
+- 📋 Mobile applications
+
+See the [Development Roadmap](docs/Todo.md) for the complete implementation plan.
 
 ## Contributing
 

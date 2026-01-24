@@ -15,6 +15,7 @@ theme:
 
 nav:
   - Home: index.md
+  - Roadmap: Todo.md
   - Getting Started:
       - Installation: getting-started/installation.md
       - Quick Start: getting-started/quickstart.md
@@ -22,9 +23,19 @@ nav:
   - Guides:
       - Task Reference: guides/task-reference.md
       - API Usage: guides/api-usage.md
+      - Plugin Development: guides/plugin-development.md
+      - Node Deployment: guides/node-deployment.md
+      - MCP Integration: guides/mcp-integration.md
   - Architecture:
       - Overview: architecture/overview.md
       - Database: architecture/database.md
+      - Decentralization: architecture/decentralization.md
+      - Switchboard: architecture/switchboard.md
+      - Security: architecture/security.md
+      - Device Abstraction: architecture/device-abstraction.md
+      - Sentry Intelligence: architecture/sentry-intelligence.md
+  - Operations:
+      - Monitoring: operations/monitoring.md
   - Contributing:
       - Development Guide: contributing/development.md
 

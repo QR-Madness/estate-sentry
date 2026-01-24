@@ -1,6 +1,11 @@
 # Database Architecture
 
-Estate Sentry uses a dual-database architecture combining relational and graph databases.
+Estate Sentry uses a multi-database architecture optimized for different workloads:
+
+- **PostgreSQL** - Relational data and time-series (via TimescaleDB)
+- **Neo4j** - Graph relationships for threat intelligence
+- **ChromaDB** - Vector embeddings for AI analysis
+- **MinIO** - Object storage for media files
 
 ## PostgreSQL (Relational Database)
 
@@ -379,16 +384,204 @@ task docker:shell:neo4j
 CALL dbms.components() YIELD name, versions, edition
 ```
 
+## TimescaleDB (Time-Series Extension)
+
+TimescaleDB extends PostgreSQL for efficient time-series data storage.
+
+### Configuration
+
+```yaml
+# docker-compose.yml
+services:
+  postgres:
+    image: timescale/timescaledb:latest-pg16
+    environment:
+      POSTGRES_DB: estate_sentry
+```
+
+### Hypertable for Sensor Readings
+
+```sql
+-- Enable TimescaleDB
+CREATE EXTENSION IF NOT EXISTS timescaledb;
+
+-- Convert sensor_readings to hypertable
+SELECT create_hypertable('sensor_readings', 'timestamp',
+    chunk_time_interval => INTERVAL '1 day',
+    if_not_exists => TRUE
+);
+
+-- Add compression (after 7 days)
+SELECT add_compression_policy('sensor_readings',
+    compress_after => INTERVAL '7 days'
+);
+
+-- Add retention (optional)
+SELECT add_retention_policy('sensor_readings',
+    drop_after => INTERVAL '1 year'
+);
+```
+
+### Optimized Queries
+
+```sql
+-- Last hour of readings for a sensor (uses chunk exclusion)
+SELECT * FROM sensor_readings
+WHERE sensor_id = 'uuid'
+  AND timestamp > NOW() - INTERVAL '1 hour';
+
+-- Aggregated readings by minute
+SELECT time_bucket('1 minute', timestamp) as bucket,
+       sensor_id,
+       avg((value->>'temperature')::float) as avg_temp
+FROM sensor_readings
+WHERE timestamp > NOW() - INTERVAL '24 hours'
+GROUP BY bucket, sensor_id;
+```
+
+## ChromaDB (Vector Database)
+
+ChromaDB stores embeddings for the Sentry Intelligence system.
+
+### Collections
+
+| Collection | Purpose | Data |
+|------------|---------|------|
+| `alerts` | Alert similarity search | Alert embeddings + metadata |
+| `patterns` | Known threat patterns | Pattern embeddings |
+| `incidents` | Historical incidents | Incident embeddings |
+
+### Configuration
+
+```python
+# sentry/intelligence/vector_store.py
+import chromadb
+from chromadb.config import Settings
+
+client = chromadb.Client(Settings(
+    chroma_db_impl="duckdb+parquet",
+    persist_directory="./data/chromadb"
+))
+```
+
+### Example Queries
+
+```python
+# Search for similar alerts
+results = alerts_collection.query(
+    query_embeddings=[alert_embedding],
+    n_results=5,
+    where={"severity": {"$in": ["HIGH", "CRITICAL"]}}
+)
+
+# Search threat patterns
+results = patterns_collection.query(
+    query_texts=["multiple door sensors triggering in sequence"],
+    n_results=10
+)
+```
+
+## Event Log (Synchronization)
+
+For multi-node deployments, an event log tracks all changes for synchronization.
+
+### Event Log Model
+
+```python
+class EventLog(models.Model):
+    """Append-only event log for node synchronization."""
+    node_id = models.UUIDField(db_index=True)
+    event_type = models.CharField(max_length=100)
+    entity_type = models.CharField(max_length=100)
+    entity_id = models.UUIDField()
+    payload = models.JSONField()
+    vector_clock = models.JSONField()
+    timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
+    synced_to = models.JSONField(default=list)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['timestamp', 'node_id']),
+            models.Index(fields=['entity_type', 'entity_id']),
+        ]
+```
+
+### Sync Queries
+
+```python
+# Get events not yet synced to a node
+EventLog.objects.exclude(
+    synced_to__contains=[target_node_id]
+).filter(
+    timestamp__gt=last_sync_time
+).order_by('timestamp')
+```
+
+## Audit Log
+
+Immutable audit trail for security compliance.
+
+### Audit Log Model
+
+```python
+class AuditLog(models.Model):
+    timestamp = models.DateTimeField(auto_now_add=True)
+    event_type = models.CharField(max_length=50)
+    user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+    ip_address = models.GenericIPAddressField(null=True)
+    resource_type = models.CharField(max_length=100)
+    resource_id = models.CharField(max_length=100, null=True)
+    old_value = models.JSONField(null=True)
+    new_value = models.JSONField(null=True)
+    metadata = models.JSONField(default=dict)
+```
+
+### Retention
+
+```python
+# Audit logs retained for 7 years (compliance)
+AUDIT_RETENTION_DAYS = 365 * 7
+```
+
+## MinIO (Object Storage)
+
+S3-compatible storage for media files.
+
+### Bucket Structure
+
+```
+estate-sentry/
+├── frames/              # Camera frames
+│   └── {camera_id}/{date}/{timestamp}.jpg
+├── recordings/          # Video recordings
+│   └── {camera_id}/{date}/{start}_{end}.mp4
+├── snapshots/           # Alert snapshots
+│   └── {alert_id}/frame.jpg
+└── exports/             # Report exports
+    └── {report_id}/report.pdf
+```
+
+### Configuration
+
+```python
+# settings.py
+MINIO_ENDPOINT = os.environ.get('MINIO_ENDPOINT', 'localhost:9000')
+MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY')
+MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY')
+MINIO_BUCKET = 'estate-sentry'
+```
+
 ## Future Enhancements
 
-- **TimescaleDB** - Time-series optimization for sensor readings
-- **Redis** - Caching layer
-- **Elasticsearch** - Full-text search for alerts
-- **Replication** - Database clustering for HA
+- **Redis** - Caching layer for frequent queries
+- **Elasticsearch** - Full-text search for alerts and logs
+- **ClickHouse** - Alternative for high-volume analytics
 
 ## Resources
 
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+- [TimescaleDB Documentation](https://docs.timescale.com/)
 - [Neo4j Documentation](https://neo4j.com/docs/)
+- [ChromaDB Documentation](https://docs.trychroma.com/)
+- [MinIO Documentation](https://min.io/docs/)
 - [Django ORM](https://docs.djangoproject.com/en/stable/topics/db/)
-- [Graph Data Science](https://neo4j.com/docs/graph-data-science/)

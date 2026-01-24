@@ -1,101 +1,219 @@
 # Architecture Overview
 
-Estate Sentry is built with a modern, extensible architecture designed for scalability and flexibility.
+Estate Sentry is built with a modern, extensible, and decentralized architecture designed for scalability, redundancy, and intelligent threat analysis. The system can scale from a single home deployment to a large estate with multiple nodes providing full redundancy.
 
-## System Components
+## System Architecture Diagram
+
+```
++------------------------------------------------------------------+
+|                         ESTATE SENTRY                             |
+|                                                                   |
+|  +------------------+    +------------------+    +--------------+ |
+|  |   Zone Nodes     |    |   Switchboard    |    |   Sentry     | |
+|  |   (Distributed)  |<-->|   (Data Router)  |<-->|  (AI Intel)  | |
+|  +--------+---------+    +--------+---------+    +------+-------+ |
+|           |                       |                     |         |
+|  +--------v---------+    +--------v---------+    +------v-------+ |
+|  | Django REST API  |    |  NATS + MinIO    |    | MCP + Vector | |
+|  | PostgreSQL       |    |  (Messages/Media)|    | ChromaDB     | |
+|  | Neo4j            |    |                  |    | Neo4j        | |
+|  +------------------+    +------------------+    +--------------+ |
++------------------------------------------------------------------+
+         |                         |                      |
++--------v--------+     +----------v----------+    +------v-------+
+|  HQ Dashboard   |     |  Sensors/Devices    |    |  Claude/AI   |
+|  (Next.js)      |     |  (MQTT/REST/etc)    |    |  (Analysis)  |
++-----------------+     +---------------------+    +--------------+
+```
+
+## Core Components
 
 ### 1. Django REST API Backend (`estate-sentry-api`)
 
 The backend is built with Django and Django REST Framework, following a modular app-based architecture.
 
 **Key Features:**
-- Token-based authentication
+- Token-based authentication with multiple methods
 - RESTful API design
-- Extensible sensor handler framework
+- Extensible sensor handler framework with auto-discovery
 - Real-time threat detection
-- Time-series data storage
+- Time-series data storage with TimescaleDB
+- Multi-node synchronization
 
 **Django Apps:**
 
-- **authentication** - User management with multiple auth methods
-- **sensors** - Sensor registration, data ingestion, handler framework
+- **authentication** - User management with multiple auth methods (password, PIN, device certificates)
+- **sensors** - Sensor registration, data ingestion, handler framework with plugin support
 - **alerts** - Threat detection, alert generation, notification system
+- **nodes** - Multi-node coordination, discovery, and synchronization
+- **audit** - Security audit logging
 
 ### 2. Next.js Frontend (`estate-sentry-hq`)
 
 The frontend is a modern React application built with Next.js.
 
 **Key Features:**
-- Real-time dashboard
-- Sensor monitoring
-- Alert management
+- Real-time dashboard with WebSocket streaming
+- Sensor monitoring and management
+- Alert management and acknowledgment
+- Node status monitoring (multi-node)
+- Case report viewing
 - Dark mode support
 - Responsive design
 
 **Technologies:**
-- Next.js 14
+- Next.js 15
 - React 18
 - TypeScript
 - Tailwind CSS
 - SWR for data fetching
 
+### 3. Switchboard (Data Router)
+
+The Switchboard is the central data routing backbone for all sensor data.
+
+**Key Features:**
+- NATS JetStream for message routing
+- MinIO for media/frame storage
+- Edge agents for embedded cameras
+- Multi-node federation
+- High-bandwidth video stream handling
+
+**See:** [Switchboard Architecture](switchboard.md)
+
+### 4. Sentry Intelligence
+
+The Sentry Intelligence system provides AI-powered threat analysis.
+
+**Key Features:**
+- MCP server for Claude integration
+- ChromaDB vector store for pattern matching
+- Neo4j for behavioral analysis
+- Threat scoring algorithms
+- Automated case report generation
+
+**See:** [Sentry Intelligence Architecture](sentry-intelligence.md)
+
+## Decentralization
+
+Estate Sentry supports deployment across multiple nodes for redundancy and scalability.
+
+### Node Topology
+
+```
++-------------------+     +-------------------+     +-------------------+
+|   Zone: Main      |     |   Zone: Guest     |     |   Federation Hub  |
+|   Primary Node    |<--->|   Primary Node    |<--->|   (Optional)      |
+|   + Secondaries   |     |                   |     |   Sentry Intel    |
++-------------------+     +-------------------+     +-------------------+
+```
+
+**Features:**
+- Automatic node discovery via mDNS
+- Manual registration for WAN nodes
+- gRPC with mTLS for inter-node communication
+- Event sourcing for synchronization
+- Automatic failover and leader election
+
+**See:** [Decentralization Architecture](decentralization.md)
+
 ## Database Architecture
 
-Estate Sentry uses a dual-database approach:
+Estate Sentry uses a multi-database approach optimized for different workloads:
 
 ### PostgreSQL (Primary Database)
 
 Stores relational data:
 - User accounts
 - Sensor configurations
-- Sensor readings (time-series)
+- Sensor readings (time-series via TimescaleDB)
 - Security alerts
+- Audit logs
+- Node registry
 
 **Deployment Options:**
 - SQLite for local development
-- PostgreSQL for Docker/production
+- PostgreSQL with TimescaleDB for production
 
 ### Neo4j (Graph Database)
 
-Stores relationship data:
-- Sensor networks
-- Threat patterns
-- Behavioral analysis
-- Relationship intelligence
+Stores relationship data for threat intelligence:
+- Sensor networks and spatial relationships
+- Threat patterns and correlations
+- Behavioral analysis graphs
+- Alert relationship mapping
 
 **Features:**
 - APOC plugins
-- Graph Data Science
-- Real-time synchronization to `./data/neo4j/`
+- Graph Data Science algorithms
+- Pattern detection queries
+- Real-time synchronization from PostgreSQL
 
-## Sensor Handler Framework
+### ChromaDB (Vector Database)
 
-Each sensor type has a dedicated handler that implements three core methods:
+Stores embeddings for AI analysis:
+- Alert embeddings for similarity search
+- Known threat pattern vectors
+- Historical incident embeddings
+
+**See:** [Database Architecture](database.md)
+
+## Device Abstraction Layer
+
+Estate Sentry uses a plugin-based device abstraction layer that supports sensors, actuators, and controllers.
+
+### Device Types
+
+| Type | Direction | Examples |
+|------|-----------|----------|
+| Sensor | Read-only | Cameras, contacts, motion, environmental |
+| Actuator | Write/Control | Lights, locks, sirens |
+| Controller | Bidirectional | PLCs, hubs, gateways |
+
+### Handler Framework
+
+Each device type has a dedicated handler with auto-discovery:
 
 ```python
 class BaseSensorHandler:
+    SENSOR_TYPES = ['MY_SENSOR']  # Auto-registration
+    PROTOCOLS = ['mqtt', 'rest']  # Supported protocols
+
     def validate_reading(self, data):
         """Validate incoming sensor data"""
         pass
 
-    def process_reading(self, sensor, data):
+    def process_reading(self, data):
         """Process data into standard format"""
         pass
 
     def detect_threats(self, reading):
         """Analyze for threats and generate alerts"""
         pass
+
+    @classmethod
+    def get_reading_schema(cls):
+        """JSON Schema for automatic validation"""
+        pass
 ```
 
 **Built-in Handlers:**
-- `CameraHandler` - Camera systems (placeholder for ML)
+- `CameraHandler` - Camera systems with Switchboard integration
 - `ContactHandler` - Door/window sensors
 - `GlassBreakHandler` - Glass break detection
 - `MotionHandler` - Motion detection
-- `EnvironmentalHandler` - Smoke, CO, water leak
+- `EnvironmentalHandler` - Smoke, CO, water leak, temperature
 
-**Extensibility:**
-New sensor types can be added by creating new handler classes.
+### Protocol Adapters
+
+Communication protocol abstraction:
+- MQTT - IoT sensors, home automation
+- REST - IP cameras, web services
+- Modbus - PLCs, industrial devices
+- WebSocket - Real-time streams
+- Zigbee/Z-Wave - Consumer sensors
+
+**See:** [Device Abstraction](device-abstraction.md) | [Plugin Development Guide](../guides/plugin-development.md)
 
 ## Authentication System
 
@@ -194,34 +312,57 @@ estate-sentry-source/
 └── .env.example                # Environment template
 ```
 
-## Security Considerations
+## Security Architecture
 
-- Token-based authentication
-- CORS configuration
-- Environment variable secrets
-- SQL injection prevention (Django ORM)
-- XSS prevention (React)
-- Input validation (handlers)
-- HTTPS in production (planned)
+Estate Sentry implements defense-in-depth security:
+
+**Authentication:**
+- Token-based API authentication
+- PIN authentication (hashed)
+- Device certificate binding
+- Multi-factor support
+
+**Authorization:**
+- Ownership-based access control
+- Role-based permissions (future)
+
+**Data Protection:**
+- mTLS for inter-node communication
+- Encryption at rest (configurable)
+- JSON Schema input validation
+- Rate limiting
+
+**Audit:**
+- Comprehensive audit logging
+- 7-year retention (compliance)
+
+**See:** [Security Architecture](security.md)
 
 ## Scalability
 
-The architecture supports future scaling:
+The architecture supports scaling from single home to large estate:
 
-- **Horizontal scaling** - Multiple API instances
-- **Database replication** - PostgreSQL/Neo4j clusters
-- **Caching layer** - Redis (planned)
-- **Message queue** - Celery for async tasks (planned)
-- **WebSockets** - Django Channels (planned)
+- **Multi-node deployment** - Distributed across zones
+- **Automatic failover** - Leader election, data replication
+- **Message queue** - NATS JetStream for async processing
+- **Time-series optimization** - TimescaleDB for sensor data
+- **Media handling** - MinIO for distributed storage
 
-## Future Enhancements
+## Roadmap
 
-- **Single-shot recognition** - ML integration for cameras
-- **Real-time streaming** - WebSockets via Django Channels
-- **Advanced analytics** - Neo4j graph analysis
-- **Notification system** - Email, SMS, push notifications
-- **Mobile apps** - iOS and Android applications
-- **Cloud deployment** - Kubernetes, AWS/GCP/Azure
+See [Development Roadmap](../Todo.md) for the complete implementation plan.
+
+**Current Focus:**
+- Security hardening
+- Handler registry implementation
+- Switchboard foundation
+- Node architecture
+
+**Future:**
+- Single-shot recognition for cameras
+- Mobile applications
+- Cloud deployment options
+- Advanced ML threat detection
 
 ## Development Philosophy
 
@@ -232,8 +373,22 @@ The architecture supports future scaling:
 5. **Simplicity** - Clean, maintainable code
 6. **Open source** - Transparent, community-driven
 
-## Resources
+## Related Documentation
 
-- [Database Documentation](database.md)
+**Architecture:**
+- [Database Architecture](database.md)
+- [Decentralization](decentralization.md)
+- [Switchboard](switchboard.md)
+- [Security](security.md)
+- [Device Abstraction](device-abstraction.md)
+- [Sentry Intelligence](sentry-intelligence.md)
+
+**Guides:**
 - [API Usage Guide](../guides/api-usage.md)
+- [Plugin Development](../guides/plugin-development.md)
+- [Node Deployment](../guides/node-deployment.md)
+- [MCP Integration](../guides/mcp-integration.md)
+
+**Operations:**
+- [Monitoring](../operations/monitoring.md)
 - [Development Guide](../contributing/development.md)
