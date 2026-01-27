@@ -1,196 +1,66 @@
 # Estate Sentry
 
-## Open-Source Home Threat Intelligence System
+**Open-source automated intelligence for personal and public safety.**
 
-Why wouldn't you want the world to be safer? Yet, commercial home security systems still gouge us with costs for things we didn't even ask for. Let's change that.
+Estate Sentry is a prototype threat intelligence platform that amplifies personal and public safety through automated sensor monitoring, zone-based perception, and AI-powered threat analysis. It is designed to be transparent, extensible, and self-hosted.
 
-**Estate Sentry** is an intuitive, intelligent, and best of all, **transparent** open-source home security and threat intelligence system. Built on the principle that everyone deserves affordable, customizable home security.
+> **This is a demonstrational prototype** under active development. It is not licensed for public intelligence gathering.
 
-## What is Estate Sentry?
+## How it works
 
-Estate Sentry is a comprehensive, decentralized threat detection and analysis platform designed to scale from a single home to large estates with full redundancy.
+Cameras and sensors feed into a layered perception pipeline that detects objects, identifies people, recognizes actions, and correlates events across zones. Threat scores are computed in real time and high-severity events are analyzed by an LLM for natural-language reasoning.
 
-### Supported Devices
+```
+Cameras & Sensors --> Switchboard (NATS) --> Perception Pipeline --> Threat Assessment
+                                                  |                        |
+                                            Zone Events              AI Analysis
+                                            Identity Store           Alert System
+                                                  |                        |
+                                                  +-----> HQ Dashboard <---+
+```
 
-**Sensors (Read-only):**
-- Camera Systems - Video surveillance with AI-powered analysis
-- Door & Window Contacts - Intrusion detection for entry points
-- Glass Break Sensors - Detect forced entry attempts
-- Motion Detectors - Monitor movement in protected areas
-- Environmental Sensors - Smoke, CO, water leak, temperature
+## Stack
 
-**Actuators (Control):**
-- Lighting Systems - Visible, infrared, security lighting
-- Smart Locks - Entry point control
-- Sirens/Alarms - Alert systems
-
-**Controllers (Bidirectional):**
-- PLCs - Industrial and custom automation
-- Hubs/Gateways - Protocol bridges
-- Custom Devices - Extensible framework for any device type
-
-### Key Features
-
-- **Decentralized Architecture** - Deploy across multiple nodes for redundancy
-- **AI-Powered Intelligence** - MCP integration with Claude for threat analysis
-- **Plugin System** - Easy extension for new device types
-- **Protocol Flexibility** - MQTT, REST, Modbus, Zigbee, and more
-- **Real-time Processing** - Immediate threat detection and alerts
-- **Case Reports** - Automated security investigation reports
+| Layer | Technology |
+|-------|-----------|
+| API | Django 5 + Django REST Framework |
+| Dashboard | Next.js 15 + React 18 + Tailwind |
+| Message Bus | NATS 2.10 (JetStream) |
+| Relational DB | PostgreSQL (TimescaleDB) |
+| Graph DB | Neo4j 5 |
+| Vector DB | ChromaDB |
+| Object Storage | MinIO |
+| AI Analysis | Claude via MCP |
+| Tooling | uv (Python), bun (TypeScript), Task runner |
 
 ## Quick Start
 
-### Using Task (Recommended)
-
 ```bash
-# Complete setup
+git clone https://github.com/QR-Madness/estate-sentry.git
+cd estate-sentry
 task setup
-
-# Start both servers
-task dev
-
-# Create admin user
 task api:superuser
+task dev
 ```
 
-### Using Docker (Production)
+API at `localhost:8000` &middot; Dashboard at `localhost:3000`
 
-```bash
-# Setup and start services
-cp .env.example .env
-task docker:build
-task docker:up
-task db:migrate:docker
-```
-
-Your services will be available at:
-- **API**: http://localhost:8000
-- **Dashboard**: http://localhost:3000
-- **Neo4j Browser**: http://localhost:7474
+For Docker deployment: `task docker:up` (starts PostgreSQL, Neo4j, NATS, MinIO, ChromaDB, API, and HQ).
 
 ## Documentation
 
-### View Documentation
+Full documentation is published at **[QR-Madness.github.io/estate-sentry](https://QR-Madness.github.io/estate-sentry)** or serve locally with `task docs:serve`.
 
-```bash
-# Install mkdocs (one-time setup)
-pip install mkdocs mkdocs-material pymdown-extensions
+Key docs:
 
-# Serve documentation locally
-mkdocs serve
-```
-
-Open **http://localhost:8001** to access the complete documentation:
-
-**Getting Started:**
-- Installation guides (Docker, Task, Manual)
-- Quick start tutorials
-- Docker setup
-
-**Architecture:**
-- [System Overview](docs/architecture/overview.md)
-- [Decentralization](docs/architecture/decentralization.md)
-- [Switchboard](docs/architecture/switchboard.md)
-- [Security](docs/architecture/security.md)
-- [Sentry Intelligence](docs/architecture/sentry-intelligence.md)
-
-**Guides:**
-- [API Usage](docs/guides/api-usage.md)
-- [Plugin Development](docs/guides/plugin-development.md)
-- [Node Deployment](docs/guides/node-deployment.md)
-- [MCP Integration](docs/guides/mcp-integration.md)
-
-**Operations:**
-- [Monitoring](docs/operations/monitoring.md)
-
-### For Developers
-
-See [CLAUDE.md](CLAUDE.md) for detailed development guidelines.
-
-## Available Commands
-
-Run `task --list` to see all available commands:
-
-```bash
-task setup              # Complete project setup
-task dev                # Start both API and HQ servers
-task api:dev            # Start API server only
-task hq:dev             # Start HQ server only
-task test               # Run all tests
-task docker:build       # Build Docker images
-task docker:up          # Start Docker services
-```
-
-## Architecture
-
-```
-+------------------------------------------------------------------+
-|                         ESTATE SENTRY                             |
-|  +------------------+    +------------------+    +--------------+ |
-|  |   Zone Nodes     |    |   Switchboard    |    |   Sentry     | |
-|  |   (Distributed)  |<-->|   (Data Router)  |<-->|  (AI Intel)  | |
-|  +------------------+    +------------------+    +--------------+ |
-+------------------------------------------------------------------+
-         |                         |                      |
-+--------v--------+     +----------v----------+    +------v-------+
-|  HQ Dashboard   |     |  Sensors/Devices    |    |  Claude/AI   |
-|  (Next.js)      |     |  (MQTT/REST/etc)    |    |  (Analysis)  |
-+-----------------+     +---------------------+    +--------------+
-```
-
-### Core Components
-
-| Component | Description |
-|-----------|-------------|
-| **Estate Sentry API** | Django REST backend for data and authentication |
-| **Estate Sentry HQ** | Next.js dashboard for monitoring and control |
-| **Switchboard** | NATS + MinIO data routing backbone |
-| **Sentry Intelligence** | AI-powered threat analysis with MCP |
-| **Zone Nodes** | Distributed compute units with auto-failover |
-
-### Databases
-
-| Database | Purpose |
-|----------|---------|
-| **PostgreSQL + TimescaleDB** | Relational data and time-series readings |
-| **Neo4j** | Graph relationships for threat intelligence |
-| **ChromaDB** | Vector embeddings for AI pattern matching |
-| **MinIO** | Object storage for media files |
-
-## Project Status
-
-Estate Sentry is in active architectural development, building the foundation for a production-ready system.
-
-**Completed:**
-- ✅ Core sensor framework and API
-- ✅ Real-time sensor data processing
-- ✅ Docker support with PostgreSQL and Neo4j
-- ✅ Comprehensive architecture documentation
-- ✅ Plugin-based handler system design
-
-**In Progress:**
-- 🚧 Security hardening (PIN hashing, rate limiting)
-- 🚧 Handler registry with auto-discovery
-- 🚧 Switchboard data routing
-
-**Planned:**
-- 📋 Multi-node decentralization
-- 📋 Sentry Intelligence with MCP
-- 📋 Camera AI analysis
-- 📋 Mobile applications
-
-See the [Development Roadmap](docs/Todo.md) for the complete implementation plan.
+- [Specification](https://QR-Madness.github.io/estate-sentry/Specification/) &mdash; Perception layers, zone model, identity pipeline, threat scoring
+- [Architecture](https://QR-Madness.github.io/estate-sentry/architecture/overview/) &mdash; System design and database roles
+- [Roadmap](https://QR-Madness.github.io/estate-sentry/Todo/) &mdash; Implementation plan and milestones
 
 ## Contributing
 
-We welcome contributors! Estate Sentry is an open-source project dedicated to making home security accessible to everyone.
-
-See the documentation's [Development Guide](docs/contributing/development.md) for detailed contribution guidelines.
+See the [Development Guide](https://QR-Madness.github.io/estate-sentry/contributing/development/) for tooling, testing, and contribution workflow.
 
 ## License
 
 See [LICENSE](LICENSE) for details.
-
-## Support
-
-For questions, issues, or feature requests, please open an issue on GitHub.
