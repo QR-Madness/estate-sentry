@@ -1,4 +1,5 @@
 from rest_framework import serializers
+
 from .models import Sensor, SensorReading
 
 
@@ -52,8 +53,8 @@ class SensorReadingCreateSerializer(serializers.Serializer):
             raise serializers.ValidationError("Sensor context is required")
 
         # Get the appropriate handler for this sensor type
-        from .handlers.contact import ContactHandler
         from .handlers.camera import CameraHandler
+        from .handlers.contact import ContactHandler
 
         handler_map = {
             'DOOR_CONTACT': ContactHandler,

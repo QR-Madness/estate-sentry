@@ -139,9 +139,9 @@ services:
     restart: unless-stopped
     environment:
       # Django
-      SECRET_KEY: ${SECRET_KEY:-change-this-in-production}
-      DEBUG: ${DEBUG:-False}
-      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1,api}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-change-this-in-production}
+      DJANGO_DEBUG: ${DJANGO_DEBUG:-False}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,api}
 
       # PostgreSQL
       DATABASE_ENGINE: postgresql
@@ -171,7 +171,7 @@ services:
       CHROMADB_PORT: 8000
 
       # CORS
-      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://hq:3000}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:8000}
     volumes:
       - ./estate-sentry-api:/app
       - api-staticfiles:/app/staticfiles
@@ -190,29 +190,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    networks:
-      - estate-sentry
-
-  hq:
-    build:
-      context: ./estate-sentry-hq
-      dockerfile: Dockerfile
-    container_name: estate-sentry-hq
-    restart: unless-stopped
-    environment:
-      NODE_ENV: ${NODE_ENV:-production}
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
-    ports:
-      - "${HQ_PORT:-3000}:3000"
-    depends_on:
-      api:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
     networks:
       - estate-sentry
 

@@ -1,6 +1,7 @@
 from django.test import TestCase
-from rest_framework.test import APIClient
 from rest_framework import status
+from rest_framework.test import APIClient
+
 from .models import User
 
 
@@ -54,7 +55,7 @@ class AuthenticationTestCase(TestCase):
     def test_login_with_password(self):
         """Test login with password authentication."""
         # Create a user
-        user = User.objects.create_user(
+        User.objects.create_user(
             username='logintest',
             password='testpass123',
             auth_method='password'
@@ -75,7 +76,7 @@ class AuthenticationTestCase(TestCase):
     def test_login_with_pin(self):
         """Test login with PIN authentication."""
         # Create a user with PIN
-        user = User.objects.create(
+        User.objects.create(
             username='pinlogin',
             auth_method='pin',
             pin='5678'

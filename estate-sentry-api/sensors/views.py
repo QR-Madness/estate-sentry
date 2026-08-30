@@ -1,12 +1,13 @@
-from rest_framework import viewsets, status
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 from .models import Sensor, SensorReading
 from .serializers import (
-    SensorSerializer,
+    SensorReadingCreateSerializer,
     SensorReadingSerializer,
-    SensorReadingCreateSerializer
+    SensorSerializer,
 )
 
 
@@ -60,9 +61,10 @@ class SensorViewSet(viewsets.ModelViewSet):
         """
         Process a sensor reading to detect threats and create alerts.
         """
-        from .handlers.contact import ContactHandler
-        from .handlers.camera import CameraHandler
         from alerts.models import Alert
+
+        from .handlers.camera import CameraHandler
+        from .handlers.contact import ContactHandler
 
         handler_map = {
             'DOOR_CONTACT': ContactHandler,

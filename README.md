@@ -24,14 +24,14 @@ Cameras & Sensors --> Switchboard (NATS) --> Perception Pipeline --> Threat Asse
 | Layer | Technology |
 |-------|-----------|
 | API | Django 5 + Django REST Framework |
-| Dashboard | Next.js 15 + React 18 + Tailwind |
+| Dashboard | Django templates + htmx (no build step) |
 | Message Bus | NATS 2.10 (JetStream) |
 | Relational DB | PostgreSQL (TimescaleDB) |
 | Graph DB | Neo4j 5 |
 | Vector DB | ChromaDB |
 | Object Storage | MinIO |
 | AI Analysis | Claude via MCP |
-| Tooling | uv (Python), bun (TypeScript), Task runner |
+| Tooling | uv (Python), Task runner |
 
 ## Quick Start
 
@@ -43,9 +43,9 @@ task api:superuser
 task dev
 ```
 
-API at `localhost:8000` &middot; Dashboard at `localhost:3000`
+API and dashboard at `localhost:8000`
 
-For Docker deployment: `task docker:up` (starts PostgreSQL, Neo4j, NATS, MinIO, ChromaDB, API, and HQ).
+For Docker deployment: `task docker:up` (starts PostgreSQL, Neo4j, NATS, MinIO, ChromaDB and the API).
 
 ## Documentation
 

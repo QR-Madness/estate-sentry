@@ -1,5 +1,6 @@
-from rest_framework import serializers
 from django.contrib.auth import authenticate
+from rest_framework import serializers
+
 from .models import User
 
 
@@ -77,7 +78,12 @@ class LoginSerializer(serializers.Serializer):
         try:
             user = User.objects.get(username=username)
         except User.DoesNotExist:
-            raise serializers.ValidationError({"username": "Invalid credentials"})
+            # `from None` is deliberate: the same "Invalid credentials" message is
+            # returned whether or not the username exists, so the response cannot
+            # be used to enumerate accounts.
+            raise serializers.ValidationError(
+                {"username": "Invalid credentials"}
+            ) from None
 
         # Validate based on auth method
         if user.auth_method == 'username':

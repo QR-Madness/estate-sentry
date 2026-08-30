@@ -1,10 +1,11 @@
-from rest_framework import viewsets, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from django.db.models import Count
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 from .models import Alert
-from .serializers import AlertSerializer, AlertAcknowledgeSerializer
+from .serializers import AlertAcknowledgeSerializer, AlertSerializer
 
 
 class AlertViewSet(viewsets.ReadOnlyModelViewSet):
