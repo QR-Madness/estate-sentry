@@ -2,6 +2,7 @@ version: '3'
 
 vars:
   API_DIR: estate-sentry-api
+  PERCEPTION_DIR: estate-sentry-perception
   DATA_DIR: data
   # Cross-platform Python binary detection
   PYTHON: '{{if eq OS "windows"}}python{{else}}python3{{end}}'
@@ -40,6 +41,7 @@ tasks:
     desc: Install all dependencies
     cmds:
       - task: api:install
+      - task: perception:install
 
   clean:
     desc: Remove build artifacts and caches
@@ -171,18 +173,97 @@ tasks:
       - echo "Database reset complete"
 
   # ============================================================================
+  # Perception Tasks (L1-L3 pipeline)
+  # ============================================================================
+  perception:install:
+    desc: Install perception dependencies
+    dir: '{{.PERCEPTION_DIR}}'
+    env:
+      UV_PROJECT_ENVIRONMENT: '{{.ROOT_DIR}}/{{.PERCEPTION_DIR}}/.venv'
+    cmds:
+      - uv sync
+
+  perception:install:detect:
+    desc: Install perception with object detection (downloads torch, several GB)
+    dir: '{{.PERCEPTION_DIR}}'
+    env:
+      UV_PROJECT_ENVIRONMENT: '{{.ROOT_DIR}}/{{.PERCEPTION_DIR}}/.venv'
+    cmds:
+      - uv sync --extra detect
+
+  perception:dev:
+    desc: Run the perception service (motion gate only)
+    dir: '{{.PERCEPTION_DIR}}'
+    env:
+      UV_PROJECT_ENVIRONMENT: '{{.ROOT_DIR}}/{{.PERCEPTION_DIR}}/.venv'
+    cmds:
+      - uv run python -m perception {{.CLI_ARGS}}
+
+  perception:dev:detect:
+    desc: Run the perception service with L2 object detection
+    dir: '{{.PERCEPTION_DIR}}'
+    env:
+      UV_PROJECT_ENVIRONMENT: '{{.ROOT_DIR}}/{{.PERCEPTION_DIR}}/.venv'
+    deps: [perception:install:detect]
+    cmds:
+      - uv run python -m perception --detect {{.CLI_ARGS}}
+
+  perception:test:
+    desc: Run perception tests (no infrastructure required)
+    dir: '{{.PERCEPTION_DIR}}'
+    env:
+      UV_PROJECT_ENVIRONMENT: '{{.ROOT_DIR}}/{{.PERCEPTION_DIR}}/.venv'
+    cmds:
+      - uv run pytest
+
+  perception:lint:
+    desc: Lint perception code with ruff
+    dir: '{{.PERCEPTION_DIR}}'
+    env:
+      UV_PROJECT_ENVIRONMENT: '{{.ROOT_DIR}}/{{.PERCEPTION_DIR}}/.venv'
+    cmds:
+      - uv run ruff check .
+
+  perception:lint:fix:
+    desc: Fix perception lint errors with ruff
+    dir: '{{.PERCEPTION_DIR}}'
+    env:
+      UV_PROJECT_ENVIRONMENT: '{{.ROOT_DIR}}/{{.PERCEPTION_DIR}}/.venv'
+    cmds:
+      - uv run ruff check --fix .
+
+  # ============================================================================
+  # Switchboard (transport only — what the perception pipeline needs)
+  # ============================================================================
+  switchboard:up:
+    desc: Start just NATS and MinIO
+    cmds:
+      - task: setup:dirs
+      - docker compose up -d nats minio
+      - echo "NATS  - http://localhost:8222 (monitoring)"
+      - echo "MinIO - http://localhost:9001 (console)"
+
+  switchboard:down:
+    desc: Stop NATS and MinIO
+    cmds:
+      - docker compose stop nats minio
+
+  # ============================================================================
   # Testing
   # ============================================================================
   test:
     desc: Run all tests
     cmds:
       - task: api:test
+      - task: perception:test
 
   check:
     desc: Run all checks (lint, test, system checks)
     cmds:
       - task: api:check
       - task: api:lint
+      - task: perception:lint
+      - task: perception:test
       - echo "All checks passed"
 
   format:

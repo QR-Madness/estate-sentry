@@ -1,0 +1,66 @@
+[project]
+name = "estate-sentry-perception"
+version = "0.1.0"
+description = "Estate Sentry - perception pipeline for camera frames"
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+license = { text = "MIT" }
+authors = [
+    { name = "Estate Sentry Contributors" }
+]
+
+# Deliberately light. The transport clients are small; anything that pulls a
+# multi-gigabyte tensor stack lives in the `detect` extra below, so the service
+# can be installed, imported and tested without it.
+dependencies = [
+    "nats-py>=2.7.0",
+    "minio>=7.2.0",
+    # Core, not optional: the L1 motion gate does frame arithmetic and every
+    # frame must be decoded before it, so both always run. Small next to the ML
+    # stack in the `detect` extra. opencv-python-headless bundles its own FFmpeg,
+    # so no system ffmpeg install is needed.
+    "numpy>=1.26.0",
+    "opencv-python-headless>=4.10.0",
+]
+
+[project.optional-dependencies]
+# Object detection. RT-DETRv2 is Apache-2.0; ultralytics/YOLOv8 is AGPL-3.0 and
+# would conflict with this project's MIT licence. Kept optional because torch is
+# multiple gigabytes and nothing outside L2 needs it.
+detect = [
+    "transformers>=4.45.0",
+    "torch>=2.4.0",
+    "pillow>=10.4.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.0,<9.0.0",
+    "pytest-asyncio>=0.24.0",
+    "ruff>=0.3.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["perception"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = ["-ra", "-q", "--strict-markers"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = [
+    "E501",  # line length is the formatter's job
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["perception"]

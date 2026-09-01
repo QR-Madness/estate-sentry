@@ -1,0 +1,236 @@
+"""The perception service: subscribe, fetch, gate, detect, report.
+
+Wires the pieces together and owns the runtime concerns that only appear once
+something is actually running — back-pressure, dead air, and failures in one
+camera not taking down the others.
+
+Layer coverage is L1 (motion gate) and L2 (object detection). L3 zone
+intersection needs the `zones` app, which does not exist yet; `DetectionEvent`
+carries the fields it will need so adding it does not change this contract.
+"""
+
+from __future__ import annotations
+
+import asyncio
+import contextlib
+import json
+import logging
+from dataclasses import asdict, dataclass, field
+from datetime import UTC, datetime
+
+import cv2
+import numpy as np
+
+from .constants import (
+    WATCHDOG_REPEAT_SECONDS,
+    WATCHDOG_SILENCE_SECONDS,
+)
+from .pipeline.detect import Detection, Detector, StubDetector
+from .pipeline.motion import MotionGate
+from .ring import FrameRing
+from .transport.protocols import (
+    ALL_FRAMES_SUBJECT,
+    EventBus,
+    FrameRef,
+    FrameStore,
+)
+
+logger = logging.getLogger(__name__)
+
+DETECTIONS_SUBJECT = "detections.{camera_id}"
+STATUS_SUBJECT = "perception.status"
+
+
+@dataclass(slots=True)
+class DetectionEvent:
+    """What the pipeline emits for one processed frame."""
+
+    camera_id: str
+    frame_path: str
+    captured_at: datetime
+    motion: bool
+    motion_reason: str
+    detections: list[Detection] = field(default_factory=list)
+
+    def to_json(self) -> bytes:
+        payload = asdict(self)
+        payload["captured_at"] = self.captured_at.isoformat()
+        return json.dumps(payload).encode()
+
+
+@dataclass(slots=True)
+class Stats:
+    """Counters, so 'is it working' has an answer that is not a log grep."""
+
+    frames_seen: int = 0
+    gated_out: int = 0
+    detections: int = 0
+    errors: int = 0
+
+    def as_dict(self) -> dict[str, int]:
+        return asdict(self)
+
+
+def decode_jpeg_gray(data: bytes) -> np.ndarray:
+    """Decode to grayscale — the only form the motion gate needs.
+
+    Decoding straight to grayscale rather than colour-then-convert is roughly a
+    third less work per frame, and at the gate stage colour is never consulted.
+    """
+    array = np.frombuffer(data, dtype=np.uint8)
+    frame = cv2.imdecode(array, cv2.IMREAD_GRAYSCALE)
+    if frame is None:
+        raise ValueError("could not decode frame as JPEG")
+    return frame
+
+
+def decode_jpeg_colour(data: bytes) -> np.ndarray:
+    """Decode to RGB, which is what the detector expects."""
+    array = np.frombuffer(data, dtype=np.uint8)
+    frame = cv2.imdecode(array, cv2.IMREAD_COLOR)
+    if frame is None:
+        raise ValueError("could not decode frame as JPEG")
+    return cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+
+class PerceptionService:
+    def __init__(
+        self,
+        store: FrameStore,
+        bus: EventBus,
+        *,
+        detector: Detector | None = None,
+        gate: MotionGate | None = None,
+        ring: FrameRing[DetectionEvent] | None = None,
+    ) -> None:
+        self.store = store
+        self.bus = bus
+        # A stub by default: the service must be constructible, importable and
+        # runnable without the multi-gigabyte `detect` extra installed.
+        self.detector = detector or StubDetector()
+        self.gate = gate or MotionGate()
+        self.ring: FrameRing[DetectionEvent] = ring or FrameRing()
+        self.stats = Stats()
+
+    # -- frame handling -------------------------------------------------------
+
+    async def handle_frame(self, ref: FrameRef) -> DetectionEvent | None:
+        """Process one frame reference. Returns None if the gate rejected it."""
+        self.stats.frames_seen += 1
+        data = await self.store.get(ref.path)
+
+        # Decode and inference are CPU-bound; on the event loop they would block
+        # every other camera and the watchdog behind them.
+        gray = await asyncio.to_thread(decode_jpeg_gray, data)
+        motion = self.gate.evaluate(
+            ref.camera_id, gray, producer_hint=ref.motion_detected
+        )
+
+        if not motion.motion:
+            self.stats.gated_out += 1
+            logger.debug(
+                "%s: gated out (%s, changed=%.4f)",
+                ref.camera_id,
+                motion.reason,
+                motion.changed_fraction,
+            )
+            return None
+
+        colour = await asyncio.to_thread(decode_jpeg_colour, data)
+        detections = await asyncio.to_thread(self.detector.detect, colour)
+        self.stats.detections += len(detections)
+
+        event = DetectionEvent(
+            camera_id=ref.camera_id,
+            frame_path=ref.path,
+            captured_at=ref.captured_at,
+            motion=True,
+            motion_reason=motion.reason,
+            detections=detections,
+        )
+
+        self.ring.publish(event)
+        await self.bus.publish(
+            DETECTIONS_SUBJECT.format(camera_id=ref.camera_id), event.to_json()
+        )
+
+        if detections:
+            logger.info(
+                "%s: %s",
+                ref.camera_id,
+                ", ".join(
+                    f"{d.label}({d.category}) {d.confidence:.2f}" for d in detections
+                ),
+            )
+        return event
+
+    # -- run loop -------------------------------------------------------------
+
+    async def run(self, *, stop: asyncio.Event | None = None) -> None:
+        stop = stop or asyncio.Event()
+        watchdog = asyncio.create_task(self._watchdog(stop))
+        try:
+            with self.bus.subscribe(ALL_FRAMES_SUBJECT) as stream:
+                logger.info("subscribed to %s", ALL_FRAMES_SUBJECT)
+                consumer = asyncio.create_task(self._consume(stream))
+                stopper = asyncio.create_task(stop.wait())
+                await asyncio.wait(
+                    {consumer, stopper}, return_when=asyncio.FIRST_COMPLETED
+                )
+                for task in (consumer, stopper):
+                    task.cancel()
+                with contextlib.suppress(asyncio.CancelledError):
+                    await consumer
+        finally:
+            watchdog.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await watchdog
+            logger.info("stopped: %s", self.stats.as_dict())
+
+    async def _consume(self, stream) -> None:
+        async for payload in stream:
+            try:
+                ref = FrameRef.from_json(payload)
+            except (ValueError, KeyError, TypeError):
+                # A malformed message must not kill the subscription — that would
+                # turn one bad publisher into a total outage.
+                self.stats.errors += 1
+                logger.warning("discarding unparseable frame notification", exc_info=True)
+                continue
+
+            try:
+                await self.handle_frame(ref)
+            except Exception:
+                self.stats.errors += 1
+                logger.exception("failed to process frame %s", ref.path)
+
+    async def _watchdog(self, stop: asyncio.Event) -> None:
+        """Announce dead air.
+
+        Without this, a stalled capture loop is indistinguishable from a quiet
+        driveway: both produce no output at all. Reporting silence explicitly is
+        what makes the difference visible.
+        """
+        announced_at: float | None = None
+        while not stop.is_set():
+            await asyncio.sleep(1.0)
+            silence = self.ring.seconds_since_last_publish
+            if silence is None or silence < WATCHDOG_SILENCE_SECONDS:
+                announced_at = None
+                continue
+            if announced_at is not None and silence - announced_at < WATCHDOG_REPEAT_SECONDS:
+                continue
+            announced_at = silence
+            logger.warning("no frames for %.0fs", silence)
+            with contextlib.suppress(Exception):
+                await self.bus.publish(
+                    STATUS_SUBJECT,
+                    json.dumps(
+                        {
+                            "event": "silence",
+                            "seconds": round(silence, 1),
+                            "at": datetime.now(UTC).isoformat(),
+                            "stats": self.stats.as_dict(),
+                        }
+                    ).encode(),
+                )
