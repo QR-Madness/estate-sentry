@@ -30,6 +30,10 @@ dependencies = [
 detect = [
     "transformers>=4.45.0",
     "torch>=2.4.0",
+    # The image processor's default backend. Without it transformers falls back
+    # to a PIL implementation that does the same work more slowly, per-image
+    # rather than on tensors — which matters when it runs on every gated frame.
+    "torchvision>=0.19.0",
     "pillow>=10.4.0",
 ]
 
