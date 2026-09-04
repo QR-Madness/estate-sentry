@@ -1,6 +1,6 @@
 # Sentry Intelligence Specification
 
-This document defines the perception and analysis architecture for Estate Sentry's intelligence layer, and specifies how it integrates with the existing stack: Django REST API, Switchboard (NATS + MinIO), PostgreSQL/TimescaleDB, Neo4j, ChromaDB, and the Next.js HQ dashboard.
+This document defines the perception and analysis architecture for Estate Sentry's intelligence layer, and specifies how it integrates with the existing stack: Django REST API, Switchboard (NATS + MinIO), PostgreSQL/TimescaleDB, Neo4j, ChromaDB, and the HQ dashboard.
 
 ---
 
@@ -42,7 +42,7 @@ The perception pipeline is a new service (`estate-sentry-perception`) that sits 
          |                                                  |
 +--------v---------+                              +---------v--------+
 |  estate-sentry-  |                              |  Claude / LLM    |
-|  hq (Next.js)    |                              |  (Analysis)      |
+|  hq (Django)     |                              |  (Analysis)      |
 +------------------+                              +------------------+
 ```
 
@@ -51,7 +51,7 @@ The perception pipeline is a new service (`estate-sentry-perception`) that sits 
 | Service | Technology | Role in Intelligence |
 |---------|-----------|----------------------|
 | `estate-sentry-api` | Django 5 + DRF | Zone CRUD, identity profiles, alerts, review queue API |
-| `estate-sentry-hq` | Next.js 15 + React 18 | Zone editor, identity review UI, perception dashboard |
+| `estate-sentry-api/hq` | Django templates + htmx | Zone editor, identity review UI, perception dashboard |
 | `estate-sentry-perception` | Python (async) | L1-L7 perception pipeline, frame processing |
 | Switchboard (NATS) | NATS 2.10 JetStream | Frame notifications, detection events, alert routing |
 | Switchboard (MinIO) | MinIO | Frame storage, evidence snapshots |
@@ -771,7 +771,7 @@ The existing `sensors`, `alerts`, and `authentication` endpoints remain unchange
 
 ---
 
-## Frontend Integration (estate-sentry-hq)
+## Frontend Integration (estate-sentry-api/hq)
 
 ### New Pages
 

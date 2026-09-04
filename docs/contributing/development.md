@@ -33,7 +33,7 @@ task dev
 ```
 estate-sentry-source/
 ├── estate-sentry-api/      # Django backend
-├── estate-sentry-hq/       # Next.js frontend
+├── estate-sentry-perception/  # L1-L3 perception pipeline
 ├── data/                   # Database volumes
 ├── docs/                   # Documentation (mkdocs)
 ├── Taskfile.yaml          # Task automation
@@ -64,7 +64,7 @@ task check             # Run linting
 
 2. **Make your changes**
    - Backend: `estate-sentry-api/`
-   - Frontend: `estate-sentry-hq/`
+   - Dashboard: `estate-sentry-api/hq/`
    - Docs: `docs/`
 
 3. **Run tests**
@@ -225,8 +225,8 @@ class YourViewSet(viewsets.ModelViewSet):
 ### Component Structure
 
 ```
-estate-sentry-hq/
-├── pages/              # Next.js pages
+estate-sentry-api/hq/
+├── templates/hq/       # Server-rendered pages and SSE fragments
 ├── components/         # React components
 ├── contexts/           # React contexts
 ├── lib/               # Utilities
@@ -572,6 +572,6 @@ const filteredSensors = useMemo(
 
 - [Django Documentation](https://docs.djangoproject.com/)
 - [DRF Documentation](https://www.django-rest-framework.org/)
-- [Next.js Documentation](https://nextjs.org/docs)
+- [htmx Documentation](https://htmx.org/docs/)
 - [React Documentation](https://react.dev/)
 - [Task Documentation](https://taskfile.dev/)

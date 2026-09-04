@@ -33,7 +33,7 @@ task install            # Install all dependencies
 ```bash
 task dev                # Start both API and HQ servers
 task api:dev            # Start Django API server (port 8000)
-task hq:dev             # Start Next.js HQ server (port 3000)
+task hq:dev             # Serve API + HQ dashboard under ASGI (port 8000)
 ```
 
 ## API Tasks

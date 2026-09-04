@@ -9,10 +9,12 @@ Estate Sentry is a prototype open-source threat intelligence platform for person
 **Components:**
 
 - **estate-sentry-api/** — Django 5 + DRF backend (Python, managed with uv)
-- **HQ dashboard** — being rebuilt as Django templates + htmx served by the API itself; no build step, no separate service. The previous Next.js app was removed (recoverable from git history).
-- **Switchboard** — NATS JetStream + MinIO data routing (infrastructure deployed, integration planned)
+- **estate-sentry-api/hq/** — HQ dashboard: Django templates + htmx served by the API itself. No build step, no separate service. Must run under ASGI (`task hq:dev`), because the MJPEG and SSE endpoints hold a connection open per viewer.
+- **estate-sentry-perception/** — Async perception pipeline. L1 motion gate, L2 object detection (RT-DETRv2), L3 zone intersection. L4-L7 not built.
+- **Switchboard** — NATS JetStream + MinIO. In use: producers write frames to MinIO and publish references on `frames.{camera_id}.raw`.
 - **Sentry Intelligence** — MCP server for Claude-powered threat analysis (planned)
-- **estate-sentry-perception** — Async perception pipeline for camera feeds (planned, see `docs/Specification.md`)
+
+Development producer: `../mock-estate/` (outside this repo) replays video files onto the same frame contract a Raspberry Pi edge agent will use.
 
 The `docs/Specification.md` is the authoritative design document for the intelligence layer: perception pipeline, zone model, identity management, and threat assessment.
 
@@ -112,6 +114,9 @@ Handler-to-type mapping is in `SensorReadingCreateSerializer.validate()` and `Se
 - **authentication** — Custom `User` model (extends AbstractUser) with three auth methods: username-only, PIN, password. Token-based auth via DRF `authtoken`.
 - **sensors** — `Sensor` and `SensorReading` models. `SensorViewSet` with custom `readings` (POST) and `reading_history` (GET) actions. Handler framework dispatches to type-specific processors.
 - **alerts** — `Alert` model with severity levels (INFO→CRITICAL) and acknowledgment flow. Read-only viewset with `acknowledge` (PATCH) and `statistics` (GET) actions.
+- **zones** — `Zone`, `ZonePerimeter`, `ZoneAdjacency`, `ZoneRule`. Perimeters are polygons in **normalised 0-1** coordinates, not pixels, so a resolution change does not invalidate them. `Sensor` and `Alert` both carry a nullable `zone` FK.
+- **intelligence** — `ZoneEvent`, the append-only detection log. No update or delete route: it is evidence, written once by the pipeline. The identity, action and track columns in the specification belong to L4-L6 and are deliberately absent.
+- **hq** — the dashboard. Async streaming views only; the rest is one template.
 
 ### Key Models and Relationships
 
@@ -169,7 +174,30 @@ GET         /api/alerts/
 GET         /api/alerts/{id}/
 PATCH       /api/alerts/{id}/acknowledge/
 GET         /api/alerts/statistics/
+
+GET/POST    /api/zones/
+GET/PUT/DELETE  /api/zones/{id}/
+GET/POST    /api/zones/{id}/perimeters/
+GET/POST    /api/zones/{id}/rules/
+GET/POST    /api/intelligence/zone-events/
+POST        /api/intelligence/zone-events/bulk/
+
+GET         /hq/                              # dashboard
+GET         /hq/cameras/{camera_id}/mjpeg     # live stream
+GET         /hq/events/stream                 # SSE detection feed
 ```
+
+### Running the pipeline
+
+```bash
+task switchboard:up          # NATS + MinIO
+task hq:dev                  # API + dashboard under ASGI
+task perception:dev:detect   # pipeline with object detection
+# then, from ../mock-estate/:  uv run python mock_camera.py
+```
+
+The perception service needs `PERCEPTION_API_TOKEN` to load zones and write
+events. Without it, detection still runs — it just cannot say where.
 
 ## Docker Services
 

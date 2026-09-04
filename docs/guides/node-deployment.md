@@ -53,7 +53,7 @@ curl http://localhost:8000/api/sensors/
 | Service | URL | Credentials |
 |---------|-----|-------------|
 | API | http://localhost:8000 | Token auth |
-| Dashboard | http://localhost:3000 | Login required |
+| Dashboard | http://localhost:8000/hq/ | Login required |
 | Neo4j Browser | http://localhost:7474 | neo4j / changeme |
 | MinIO Console | http://localhost:9001 | estate-sentry / changeme |
 

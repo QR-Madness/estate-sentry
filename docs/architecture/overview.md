@@ -22,7 +22,7 @@ Estate Sentry is built with a modern, extensible, and decentralized architecture
          |                         |                      |
 +--------v--------+     +----------v----------+    +------v-------+
 |  HQ Dashboard   |     |  Sensors/Devices    |    |  Claude/AI   |
-|  (Next.js)      |     |  (MQTT/REST/etc)    |    |  (Analysis)  |
+|  (Django+htmx)  |     |  (MQTT/REST/etc)    |    |  (Analysis)  |
 +-----------------+     +---------------------+    +--------------+
 ```
 
@@ -48,9 +48,14 @@ The backend is built with Django and Django REST Framework, following a modular 
 - **nodes** - Multi-node coordination, discovery, and synchronization
 - **audit** - Security audit logging
 
-### 2. Next.js Frontend (`estate-sentry-hq`)
+### 2. HQ Dashboard (`estate-sentry-api/hq`)
 
-The frontend is a modern React application built with Next.js.
+A Django app serving templates plus htmx, from the same process as the API. There
+is no build step and no second service: live video is an `<img>` pointed at an
+MJPEG endpoint, and the detection feed is server-sent events swapped in by htmx.
+
+The earlier Next.js application was removed — it had never built, and nothing in
+it reached the Django API.
 
 **Key Features:**
 - Real-time dashboard with WebSocket streaming
@@ -62,7 +67,7 @@ The frontend is a modern React application built with Next.js.
 - Responsive design
 
 **Technologies:**
-- Next.js 15
+- Django templates + htmx (vendored, no CDN)
 - React 18
 - TypeScript
 - Tailwind CSS
@@ -287,8 +292,8 @@ estate-sentry-source/
 │   ├── manage.py               # Django CLI
 │   └── requirements.txt        # Python dependencies
 │
-├── estate-sentry-hq/           # Next.js Frontend
-│   ├── pages/                  # Next.js pages
+├── estate-sentry-api/hq/       # HQ dashboard (Django templates + htmx)
+│   ├── templates/              # Server-rendered pages and SSE fragments
 │   │   ├── _app.tsx            # App wrapper
 │   │   ├── index.tsx           # Dashboard
 │   │   └── api/                # API routes

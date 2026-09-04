@@ -25,7 +25,7 @@ docker-compose exec api python manage.py createsuperuser
 Your services will be available at:
 
 - **API**: http://localhost:8000
-- **HQ Dashboard**: http://localhost:3000
+- **HQ Dashboard**: http://localhost:8000/hq/ (served by the API)
 - **Neo4j Browser**: http://localhost:7474
 - **PostgreSQL**: localhost:5432
 
@@ -52,9 +52,9 @@ Your services will be available at:
 - **Port**: 8000
 - **Runtime**: Python 3.11 with Gunicorn
 
-### 4. Next.js HQ Frontend
-- **Container**: estate-sentry-hq
-- **Image**: estate-sentry-hq:latest
+### 4. HQ Dashboard
+- **Container**: none — served by the `api` container at `/hq/`
+- The separate frontend service was removed along with the Next.js application
 - **Port**: 3000
 - **Runtime**: Node.js 18
 

@@ -4,6 +4,37 @@ This document tracks all implementation tasks required to build a functional pro
 
 ---
 
+## Status
+
+Frames move end to end: a producer writes JPEG bytes to MinIO and publishes a
+reference on `frames.{camera_id}.raw`; the perception service fetches, gates on
+motion, detects objects, matches them to zones, and appends to the event log.
+The dashboard shows live camera tiles and a detection feed.
+
+**Built**
+
+- Switchboard transport (NATS + MinIO) behind swappable interfaces
+- L1 motion gate, L2 object detection (RT-DETRv2, Apache-2.0 — *not* YOLOv8, which
+  is AGPL-3.0 and would conflict with this project's MIT licence)
+- L3 zone intersection, with `zones` and `intelligence` apps
+- HQ dashboard: Django templates + htmx, MJPEG and SSE, no build step
+- Development producer in `../mock-estate/` on the real frame contract
+
+**Not built, deliberately**
+
+- L4 identity, L5 action/pose, L6 correlation, L7 threat scoring
+- Neo4j and ChromaDB integration
+- The two security items in Milestone 1 below — still outstanding, and still
+  the thing to fix before anything is exposed beyond a LAN
+
+**Known measurements**
+
+- RT-DETRv2 `r18vd` on CPU: ~0.42s per frame, about 2.4 fps. Two cameras at 5 fps
+  oversubscribe the pipeline roughly fourfold; the bounded queues drop oldest-first
+  and the producer is never throttled.
+
+---
+
 ## Milestone 1: Security Hardening (Critical)
 
 **Priority:** CRITICAL - Must be completed before any production deployment

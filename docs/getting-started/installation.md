@@ -36,7 +36,7 @@ docker-compose exec api python manage.py createsuperuser
 Your services will be available at:
 
 - **API**: http://localhost:8000
-- **Dashboard**: http://localhost:3000
+- **Dashboard**: http://localhost:8000/hq/
 - **Neo4j Browser**: http://localhost:7474
 
 See [Docker Setup](docker-setup.md) for complete Docker documentation.
@@ -60,7 +60,7 @@ task api:superuser
 task dev
 ```
 
-The API will be available at `http://localhost:8000` and the HQ dashboard at `http://localhost:3000`.
+The API and the HQ dashboard are both served at `http://localhost:8000`, with the dashboard at `/hq/`.
 
 ## Option 3: Manual Setup
 
@@ -104,7 +104,6 @@ The API will be available at `http://localhost:8000`.
 
 1. **Navigate to HQ directory**
    ```bash
-   cd estate-sentry-hq
    ```
 
 2. **Install dependencies**
@@ -117,7 +116,11 @@ The API will be available at `http://localhost:8000`.
    npm run dev
    ```
 
-The dashboard will be available at `http://localhost:3000`.
+The dashboard will be available at `http://localhost:8000/hq/`.
+
+Note that it must be served by an ASGI server (`task hq:dev`), not `runserver`:
+the MJPEG and SSE endpoints hold a connection open per viewer, which under WSGI
+pins one worker each.
 
 ## Verify Installation
 
@@ -126,7 +129,7 @@ The dashboard will be available at `http://localhost:3000`.
    - Login with your superuser credentials
 
 2. **Access the Dashboard**
-   - Visit http://localhost:3000
+   - Visit http://localhost:8000/hq/
    - The HQ dashboard should load
 
 3. **Run tests**

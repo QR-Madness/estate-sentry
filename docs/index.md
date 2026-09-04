@@ -51,4 +51,4 @@ task api:superuser
 task dev
 ```
 
-API at **localhost:8000** &middot; Dashboard at **localhost:3000** &middot; Docs at **localhost:8001** (`task docs:serve`)
+API and dashboard at **localhost:8000** &middot; Docs at **localhost:8001** (`task docs:serve`)
