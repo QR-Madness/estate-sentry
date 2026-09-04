@@ -52,6 +52,17 @@ class Sensor(models.Model):
         help_text='Additional sensor metadata'
     )
 
+    # The place this sensor observes. SET_NULL rather than CASCADE: deleting a
+    # zone is a mapping decision and must not delete the hardware record with it.
+    zone = models.ForeignKey(
+        'zones.Zone',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='sensors',
+        help_text='Zone this sensor observes'
+    )
+
     # Ownership and timestamps
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,

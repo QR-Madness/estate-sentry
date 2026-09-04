@@ -9,9 +9,11 @@ arrived over the message bus.
 import json
 import re
 
+from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 
-from hq.views import KNOWN_CAMERAS, _sse
+from hq.views import _sse, known_cameras
+from sensors.models import Sensor
 
 
 def event_payload(**overrides):
@@ -108,8 +110,27 @@ class DashboardTests(TestCase):
         response = self.client.get("/hq/")
         self.assertEqual(response.status_code, 200)
         body = response.content.decode()
-        for camera in KNOWN_CAMERAS:
+        for camera in known_cameras():
             self.assertIn(camera, body)
+
+    def test_cameras_come_from_registered_sensors(self):
+        user = get_user_model().objects.create_user(username="zoner", password="x")
+        Sensor.objects.create(
+            name="side_gate", sensor_type="CAMERA", location="side", owner=user
+        )
+        Sensor.objects.create(
+            name="hall_pir", sensor_type="MOTION", location="hall", owner=user
+        )
+        self.assertEqual(known_cameras(), ["side_gate"], "only CAMERA sensors")
+
+    def test_a_registered_camera_becomes_streamable(self):
+        """The name is the bus subject segment, so this list is also the
+        allow-list for which streams may be opened."""
+        user = get_user_model().objects.create_user(username="zoner2", password="x")
+        Sensor.objects.create(
+            name="side_gate", sensor_type="CAMERA", location="side", owner=user
+        )
+        self.assertEqual(self.client.get("/hq/cameras/nope/mjpeg").status_code, 400)
 
     def test_streams_are_deferred_until_page_load(self):
         """Held in data-src on purpose: an MJPEG connection never completes, so

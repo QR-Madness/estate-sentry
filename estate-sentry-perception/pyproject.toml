@@ -21,6 +21,10 @@ dependencies = [
     # so no system ffmpeg install is needed.
     "numpy>=1.26.0",
     "opencv-python-headless>=4.10.0",
+    # Talks to the Django API for zone perimeters and the zone event log. The
+    # pipeline never touches the database directly: the API owns the schema, and
+    # a second writer with its own idea of the models is how those two drift.
+    "httpx>=0.26.0",
 ]
 
 [project.optional-dependencies]

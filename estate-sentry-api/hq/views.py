@@ -22,20 +22,60 @@ from django.shortcuts import render
 
 from perception.ring import TooManySubscribers
 
+from sensors.models import Sensor
+
 from .live import bridge
 
 logger = logging.getLogger(__name__)
 
 MJPEG_BOUNDARY = "estatesentryframe"
 
-#: Cameras offered by the dashboard. Hard-coded for now: the Sensor model has no
-#: zone or stream binding yet, so there is nothing authoritative to read this
-#: from. Slice 3 (zones) is where it starts coming from the database.
-KNOWN_CAMERAS = ["passageway", "driveway", "front_door"]
+#: Fallback when no CAMERA sensors are registered — a fresh install would
+#: otherwise render an empty page with no hint that anything is missing.
+FALLBACK_CAMERAS = ["passageway", "driveway", "front_door"]
+
+
+def known_cameras() -> list[str]:
+    """Camera names from the database.
+
+    The name is what identifies a camera on the wire: it is the `camera_id` in
+    `frames.{camera_id}.raw` and the key the perception service matches
+    perimeters against. So this list also decides which stream URLs are
+    accepted, which is why the MJPEG view checks against it rather than passing
+    a path segment through to a bus subject.
+    """
+    return list(_camera_names_queryset()) or FALLBACK_CAMERAS
+
+
+def _camera_names_queryset():
+    return (
+        Sensor.objects.filter(sensor_type="CAMERA")
+        .order_by("name")
+        .values_list("name", flat=True)
+    )
+
+
+async def aknown_cameras() -> list[str]:
+    """Async twin of `known_cameras`, for the streaming views.
+
+    Django refuses synchronous ORM calls from an async context, and rightly so:
+    a blocking query inside an async view stalls the event loop, and with it
+    every other viewer's stream.
+    """
+    names = [name async for name in _camera_names_queryset()]
+    return names or FALLBACK_CAMERAS
 
 
 def dashboard(request: HttpRequest) -> HttpResponse:
-    return render(request, "hq/dashboard.html", {"cameras": KNOWN_CAMERAS})
+    cameras = known_cameras()
+    return render(
+        request,
+        "hq/dashboard.html",
+        {
+            "cameras": cameras,
+            "using_fallback": cameras is FALLBACK_CAMERAS or cameras == FALLBACK_CAMERAS,
+        },
+    )
 
 
 async def camera_mjpeg(request: HttpRequest, camera_id: str) -> HttpResponse:
@@ -44,7 +84,7 @@ async def camera_mjpeg(request: HttpRequest, camera_id: str) -> HttpResponse:
     Consumed by a plain `<img src="...">`, so the live view needs no JavaScript
     at all — the browser replaces the image as each part arrives.
     """
-    if camera_id not in KNOWN_CAMERAS:
+    if camera_id not in await aknown_cameras():
         return HttpResponseBadRequest("unknown camera")
 
     async def frames():

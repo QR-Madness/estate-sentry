@@ -11,6 +11,8 @@ urlpatterns = [
     path('api/auth/', include('authentication.urls')),
     path('api/', include('sensors.urls')),
     path('api/', include('alerts.urls')),
+    path('api/', include('zones.urls')),
+    path('api/intelligence/', include('intelligence.urls')),
     path('hq/', include('hq.urls')),
 ]
 

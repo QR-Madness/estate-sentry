@@ -12,6 +12,7 @@ import logging
 import signal
 import sys
 
+from .api_client import ApiClient
 from .pipeline.detect import RTDetrDetector, StubDetector
 from .pipeline.motion import MotionGate
 from .service import PerceptionService
@@ -33,11 +34,22 @@ async def main_async(args: argparse.Namespace) -> int:
         logger.info("no detector: motion gate only (pass --detect to enable L2)")
         detector = StubDetector()
 
+    api: ApiClient | None = None
+    if not args.no_api:
+        api = ApiClient(args.api_url)
+        if not api.configured:
+            # Said once here rather than as an auth failure on every frame.
+            logger.warning(
+                "no PERCEPTION_API_TOKEN set: zones cannot be loaded and no zone "
+                "events will be written. Detection still runs."
+            )
+
     service = PerceptionService(
         store,
         bus,
         detector=detector,
         gate=MotionGate(trust_producer_hint=not args.ignore_hints),
+        api=api,
     )
 
     stop = asyncio.Event()
@@ -49,6 +61,8 @@ async def main_async(args: argparse.Namespace) -> int:
         await service.run(stop=stop)
     finally:
         await bus.close()
+        if api is not None:
+            await api.aclose()
     return 0
 
 
@@ -66,6 +80,12 @@ def main() -> int:
         "--ignore-hints",
         action="store_true",
         help="always difference frames, even when a producer supplies a motion hint",
+    )
+    parser.add_argument("--api-url", default=None, help="defaults to $API_URL")
+    parser.add_argument(
+        "--no-api",
+        action="store_true",
+        help="skip the API entirely: no zones loaded, no zone events written",
     )
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args()

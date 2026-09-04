@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'authentication.apps.AuthenticationConfig',
     'sensors.apps.SensorsConfig',
     'alerts.apps.AlertsConfig',
+    'zones.apps.ZonesConfig',
+    'intelligence.apps.IntelligenceConfig',
     'hq.apps.HqConfig',
 ]
 

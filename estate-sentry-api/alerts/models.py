@@ -41,6 +41,15 @@ class Alert(models.Model):
         help_text='Sensor that triggered the alert (if applicable)'
     )
 
+    zone = models.ForeignKey(
+        'zones.Zone',
+        on_delete=models.SET_NULL,
+        related_name='alerts',
+        null=True,
+        blank=True,
+        help_text='Zone this alert relates to (if any)'
+    )
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
