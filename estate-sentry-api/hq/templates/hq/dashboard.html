@@ -1,0 +1,50 @@
+{% extends "hq/base.html" %}
+
+{% block content %}
+<section class="cameras">
+  <h2 class="section-title">Cameras</h2>
+  <div class="camera-grid">
+    {% for camera in cameras %}
+    <figure class="camera">
+      {% comment %}
+        The streaming itself needs no JavaScript — the browser swaps each part of
+        the multipart response into the <img> as it arrives. What the script
+        below decides is only *when* to attach.
+
+        Held in data-src until window load: an MJPEG connection never completes,
+        so an <img> pointed at one directly keeps the page's load event pending
+        forever. That leaves a permanent spinner in the tab, blocks anything
+        waiting on load, and delays deferred scripts. Attaching afterwards costs
+        nothing and makes the page finish loading like any other.
+      {% endcomment %}
+      <div class="camera__frame" data-label="no signal">
+        <img class="camera__view"
+             data-src="{% url 'hq:camera-mjpeg' camera %}"
+             alt="Live view from {{ camera }}">
+      </div>
+      <figcaption class="camera__label">
+        <span class="camera__name">{{ camera }}</span>
+      </figcaption>
+    </figure>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="events" hx-ext="sse" sse-connect="{% url 'hq:events-stream' %}">
+  <h2 class="section-title">
+    Detections
+    <span class="section-title__hint">newest first</span>
+  </h2>
+
+  {% comment %}
+    Each `detection` event carries a rendered <li>, prepended here. The server
+    owns the markup, so there is no client-side template to drift from it.
+  {% endcomment %}
+  <ul class="event-list"
+      id="event-list"
+      sse-swap="detection"
+      hx-swap="afterbegin">
+    <li class="event event--idle">Waiting for the pipeline&hellip;</li>
+  </ul>
+</section>
+{% endblock %}

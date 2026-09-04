@@ -1,0 +1,56 @@
+{% load static %}<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Estate Sentry HQ{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'hq/app.css' %}">
+  {% comment %}
+    Vendored, not CDN: a self-hosted security console should not depend on a
+    third-party host being reachable, and should not tell one who is watching.
+  {% endcomment %}
+  <script src="{% static 'hq/htmx.min.js' %}" defer></script>
+  <script src="{% static 'hq/htmx-ext-sse.js' %}" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar__brand">
+      <span class="topbar__mark" aria-hidden="true"></span>
+      <h1>Estate Sentry</h1>
+    </div>
+    <nav class="topbar__meta">
+      <span class="pill" id="conn-state" data-state="connecting">connecting</span>
+    </nav>
+  </header>
+
+  <main class="layout">
+    {% block content %}{% endblock %}
+  </main>
+
+  <script>
+    // The connection pill is the only scripted behaviour on the page. It exists
+    // because "no events" and "not connected" look identical otherwise, and the
+    // difference is the one a person actually needs when nothing is happening.
+    (function () {
+      var pill = document.getElementById('conn-state');
+      if (!pill) return;
+      function set(state, label) {
+        pill.dataset.state = state;
+        pill.textContent = label;
+      }
+      document.body.addEventListener('htmx:sseOpen', function () { set('live', 'live'); });
+      document.body.addEventListener('htmx:sseError', function () { set('down', 'reconnecting'); });
+      document.body.addEventListener('htmx:sseClose', function () { set('down', 'disconnected'); });
+    })();
+
+    // Attach camera streams only once the page has finished loading. See the
+    // comment in dashboard.html: an MJPEG response never ends, so wiring it to
+    // src up front leaves the document loading indefinitely.
+    window.addEventListener('load', function () {
+      document.querySelectorAll('.camera__view[data-src]').forEach(function (img) {
+        img.src = img.dataset.src;
+      });
+    });
+  </script>
+</body>
+</html>

@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'authentication.apps.AuthenticationConfig',
     'sensors.apps.SensorsConfig',
     'alerts.apps.AlertsConfig',
+    'hq.apps.HqConfig',
 ]
 
 MIDDLEWARE = [

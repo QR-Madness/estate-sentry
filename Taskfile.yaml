@@ -173,6 +173,42 @@ tasks:
       - echo "Database reset complete"
 
   # ============================================================================
+  # HQ Dashboard (Django templates + htmx, served by the API under ASGI)
+  # ============================================================================
+  hq:dev:
+    desc: Serve the API and HQ dashboard under ASGI (http://localhost:8000/hq/)
+    dir: '{{.API_DIR}}'
+    cmds:
+      # uvicorn, not `runserver`: the MJPEG and SSE endpoints hold a connection
+      # open per viewer, which under WSGI pins a worker each.
+      #
+      # --reload-include '*.html' is needed because Django has used the cached
+      # template loader even under DEBUG since 4.1. `runserver` clears that cache
+      # via an autoreload hook; uvicorn has no equivalent, so without this a
+      # template edit is invisible until the process is restarted by hand.
+      # --timeout-graceful-shutdown is not optional here. MJPEG and SSE streams
+      # never end on their own, so uvicorn's default graceful shutdown waits for
+      # connections that will never close and the server hangs on every restart,
+      # holding the port. Observed: a reload that never completed.
+      - >-
+        uv run uvicorn estate_sentry.asgi:application
+        --host {{.HQ_HOST | default "127.0.0.1"}}
+        --port {{.HQ_PORT | default "8000"}}
+        --timeout-graceful-shutdown 3
+        --reload
+        --reload-include '*.html'
+        --reload-include '*.css'
+
+  hq:serve:
+    desc: Serve the API and HQ under ASGI without reload (closer to production)
+    dir: '{{.API_DIR}}'
+    cmds:
+      - >-
+        uv run uvicorn estate_sentry.asgi:application
+        --host 0.0.0.0 --port 8000
+        --timeout-graceful-shutdown 5
+
+  # ============================================================================
   # Perception Tasks (L1-L3 pipeline)
   # ============================================================================
   perception:install:

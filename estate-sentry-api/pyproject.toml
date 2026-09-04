@@ -31,8 +31,13 @@ dependencies = [
     "pillow>=10.4.0",
     # PostgreSQL support
     "psycopg2-binary>=2.9.9",
-    # Production server
+    # Production server. Both: gunicorn serves the WSGI app, uvicorn the ASGI one.
+    # The HQ streaming endpoints (MJPEG, SSE) hold a connection open for as long
+    # as a viewer is watching, which under WSGI pins one worker per viewer and
+    # deadlocks the API at three of them. Those endpoints are async, so they need
+    # the ASGI server.
     "gunicorn>=21.0.0",
+    "uvicorn[standard]>=0.30.0",
     # Neo4j driver
     "neo4j>=5.15.0",
     # NATS client
@@ -45,7 +50,14 @@ dependencies = [
     "python-dotenv>=1.0.0",
     # HTTP client for health checks
     "httpx>=0.26.0",
+    # The frame contract (FrameRef, subjects, key layout) and the bounded
+    # fan-out ring. Imported rather than restated so the dashboard, the pipeline
+    # and the edge agent cannot drift apart on the wire format.
+    "estate-sentry-perception",
 ]
+
+[tool.uv.sources]
+estate-sentry-perception = { path = "../estate-sentry-perception", editable = true }
 
 [project.optional-dependencies]
 dev = [

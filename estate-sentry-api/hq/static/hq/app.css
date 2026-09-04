@@ -1,0 +1,316 @@
+/* Estate Sentry HQ — hand-written, no build step.
+ *
+ * Dark by default because this is a monitoring console: it sits open on a
+ * screen for long stretches, often in a dim room, and the camera tiles are the
+ * brightest thing on the page by design. Everything else stays quiet so that
+ * movement in a tile, or a new row in the feed, is what draws the eye.
+ */
+
+:root {
+  --bg: #0e1116;
+  --bg-raised: #161b22;
+  --bg-sunken: #0a0d11;
+  --line: #232b36;
+  --line-bright: #303b49;
+
+  --text: #e4e9f0;
+  --text-dim: #8b97a8;
+  --text-faint: #5a6675;
+
+  --accent: #4b9fd5;
+  --live: #35c08a;
+  --warn: #d8a63a;
+  --alert: #d95f5f;
+
+  --person: #4b9fd5;
+  --vehicle: #b07fd8;
+  --animal: #46b39d;
+
+  --radius: 8px;
+  --gap: 1rem;
+
+  --mono: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------------------------------------------------------------- topbar -- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  padding: 0.75rem 1.25rem;
+  background: var(--bg-raised);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.topbar__brand { display: flex; align-items: center; gap: 0.6rem; }
+
+.topbar__mark {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px rgb(75 159 213 / 0.18);
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.pill {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--line-bright);
+  color: var(--text-dim);
+}
+
+.pill[data-state="live"] {
+  color: var(--live);
+  border-color: rgb(53 192 138 / 0.4);
+  background: rgb(53 192 138 / 0.08);
+}
+
+.pill[data-state="down"] {
+  color: var(--alert);
+  border-color: rgb(217 95 95 / 0.4);
+  background: rgb(217 95 95 / 0.08);
+}
+
+/* ---------------------------------------------------------------- layout -- */
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 22rem;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  align-items: start;
+}
+
+/* One column on narrow screens; the feed drops below the cameras. */
+@media (max-width: 900px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+}
+
+.section-title {
+  margin: 0 0 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-faint);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.section-title__hint {
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+/* --------------------------------------------------------------- cameras -- */
+
+.camera-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--gap);
+}
+
+.camera {
+  margin: 0;
+  background: var(--bg-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+/* The frame holds the tile open at a sensible size whether or not anything is
+   arriving. Without it a camera with no producer collapses to a bare label,
+   which reads as a layout bug rather than as what it is — a camera that is
+   down. A dead camera must look dead, not absent: that distinction is the whole
+   job of a monitoring view. */
+.camera__frame {
+  position: relative;
+  min-height: 170px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      transparent 0 10px,
+      rgb(255 255 255 / 0.012) 10px 20px
+    ),
+    var(--bg-sunken);
+}
+
+.camera__frame::after {
+  content: attr(data-label);
+  position: absolute;
+  z-index: 0;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.camera__view {
+  display: block;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  /* Surveillance footage is frequently not 16:9 — the EPFL clips are 5:4. Letting
+     the frame decide its own height avoids cropping or stretching the evidence. */
+  height: auto;
+  background: #000;
+  /* Old, low-resolution footage upscales into a blur with smooth interpolation.
+     Keeping the pixels crisp is more honest about what the camera actually saw. */
+  image-rendering: pixelated;
+}
+
+/* A broken or empty stream leaves a zero-height image, letting the placeholder
+   behind it show through. */
+.camera__view:not([src=""]) { min-height: 0; }
+
+.camera__label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.7rem;
+  border-top: 1px solid var(--line);
+  background: var(--bg-raised);
+}
+
+.camera__name {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+/* ---------------------------------------------------------------- events -- */
+
+.events {
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.9rem;
+  position: sticky;
+  top: 4.25rem;
+}
+
+.event-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 70vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.event {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0.15rem 0.5rem;
+  padding: 0.5rem 0.6rem;
+  background: var(--bg-sunken);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.event--idle {
+  display: block;
+  color: var(--text-faint);
+  font-style: italic;
+  border-style: dashed;
+}
+
+.event__cam {
+  font-family: var(--mono);
+  color: var(--text);
+  font-weight: 500;
+}
+
+.event__time {
+  font-family: var(--mono);
+  color: var(--text-faint);
+  text-align: right;
+  font-size: 0.74rem;
+}
+
+.event__chips {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.15rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  border: 1px solid var(--line-bright);
+  color: var(--text-dim);
+}
+
+.chip em {
+  font-style: normal;
+  color: var(--text-faint);
+  font-size: 0.68rem;
+}
+
+.chip--person {
+  color: var(--person);
+  border-color: rgb(75 159 213 / 0.35);
+  background: rgb(75 159 213 / 0.08);
+}
+
+.chip--vehicle {
+  color: var(--vehicle);
+  border-color: rgb(176 127 216 / 0.35);
+  background: rgb(176 127 216 / 0.08);
+}
+
+.chip--animal {
+  color: var(--animal);
+  border-color: rgb(70 179 157 / 0.35);
+  background: rgb(70 179 157 / 0.08);
+}
+
+.chip--none {
+  color: var(--text-faint);
+  font-style: italic;
+}
