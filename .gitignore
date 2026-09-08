@@ -25,7 +25,10 @@ ENV/
 
 # uv
 .uv_cache/
-uv.lock
+# uv.lock is deliberately NOT ignored. It is an application, not a library:
+# committing the lock is what makes a build reproducible, and CI resolving
+# dependencies fresh on every run means an upstream release can turn the build
+# red with no code change.
 
 # pip
 pip-log.txt
@@ -137,3 +140,7 @@ yarn-error.log*
 *.key
 *.crt
 .vercel
+
+# Root scratch notes. The tracked roadmap is docs/Todo.md; this one is personal
+# working state and should not collide between machines or contributors.
+/Todo.md

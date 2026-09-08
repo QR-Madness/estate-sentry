@@ -57,6 +57,58 @@ class TestPointInPolygon:
         assert point_in_polygon((0.15, 0.15), polygon) is False
 
 
+class TestDetectionAnchor:
+    """Which point on a box gets tested against a polygon.
+
+    The distinction is not cosmetic: a person's box centre sits at roughly chest
+    height, and on a camera looking down that projects to a floor position
+    several metres behind where they are standing.
+    """
+
+    def box(self):
+        from perception.pipeline.detect import Detection
+
+        # A standing figure: tall, narrow, feet at y=400.
+        return Detection(label="person", category="person", confidence=0.9,
+                         box=(100.0, 200.0, 140.0, 400.0))
+
+    def test_ground_anchor_is_the_bottom_edge_centred(self):
+        assert self.box().ground_anchor == (120.0, 400.0)
+
+    def test_centroid_is_higher_than_the_ground_anchor(self):
+        detection = self.box()
+        assert detection.centroid == (120.0, 300.0)
+        assert detection.centroid[1] < detection.ground_anchor[1]
+
+    def test_anchor_mode_selects_between_them(self):
+        detection = self.box()
+        assert detection.anchor("ground") == detection.ground_anchor
+        assert detection.anchor("centre") == detection.centroid
+        # Anything unrecognised falls back to ground rather than failing: a typo
+        # in configuration should not silently move every test point.
+        assert detection.anchor("nonsense") == detection.ground_anchor
+
+    def test_the_choice_can_change_which_zone_matches(self):
+        """The case that motivated the change. A zone covering only the lower
+        part of frame contains the figure's feet but not its chest."""
+        from perception.pipeline.detect import Detection
+
+        lower_half = [(0.0, 0.5), (1.0, 0.5), (1.0, 1.0), (0.0, 1.0)]
+        index = ZoneIndex([perimeter(zone_name="floor", polygon=lower_half)])
+        size = (640, 480)
+
+        # Feet at y=260 of 480 (0.54, inside the zone); chest at y=180 (0.375,
+        # outside it). A figure standing just past the zone's near edge.
+        detection = Detection(label="person", category="person", confidence=0.9,
+                              box=(100.0, 100.0, 140.0, 260.0))
+
+        feet = index.matches("passageway", detection.anchor("ground"), size)
+        chest = index.matches("passageway", detection.anchor("centre"), size)
+
+        assert [m.zone_name for m in feet] == ["floor"]
+        assert chest == [], "the box centre misses a zone the person is standing in"
+
+
 def perimeter(zone_name="front path", camera="passageway", polygon=None):
     return Perimeter(
         zone_id="11111111-1111-1111-1111-111111111111",

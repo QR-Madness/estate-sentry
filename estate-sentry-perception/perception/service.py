@@ -25,6 +25,7 @@ from .api_client import ApiClient
 from .constants import (
     WATCHDOG_REPEAT_SECONDS,
     WATCHDOG_SILENCE_SECONDS,
+    ZONE_ANCHOR,
 )
 from .pipeline.detect import Detection, Detector, StubDetector
 from .pipeline.motion import MotionGate
@@ -204,7 +205,9 @@ class PerceptionService:
         frame_size = (ref.width, ref.height)
 
         for detection in detections:
-            matches = self.zones.matches(ref.camera_id, detection.centroid, frame_size)
+            matches = self.zones.matches(
+                ref.camera_id, detection.anchor(ZONE_ANCHOR), frame_size
+            )
             names.append([m.zone_name for m in matches])
 
             if not matches:

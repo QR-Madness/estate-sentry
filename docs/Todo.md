@@ -27,6 +27,18 @@ The dashboard shows live camera tiles and a detection feed.
 - The two security items in Milestone 1 below — still outstanding, and still
   the thing to fix before anything is exposed beyond a LAN
 
+**Intelligence model split**
+
+The intended shape for the analysis layer, recorded here so it is not lost: an
+open-weights model (Gemma 4 or similar) does the bulk classification and
+summarisation locally, with a Claude reasoning agent above it for report
+generation and escalation control. Local inference keeps continuous footage
+analysis on the user's own hardware — which is the point of a self-hosted
+security system — while the reasoning agent is invoked only for the small number
+of events that clear the threat threshold, where its judgement is worth the call.
+
+This is L7 / Sentry Intelligence territory and nothing depends on it yet.
+
 **Known measurements**
 
 - RT-DETRv2 `r18vd` on CPU: ~0.42s per frame, about 2.4 fps. Two cameras at 5 fps

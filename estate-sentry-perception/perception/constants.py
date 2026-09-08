@@ -9,6 +9,8 @@ value itself.
 
 from __future__ import annotations
 
+import os
+
 # =============================================================================
 # Ring buffer / fan-out
 # =============================================================================
@@ -77,7 +79,18 @@ MOTION_AREA_FRACTION = 0.002
 DETECTOR_MODEL = "PekingU/rtdetr_v2_r18vd"
 
 #: Detections below this score are discarded before they reach zone logic.
-DETECTION_CONFIDENCE_THRESHOLD = 0.5
+#: Raised from 0.5 after watching real footage: the 0.50-0.62 band was almost
+#: entirely spurious people in low light, and every one of them would have been
+#: logged as a zone event. Env-tunable because the right value depends on the
+#: camera and the scene, and finding it should not need a code change.
+DETECTION_CONFIDENCE_THRESHOLD = float(
+    os.environ.get("DETECTION_CONFIDENCE_THRESHOLD", "0.60")
+)
+
+#: Which point on a detection is tested against a zone polygon: "ground"
+#: (bottom-centre, where the object meets the floor) or "centre".
+#: Ground is the default because perimeters are drawn on the floor of a scene.
+ZONE_ANCHOR = os.environ.get("ZONE_ANCHOR", "ground")
 
 #: COCO classes worth acting on. The spec's taxonomy is person / vehicle /
 #: animal / unknown, and this is the mapping onto what the model actually emits.

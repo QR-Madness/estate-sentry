@@ -43,15 +43,28 @@ class Detection:
 
     @property
     def centroid(self) -> tuple[float, float]:
-        """Point used for zone intersection at L3.
-
-        The centroid of the whole box, not the base of it. That is a real
-        simplification: for a person, the point that actually sits inside a
-        ground-plane zone is roughly the feet, and the box centre floats at
-        chest height. It is left simple until zones exist to test against.
-        """
+        """Geometric centre of the box."""
         x1, y1, x2, y2 = self.box
         return ((x1 + x2) / 2, (y1 + y2) / 2)
+
+    @property
+    def ground_anchor(self) -> tuple[float, float]:
+        """Where the object meets the ground: bottom edge, horizontally centred.
+
+        This, not the centroid, is what zone matching should use. Zone perimeters
+        are drawn on the floor of a scene, and the point that actually stands
+        inside one is a person's feet — the box centre floats around chest
+        height, which in a camera looking slightly down sits metres further away
+        than the person is. Near a boundary that difference decides the answer,
+        and it errs consistently in one direction: it reports people as further
+        from the camera than they are.
+        """
+        x1, _, x2, y2 = self.box
+        return ((x1 + x2) / 2, y2)
+
+    def anchor(self, mode: str = "ground") -> tuple[float, float]:
+        """Anchor point for zone tests. See `ZONE_ANCHOR` in constants."""
+        return self.centroid if mode == "centre" else self.ground_anchor
 
 
 @runtime_checkable

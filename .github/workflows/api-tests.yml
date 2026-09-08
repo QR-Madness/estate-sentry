@@ -26,7 +26,9 @@ jobs:
           enable-cache: true
 
       - name: Install dependencies
-        run: uv sync
+        # --frozen fails if uv.lock is out of date with pyproject.toml, rather
+        # than silently re-resolving. CI should test what the lock describes.
+        run: uv sync --frozen
 
       - name: Lint with ruff
         run: uv run ruff check .

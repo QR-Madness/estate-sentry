@@ -9,12 +9,12 @@ Two conventions make this work across cameras:
 * **Perimeters are normalised to 0-1**, not pixels, so a resolution change or a
   lower-quality stream does not invalidate every polygon drawn against a camera.
   Detections arrive in pixels and are normalised here.
-* **A detection is located by one point**, its box centroid, tested against each
-  polygon. Simple, and honest about its limitation: for a person, the point
-  actually standing on the ground is roughly the feet, while the box centre
-  floats around chest height. Near a zone boundary that difference decides the
-  answer. Left as-is until there are real perimeters to calibrate against —
-  see `Detection.centroid`.
+* **A detection is located by one point**, its ground anchor — the bottom edge of
+  the box, horizontally centred. Perimeters are drawn on the floor of a scene, so
+  the point that actually stands inside one is a person's feet. Using the box
+  centre instead puts the test point at roughly chest height, which on a camera
+  looking slightly down reads as several metres further away than the person is,
+  and it errs in that direction consistently. Configurable via `ZONE_ANCHOR`.
 """
 
 from __future__ import annotations
@@ -104,10 +104,10 @@ class ZoneIndex:
     def matches(
         self,
         camera_name: str,
-        centroid_px: Point,
+        anchor_px: Point,
         frame_size: tuple[int, int],
     ) -> list[ZoneMatch]:
-        """Zones containing `centroid_px` on this camera.
+        """Zones containing `anchor_px` on this camera.
 
         A list, not one zone: overlapping perimeters are legitimate — a doorway
         may reasonably belong to both "porch" and "entry", and each may carry
@@ -122,7 +122,7 @@ class ZoneIndex:
             logger.warning("%s: bad frame size %r", camera_name, frame_size)
             return []
 
-        x, y = centroid_px[0] / width, centroid_px[1] / height
+        x, y = anchor_px[0] / width, anchor_px[1] / height
 
         return [
             ZoneMatch(p.zone_id, p.zone_name, p.camera_pk)
