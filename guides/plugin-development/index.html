@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Estate Sentry Contributors" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Plugin Development - Estate Sentry</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Plugin Development";
+        var mkdocs_page_input_path = "guides/plugin-development.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/typescript.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Estate Sentry
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Specification/">Specification</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Todo/">Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/installation/">Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/quickstart/">Quick Start</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/docker-setup/">Docker Setup</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../task-reference/">Task Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../api-usage/">API Usage</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Plugin Development</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#creating-a-sensor-handler">Creating a Sensor Handler</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#handler-structure">Handler Structure</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#handler-registration">Handler Registration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#adding-sensor-types">Adding Sensor Types</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#json-schema-validation">JSON Schema Validation</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#creating-a-protocol-adapter">Creating a Protocol Adapter</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#adapter-structure">Adapter Structure</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#protocol-registration">Protocol Registration</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#complete-example-glass-break-sensor">Complete Example: Glass Break Sensor</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#testing-handlers">Testing Handlers</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#unit-tests">Unit Tests</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#integration-tests">Integration Tests</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#1-validate-thoroughly">1. Validate Thoroughly</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-handle-missing-data-gracefully">2. Handle Missing Data Gracefully</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-use-appropriate-severity-levels">3. Use Appropriate Severity Levels</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#4-include-context-in-alerts">4. Include Context in Alerts</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#5-document-your-handler">5. Document Your Handler</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#related-documentation">Related Documentation</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../node-deployment/">Node Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../mcp-integration/">MCP Integration</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Architecture</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/database/">Database</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/decentralization/">Decentralization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/switchboard/">Switchboard</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/security/">Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/device-abstraction/">Device Abstraction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/sentry-intelligence/">Sentry Intelligence</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operations</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../operations/monitoring/">Monitoring</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Contributing</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../contributing/development/">Development Guide</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Estate Sentry</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Guides</li>
+      <li class="breadcrumb-item active">Plugin Development</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/QR-Madness/estate-sentry/edit/master/docs/guides/plugin-development.md">Edit on estate-sentry</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="plugin-development-guide">Plugin Development Guide<a class="headerlink" href="#plugin-development-guide" title="Permanent link">&para;</a></h1>
+<p>This guide explains how to create custom sensor handlers, protocol adapters, and device integrations for Estate Sentry.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Estate Sentry uses a plugin-based architecture that allows you to:</p>
+<ul>
+<li>Add support for new sensor types</li>
+<li>Integrate with new communication protocols</li>
+<li>Implement custom threat detection logic</li>
+<li>Extend the system without modifying core code</li>
+</ul>
+<h2 id="creating-a-sensor-handler">Creating a Sensor Handler<a class="headerlink" href="#creating-a-sensor-handler" title="Permanent link">&para;</a></h2>
+<h3 id="handler-structure">Handler Structure<a class="headerlink" href="#handler-structure" title="Permanent link">&para;</a></h3>
+<p>Every sensor handler inherits from <code>BaseSensorHandler</code>:</p>
+<pre class="highlight"><code class="language-python"># sensors/handlers/my_sensor.py
+from typing import List, Tuple, Optional
+from .base import BaseSensorHandler
+
+class MySensorHandler(BaseSensorHandler):
+    """Handler for my custom sensor type."""
+
+    # Required: Sensor types this handler supports
+    SENSOR_TYPES = ['MY_SENSOR_TYPE']
+
+    # Optional: Supported communication protocols
+    PROTOCOLS = ['mqtt', 'rest']
+
+    # Optional: Handler version
+    VERSION = '1.0.0'
+
+    def validate_reading(self, data: dict) -&gt; Tuple[bool, Optional[str]]:
+        """
+        Validate incoming sensor data.
+
+        Args:
+            data: Raw sensor reading data
+
+        Returns:
+            Tuple of (is_valid, error_message)
+            - If valid: (True, None)
+            - If invalid: (False, "Error description")
+        """
+        # Implement your validation logic
+        if 'required_field' not in data:
+            return False, "Missing required_field"
+        return True, None
+
+    def process_reading(self, data: dict) -&gt; dict:
+        """
+        Process and normalize sensor data.
+
+        Args:
+            data: Validated sensor reading data
+
+        Returns:
+            Normalized reading data for storage
+        """
+        return {
+            'value': data['required_field'],
+            'timestamp': data.get('timestamp'),
+            'metadata': data.get('metadata', {})
+        }
+
+    def detect_threats(self, reading: dict) -&gt; List[dict]:
+        """
+        Analyze reading for security threats.
+
+        Args:
+            reading: Processed sensor reading
+
+        Returns:
+            List of alert dictionaries
+        """
+        alerts = []
+
+        # Implement threat detection logic
+        if self._is_suspicious(reading):
+            alerts.append({
+                'alert_type': 'CUSTOM_ALERT',
+                'severity': 'MEDIUM',
+                'title': f"Alert from {self.sensor.name}",
+                'description': "Suspicious activity detected",
+                'metadata': {'reading': reading}
+            })
+
+        return alerts
+
+    def _is_suspicious(self, reading: dict) -&gt; bool:
+        """Custom threat detection logic."""
+        # Your logic here
+        return False</code></pre>
+<h3 id="handler-registration">Handler Registration<a class="headerlink" href="#handler-registration" title="Permanent link">&para;</a></h3>
+<p>Handlers are automatically discovered when placed in <code>sensors/handlers/</code>. The registry scans for classes that:</p>
+<ol>
+<li>Inherit from <code>BaseSensorHandler</code></li>
+<li>Have a non-empty <code>SENSOR_TYPES</code> list</li>
+<li>Are not the base class itself</li>
+</ol>
+<p>To manually register (for external packages):</p>
+<pre class="highlight"><code class="language-python"># In your package's __init__.py
+from sensors.registry import HandlerRegistry
+from .my_handler import MySensorHandler
+
+HandlerRegistry.register_handler(MySensorHandler)</code></pre>
+<p>Or use entry points in your <code>pyproject.toml</code>:</p>
+<pre class="highlight"><code class="language-toml">[project.entry-points."estate_sentry.handlers"]
+my_sensor = "my_package.handlers:MySensorHandler"</code></pre>
+<h3 id="adding-sensor-types">Adding Sensor Types<a class="headerlink" href="#adding-sensor-types" title="Permanent link">&para;</a></h3>
+<p>Add your sensor type to the model choices:</p>
+<pre class="highlight"><code class="language-python"># sensors/models.py
+class Sensor(models.Model):
+    class SensorType(models.TextChoices):
+        # Existing types...
+        MY_SENSOR_TYPE = 'MY_SENSOR_TYPE', 'My Custom Sensor'</code></pre>
+<h3 id="json-schema-validation">JSON Schema Validation<a class="headerlink" href="#json-schema-validation" title="Permanent link">&para;</a></h3>
+<p>Define schemas for automatic validation:</p>
+<pre class="highlight"><code class="language-python">class MySensorHandler(BaseSensorHandler):
+    # ...
+
+    @classmethod
+    def get_reading_schema(cls) -&gt; dict:
+        """JSON Schema for reading validation."""
+        return {
+            "type": "object",
+            "properties": {
+                "required_field": {
+                    "type": "string",
+                    "description": "Main sensor value"
+                },
+                "temperature": {
+                    "type": "number",
+                    "minimum": -50,
+                    "maximum": 150
+                },
+                "battery_level": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
+                }
+            },
+            "required": ["required_field"]
+        }
+
+    @classmethod
+    def get_connection_schema(cls) -&gt; dict:
+        """JSON Schema for connection configuration."""
+        return {
+            "type": "object",
+            "properties": {
+                "host": {"type": "string"},
+                "port": {"type": "integer"},
+                "api_key": {"type": "string"}
+            },
+            "required": ["host"]
+        }</code></pre>
+<h2 id="creating-a-protocol-adapter">Creating a Protocol Adapter<a class="headerlink" href="#creating-a-protocol-adapter" title="Permanent link">&para;</a></h2>
+<p>Protocol adapters handle communication with devices using different protocols.</p>
+<h3 id="adapter-structure">Adapter Structure<a class="headerlink" href="#adapter-structure" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># devices/protocols/my_protocol.py
+from typing import Callable, Any
+from .base import BaseProtocolAdapter
+
+class MyProtocolAdapter(BaseProtocolAdapter):
+    """Adapter for my custom protocol."""
+
+    PROTOCOL_NAME = "my_protocol"
+
+    def __init__(self, config: dict):
+        super().__init__(config)
+        self.client = None
+
+    async def connect(self) -&gt; bool:
+        """Establish connection to device."""
+        try:
+            self.client = MyProtocolClient(
+                host=self.config['host'],
+                port=self.config.get('port', 1234)
+            )
+            await self.client.connect()
+            self._connected = True
+            return True
+        except Exception as e:
+            self._connected = False
+            raise ConnectionError(f"Failed to connect: {e}")
+
+    async def disconnect(self) -&gt; None:
+        """Close connection."""
+        if self.client:
+            await self.client.disconnect()
+        self._connected = False
+
+    async def read(self) -&gt; dict:
+        """Read current state from device."""
+        if not self._connected:
+            raise RuntimeError("Not connected")
+
+        response = await self.client.query()
+        return {
+            'value': response.value,
+            'timestamp': response.timestamp
+        }
+
+    async def write(self, command: dict) -&gt; bool:
+        """Send command to device."""
+        if not self._connected:
+            return False
+
+        try:
+            await self.client.send(command)
+            return True
+        except Exception:
+            return False
+
+    async def subscribe(self, callback: Callable[[dict], Any]) -&gt; None:
+        """Subscribe to device updates."""
+        async for message in self.client.stream():
+            await callback({
+                'value': message.value,
+                'timestamp': message.timestamp
+            })</code></pre>
+<h3 id="protocol-registration">Protocol Registration<a class="headerlink" href="#protocol-registration" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python">from sensors.registry import HandlerRegistry
+
+HandlerRegistry.register_protocol(MyProtocolAdapter)</code></pre>
+<h2 id="complete-example-glass-break-sensor">Complete Example: Glass Break Sensor<a class="headerlink" href="#complete-example-glass-break-sensor" title="Permanent link">&para;</a></h2>
+<p>Here's a complete example of a glass break sensor handler:</p>
+<pre class="highlight"><code class="language-python"># sensors/handlers/glass_break.py
+from typing import List, Tuple, Optional
+from datetime import datetime
+from .base import BaseSensorHandler
+
+class GlassBreakHandler(BaseSensorHandler):
+    """Handler for glass break detection sensors."""
+
+    SENSOR_TYPES = ['GLASS_BREAK']
+    PROTOCOLS = ['zigbee', 'zwave', 'rest']
+    VERSION = '1.0.0'
+
+    # Severity thresholds
+    HIGH_INTENSITY_THRESHOLD = 80
+    MEDIUM_INTENSITY_THRESHOLD = 50
+
+    def validate_reading(self, data: dict) -&gt; Tuple[bool, Optional[str]]:
+        """Validate glass break sensor data."""
+        # Must have either triggered flag or intensity
+        if 'triggered' not in data and 'intensity' not in data:
+            return False, "Reading must include 'triggered' or 'intensity'"
+
+        # Validate intensity range
+        if 'intensity' in data:
+            intensity = data['intensity']
+            if not isinstance(intensity, (int, float)):
+                return False, "Intensity must be a number"
+            if not 0 &lt;= intensity &lt;= 100:
+                return False, "Intensity must be between 0 and 100"
+
+        return True, None
+
+    def process_reading(self, data: dict) -&gt; dict:
+        """Normalize glass break reading."""
+        processed = {
+            'timestamp': data.get('timestamp', datetime.utcnow().isoformat()),
+            'triggered': data.get('triggered', False),
+            'intensity': data.get('intensity', 0),
+            'frequency': data.get('frequency'),  # Hz of detected sound
+            'duration_ms': data.get('duration_ms'),  # Duration of event
+        }
+
+        # Infer triggered from intensity if not provided
+        if 'triggered' not in data and 'intensity' in data:
+            processed['triggered'] = data['intensity'] &gt; self.MEDIUM_INTENSITY_THRESHOLD
+
+        return processed
+
+    def detect_threats(self, reading: dict) -&gt; List[dict]:
+        """Detect glass break threats."""
+        alerts = []
+
+        if not reading.get('triggered'):
+            return alerts
+
+        # Determine severity based on intensity
+        intensity = reading.get('intensity', 50)
+
+        if intensity &gt;= self.HIGH_INTENSITY_THRESHOLD:
+            severity = 'HIGH'
+            description = "High-intensity glass break detected - possible forced entry"
+        elif intensity &gt;= self.MEDIUM_INTENSITY_THRESHOLD:
+            severity = 'MEDIUM'
+            description = "Glass break detected"
+        else:
+            severity = 'LOW'
+            description = "Possible glass break detected (low intensity)"
+
+        alerts.append({
+            'alert_type': 'GLASS_BREAK',
+            'severity': severity,
+            'title': f"Glass break detected at {self.sensor.name}",
+            'description': description,
+            'metadata': {
+                'sensor_id': str(self.sensor.id),
+                'location': self.sensor.location,
+                'intensity': intensity,
+                'frequency': reading.get('frequency'),
+                'duration_ms': reading.get('duration_ms'),
+            }
+        })
+
+        return alerts
+
+    @classmethod
+    def get_reading_schema(cls) -&gt; dict:
+        return {
+            "type": "object",
+            "properties": {
+                "triggered": {
+                    "type": "boolean",
+                    "description": "Whether glass break was detected"
+                },
+                "intensity": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "Intensity of detected break (0-100)"
+                },
+                "frequency": {
+                    "type": "number",
+                    "description": "Frequency of detected sound in Hz"
+                },
+                "duration_ms": {
+                    "type": "integer",
+                    "description": "Duration of detected event in milliseconds"
+                },
+                "timestamp": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            }
+        }
+
+    @classmethod
+    def get_connection_schema(cls) -&gt; dict:
+        return {
+            "type": "object",
+            "properties": {
+                "protocol": {
+                    "type": "string",
+                    "enum": ["zigbee", "zwave", "rest"]
+                },
+                "device_id": {
+                    "type": "string",
+                    "description": "Device identifier on the network"
+                },
+                "sensitivity": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10,
+                    "default": 5,
+                    "description": "Detection sensitivity (1-10)"
+                }
+            },
+            "required": ["device_id"]
+        }</code></pre>
+<h2 id="testing-handlers">Testing Handlers<a class="headerlink" href="#testing-handlers" title="Permanent link">&para;</a></h2>
+<h3 id="unit-tests">Unit Tests<a class="headerlink" href="#unit-tests" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># sensors/tests/test_glass_break_handler.py
+import pytest
+from sensors.handlers.glass_break import GlassBreakHandler
+from sensors.models import Sensor
+
+@pytest.fixture
+def sensor():
+    return Sensor(
+        name="Test Glass Break",
+        sensor_type="GLASS_BREAK",
+        location="Living Room"
+    )
+
+@pytest.fixture
+def handler(sensor):
+    return GlassBreakHandler(sensor)
+
+class TestGlassBreakHandler:
+
+    def test_validate_valid_reading(self, handler):
+        data = {"triggered": True, "intensity": 75}
+        is_valid, error = handler.validate_reading(data)
+        assert is_valid is True
+        assert error is None
+
+    def test_validate_missing_required(self, handler):
+        data = {"extra_field": "value"}
+        is_valid, error = handler.validate_reading(data)
+        assert is_valid is False
+        assert "triggered" in error or "intensity" in error
+
+    def test_validate_invalid_intensity(self, handler):
+        data = {"intensity": 150}
+        is_valid, error = handler.validate_reading(data)
+        assert is_valid is False
+        assert "intensity" in error.lower()
+
+    def test_process_reading(self, handler):
+        data = {"triggered": True, "intensity": 80}
+        processed = handler.process_reading(data)
+        assert processed['triggered'] is True
+        assert processed['intensity'] == 80
+        assert 'timestamp' in processed
+
+    def test_detect_threats_high_intensity(self, handler):
+        reading = {"triggered": True, "intensity": 90}
+        alerts = handler.detect_threats(reading)
+        assert len(alerts) == 1
+        assert alerts[0]['severity'] == 'HIGH'
+        assert alerts[0]['alert_type'] == 'GLASS_BREAK'
+
+    def test_detect_threats_no_trigger(self, handler):
+        reading = {"triggered": False, "intensity": 0}
+        alerts = handler.detect_threats(reading)
+        assert len(alerts) == 0</code></pre>
+<h3 id="integration-tests">Integration Tests<a class="headerlink" href="#integration-tests" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># sensors/tests/test_handler_integration.py
+from rest_framework.test import APITestCase
+from authentication.models import User
+from sensors.models import Sensor
+
+class GlassBreakIntegrationTest(APITestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='testuser',
+            password='testpass'
+        )
+        self.client.force_authenticate(user=self.user)
+
+        self.sensor = Sensor.objects.create(
+            owner=self.user,
+            name="Living Room Glass Break",
+            sensor_type="GLASS_BREAK",
+            location="Living Room",
+            status="ACTIVE"
+        )
+
+    def test_submit_reading_creates_alert(self):
+        response = self.client.post(
+            f'/api/sensors/{self.sensor.id}/readings/',
+            {'value': {'triggered': True, 'intensity': 85}},
+            format='json'
+        )
+        self.assertEqual(response.status_code, 201)
+
+        # Verify alert was created
+        from alerts.models import Alert
+        alerts = Alert.objects.filter(sensor=self.sensor)
+        self.assertEqual(alerts.count(), 1)
+        self.assertEqual(alerts[0].alert_type, 'GLASS_BREAK')
+        self.assertEqual(alerts[0].severity, 'HIGH')</code></pre>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-validate-thoroughly">1. Validate Thoroughly<a class="headerlink" href="#1-validate-thoroughly" title="Permanent link">&para;</a></h3>
+<p>Always validate all expected fields:</p>
+<pre class="highlight"><code class="language-python">def validate_reading(self, data: dict) -&gt; Tuple[bool, Optional[str]]:
+    errors = []
+
+    if 'state' not in data:
+        errors.append("Missing 'state' field")
+
+    if 'state' in data and data['state'] not in ['on', 'off']:
+        errors.append("Invalid state value")
+
+    if errors:
+        return False, "; ".join(errors)
+
+    return True, None</code></pre>
+<h3 id="2-handle-missing-data-gracefully">2. Handle Missing Data Gracefully<a class="headerlink" href="#2-handle-missing-data-gracefully" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python">def process_reading(self, data: dict) -&gt; dict:
+    return {
+        'value': data['value'],
+        'timestamp': data.get('timestamp', datetime.utcnow().isoformat()),
+        'battery': data.get('battery_level'),  # May be None
+        'signal': data.get('signal_strength'),  # May be None
+    }</code></pre>
+<h3 id="3-use-appropriate-severity-levels">3. Use Appropriate Severity Levels<a class="headerlink" href="#3-use-appropriate-severity-levels" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Severity</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CRITICAL</td>
+<td>Immediate danger, requires instant response</td>
+</tr>
+<tr>
+<td>HIGH</td>
+<td>Serious threat, requires quick response</td>
+</tr>
+<tr>
+<td>MEDIUM</td>
+<td>Potential threat, requires attention</td>
+</tr>
+<tr>
+<td>LOW</td>
+<td>Minor concern, informational</td>
+</tr>
+<tr>
+<td>INFO</td>
+<td>Status update, no action required</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-include-context-in-alerts">4. Include Context in Alerts<a class="headerlink" href="#4-include-context-in-alerts" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python">def detect_threats(self, reading: dict) -&gt; List[dict]:
+    return [{
+        'alert_type': 'MY_ALERT',
+        'severity': 'MEDIUM',
+        'title': f"Alert from {self.sensor.name}",
+        'description': f"Detected at {self.sensor.location}",
+        'metadata': {
+            'sensor_id': str(self.sensor.id),
+            'sensor_type': self.sensor.sensor_type,
+            'location': self.sensor.location,
+            'reading': reading,
+            'timestamp': datetime.utcnow().isoformat()
+        }
+    }]</code></pre>
+<h3 id="5-document-your-handler">5. Document Your Handler<a class="headerlink" href="#5-document-your-handler" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python">class MySensorHandler(BaseSensorHandler):
+    """
+    Handler for XYZ brand motion sensors.
+
+    Supported models:
+    - XYZ-100: Basic motion detection
+    - XYZ-200: Motion + temperature
+
+    Reading format:
+    {
+        "motion": true,
+        "temperature": 72.5,
+        "battery": 85
+    }
+
+    Connection config:
+    {
+        "device_id": "XYZ-100-001",
+        "protocol": "zigbee"
+    }
+    """</code></pre>
+<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../../architecture/device-abstraction/">Device Abstraction Architecture</a></li>
+<li><a href="../api-usage/">API Usage Guide</a></li>
+<li><a href="../../contributing/development/">Development Guide</a></li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../api-usage/" class="btn btn-neutral float-left" title="API Usage"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../node-deployment/" class="btn btn-neutral float-right" title="Node Deployment">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/QR-Madness/estate-sentry" class="fa fa-code-fork" style="color: #fcfcfc"> estate-sentry</a>
+        </span>
+    
+    
+      <span><a href="../api-usage/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../node-deployment/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

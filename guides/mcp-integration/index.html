@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Estate Sentry Contributors" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>MCP Integration - Estate Sentry</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "MCP Integration";
+        var mkdocs_page_input_path = "guides/mcp-integration.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/typescript.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Estate Sentry
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Specification/">Specification</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Todo/">Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/installation/">Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/quickstart/">Quick Start</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/docker-setup/">Docker Setup</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../task-reference/">Task Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../api-usage/">API Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../plugin-development/">Plugin Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../node-deployment/">Node Deployment</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">MCP Integration</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#what-is-mcp">What is MCP?</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#configure-claude-desktop">Configure Claude Desktop</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#alternative-httpsse-transport">Alternative: HTTP/SSE Transport</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verify-connection">Verify Connection</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#available-tools">Available Tools</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#analyze_alert">analyze_alert</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#correlate_events">correlate_events</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#search_patterns">search_patterns</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#generate_report">generate_report</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#get_threat_score">get_threat_score</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#available-resources">Available Resources</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#sentryalertsrecent">sentry://alerts/recent</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#sentrysensorsstatus">sentry://sensors/status</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#sentrypatternsknown">sentry://patterns/known</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#sentrystatisticsdaily">sentry://statistics/daily</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#example-conversations">Example Conversations</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#alert-investigation">Alert Investigation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pattern-analysis">Pattern Analysis</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#daily-security-briefing">Daily Security Briefing</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#custom-prompts">Custom Prompts</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#security-check-prompt">Security Check Prompt</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#incident-response-prompt">Incident Response Prompt</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#programmatic-access">Programmatic Access</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#python-client">Python Client</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#http-api">HTTP API</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#security-considerations">Security Considerations</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#api-token-security">API Token Security</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#access-control">Access Control</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#audit-logging">Audit Logging</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#mcp-server-not-starting">MCP Server Not Starting</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#tool-calls-failing">Tool Calls Failing</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#slow-responses">Slow Responses</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#related-documentation">Related Documentation</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Architecture</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/database/">Database</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/decentralization/">Decentralization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/switchboard/">Switchboard</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/security/">Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/device-abstraction/">Device Abstraction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/sentry-intelligence/">Sentry Intelligence</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operations</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../operations/monitoring/">Monitoring</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Contributing</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../contributing/development/">Development Guide</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Estate Sentry</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Guides</li>
+      <li class="breadcrumb-item active">MCP Integration</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/QR-Madness/estate-sentry/edit/master/docs/guides/mcp-integration.md">Edit on estate-sentry</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="mcp-integration-guide">MCP Integration Guide<a class="headerlink" href="#mcp-integration-guide" title="Permanent link">&para;</a></h1>
+<p>This guide explains how to use Estate Sentry's Sentry Intelligence system with Claude and other MCP-compatible AI assistants.</p>
+<h2 id="what-is-mcp">What is MCP?<a class="headerlink" href="#what-is-mcp" title="Permanent link">&para;</a></h2>
+<p>The Model Context Protocol (MCP) is a standard for connecting AI assistants to external data sources and tools. Estate Sentry's Sentry Intelligence service implements an MCP server that allows AI assistants like Claude to:</p>
+<ul>
+<li>Analyze security alerts</li>
+<li>Correlate events across sensors</li>
+<li>Search for threat patterns</li>
+<li>Generate case reports</li>
+</ul>
+<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
+<h3 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Estate Sentry running (single or multi-node)</li>
+<li>Sentry Intelligence service deployed</li>
+<li>Claude Desktop or another MCP client</li>
+</ul>
+<h3 id="configure-claude-desktop">Configure Claude Desktop<a class="headerlink" href="#configure-claude-desktop" title="Permanent link">&para;</a></h3>
+<p>Add Estate Sentry to your Claude Desktop configuration:</p>
+<pre class="highlight"><code class="language-json">// ~/Library/Application Support/Claude/claude_desktop_config.json (macOS)
+// %APPDATA%\Claude\claude_desktop_config.json (Windows)
+{
+  "mcpServers": {
+    "estate-sentry": {
+      "command": "python",
+      "args": ["-m", "sentry.mcp.server"],
+      "cwd": "/path/to/estate-sentry-sentry",
+      "env": {
+        "ESTATE_SENTRY_API_URL": "http://localhost:8000",
+        "ESTATE_SENTRY_API_TOKEN": "your-api-token"
+      }
+    }
+  }
+}</code></pre>
+<h3 id="alternative-httpsse-transport">Alternative: HTTP/SSE Transport<a class="headerlink" href="#alternative-httpsse-transport" title="Permanent link">&para;</a></h3>
+<p>For remote access, use the HTTP transport:</p>
+<pre class="highlight"><code class="language-json">{
+  "mcpServers": {
+    "estate-sentry": {
+      "url": "http://localhost:8002/mcp",
+      "transport": "sse"
+    }
+  }
+}</code></pre>
+<h3 id="verify-connection">Verify Connection<a class="headerlink" href="#verify-connection" title="Permanent link">&para;</a></h3>
+<p>After restarting Claude Desktop, you should see "estate-sentry" in the available tools. Test with:</p>
+<blockquote>
+<p>"What tools are available from Estate Sentry?"</p>
+</blockquote>
+<p>Claude should list the available analysis tools.</p>
+<h2 id="available-tools">Available Tools<a class="headerlink" href="#available-tools" title="Permanent link">&para;</a></h2>
+<h3 id="analyze_alert">analyze_alert<a class="headerlink" href="#analyze_alert" title="Permanent link">&para;</a></h3>
+<p>Analyze a specific security alert for threat assessment.</p>
+<p><strong>Parameters:</strong>
+- <code>alert_id</code> (required): UUID of the alert
+- <code>depth</code>: Analysis depth - "quick", "standard", or "deep"</p>
+<p><strong>Example conversation:</strong></p>
+<blockquote>
+<p>"I just got an alert with ID abc-123. Can you analyze it?"</p>
+</blockquote>
+<p>Claude will use the <code>analyze_alert</code> tool to fetch context and provide analysis.</p>
+<p><strong>Sample output:</strong></p>
+<pre class="highlight"><code class="language-json">{
+  "alert": {
+    "id": "abc-123",
+    "type": "MOTION",
+    "severity": "LOW",
+    "title": "Motion detected on Front Camera",
+    "timestamp": "2025-01-23T02:30:00Z"
+  },
+  "sensor": {
+    "name": "Front Camera",
+    "location": "Front Porch",
+    "type": "CAMERA"
+  },
+  "recent_readings": [...],
+  "related_alerts": [...],
+  "similar_incidents": [...]
+}</code></pre>
+<h3 id="correlate_events">correlate_events<a class="headerlink" href="#correlate_events" title="Permanent link">&para;</a></h3>
+<p>Find related security events within a time window.</p>
+<p><strong>Parameters:</strong>
+- <code>alert_ids</code> (required): List of alert UUIDs
+- <code>time_window_minutes</code>: Window for correlation (default: 30)</p>
+<p><strong>Example:</strong></p>
+<blockquote>
+<p>"I have three alerts: abc-123, def-456, and ghi-789. Are they related?"</p>
+</blockquote>
+<p>Claude will analyze temporal and spatial relationships between the alerts.</p>
+<h3 id="search_patterns">search_patterns<a class="headerlink" href="#search_patterns" title="Permanent link">&para;</a></h3>
+<p>Search for known threat patterns matching current activity.</p>
+<p><strong>Parameters:</strong>
+- <code>query</code> (required): Description of the pattern to search
+- <code>limit</code>: Maximum results (default: 10)</p>
+<p><strong>Example:</strong></p>
+<blockquote>
+<p>"Search for patterns similar to 'multiple door sensors triggering in sequence'"</p>
+</blockquote>
+<h3 id="generate_report">generate_report<a class="headerlink" href="#generate_report" title="Permanent link">&para;</a></h3>
+<p>Generate a comprehensive security case report.</p>
+<p><strong>Parameters:</strong>
+- <code>alert_ids</code> (required): List of alert UUIDs to include
+- <code>format</code>: Output format - "markdown", "pdf", or "json"</p>
+<p><strong>Example:</strong></p>
+<blockquote>
+<p>"Generate a case report for alerts abc-123 and def-456"</p>
+</blockquote>
+<h3 id="get_threat_score">get_threat_score<a class="headerlink" href="#get_threat_score" title="Permanent link">&para;</a></h3>
+<p>Calculate a threat score for a set of events.</p>
+<p><strong>Parameters:</strong>
+- <code>alert_ids</code> (required): List of alert UUIDs</p>
+<p><strong>Returns:</strong>
+- Threat score (0-100)
+- Risk level (INFO, LOW, MEDIUM, HIGH, CRITICAL)
+- Contributing factors</p>
+<h2 id="available-resources">Available Resources<a class="headerlink" href="#available-resources" title="Permanent link">&para;</a></h2>
+<p>Resources provide read access to Estate Sentry data:</p>
+<h3 id="sentryalertsrecent">sentry://alerts/recent<a class="headerlink" href="#sentryalertsrecent" title="Permanent link">&para;</a></h3>
+<p>Last 100 security alerts.</p>
+<blockquote>
+<p>"Show me recent alerts from Estate Sentry"</p>
+</blockquote>
+<h3 id="sentrysensorsstatus">sentry://sensors/status<a class="headerlink" href="#sentrysensorsstatus" title="Permanent link">&para;</a></h3>
+<p>Current status of all sensors.</p>
+<blockquote>
+<p>"What's the status of my sensors?"</p>
+</blockquote>
+<h3 id="sentrypatternsknown">sentry://patterns/known<a class="headerlink" href="#sentrypatternsknown" title="Permanent link">&para;</a></h3>
+<p>Database of known threat patterns.</p>
+<blockquote>
+<p>"What threat patterns does the system know about?"</p>
+</blockquote>
+<h3 id="sentrystatisticsdaily">sentry://statistics/daily<a class="headerlink" href="#sentrystatisticsdaily" title="Permanent link">&para;</a></h3>
+<p>Security statistics for the past 24 hours.</p>
+<blockquote>
+<p>"Give me a summary of security activity today"</p>
+</blockquote>
+<h2 id="example-conversations">Example Conversations<a class="headerlink" href="#example-conversations" title="Permanent link">&para;</a></h2>
+<h3 id="alert-investigation">Alert Investigation<a class="headerlink" href="#alert-investigation" title="Permanent link">&para;</a></h3>
+<p><strong>User:</strong> I woke up to several alerts overnight. Can you help me understand what happened?</p>
+<p><strong>Claude:</strong> I'll analyze the overnight alerts for you.</p>
+<p><em>[Uses sentry://alerts/recent to fetch alerts]</em></p>
+<p>I see 4 alerts between 2:00 AM and 2:15 AM:
+1. Motion detected on Front Camera (2:00 AM)
+2. Front Door contact opened (2:02 AM)
+3. Motion detected in Living Room (2:05 AM)
+4. Motion detected on Back Camera (2:15 AM)</p>
+<p>Let me correlate these events.</p>
+<p><em>[Uses correlate_events tool]</em></p>
+<p>These events appear to be related. The temporal sequence suggests movement from the front of the house to the back. Would you like me to:
+1. Generate a full case report?
+2. Check for similar historical patterns?
+3. Calculate the threat score?</p>
+<hr />
+<h3 id="pattern-analysis">Pattern Analysis<a class="headerlink" href="#pattern-analysis" title="Permanent link">&para;</a></h3>
+<p><strong>User:</strong> I keep getting false alarms from my motion sensor. Can you find a pattern?</p>
+<p><strong>Claude:</strong> I'll search for patterns in your motion sensor alerts.</p>
+<p><em>[Uses search_patterns with "repeated motion sensor false alarms"]</em></p>
+<p>I found a pattern: Your Living Room motion sensor triggers frequently between 6:00-7:00 AM. This coincides with:
+- Sunrise times (light changes)
+- HVAC system activation</p>
+<p>Recommendations:
+1. Adjust sensor sensitivity during these hours
+2. Reposition sensor away from HVAC vents
+3. Enable "pet immune" mode if available</p>
+<hr />
+<h3 id="daily-security-briefing">Daily Security Briefing<a class="headerlink" href="#daily-security-briefing" title="Permanent link">&para;</a></h3>
+<p><strong>User:</strong> Give me a security briefing for the day.</p>
+<p><strong>Claude:</strong> I'll compile your daily security briefing.</p>
+<p><em>[Uses sentry://statistics/daily]</em></p>
+<p><strong>Security Briefing - January 23, 2025</strong></p>
+<p><strong>Summary:</strong>
+- Total alerts: 12
+- High priority: 0
+- Medium priority: 2
+- Low priority: 10</p>
+<p><strong>Sensor Status:</strong>
+- All 8 sensors online
+- Battery levels normal (lowest: Guest Door at 67%)</p>
+<p><strong>Notable Events:</strong>
+- 2 motion detections during armed hours (both acknowledged as expected arrivals)
+- Front door opened 6 times (within normal range)</p>
+<p><strong>Threat Score:</strong> 5/100 (Normal)</p>
+<p>No concerning patterns detected. Would you like details on any specific events?</p>
+<h2 id="custom-prompts">Custom Prompts<a class="headerlink" href="#custom-prompts" title="Permanent link">&para;</a></h2>
+<p>You can create custom prompts for common tasks:</p>
+<h3 id="security-check-prompt">Security Check Prompt<a class="headerlink" href="#security-check-prompt" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code>Perform a comprehensive security check:
+1. Get current sensor status
+2. List any unacknowledged alerts
+3. Check for unusual patterns in the last 24 hours
+4. Provide a threat assessment
+
+Format as a brief report suitable for review.</code></pre>
+<h3 id="incident-response-prompt">Incident Response Prompt<a class="headerlink" href="#incident-response-prompt" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code>I believe there may be an active security incident. Please:
+1. Analyze all alerts from the last hour
+2. Correlate related events
+3. Calculate threat score
+4. Provide recommended immediate actions
+5. Generate a preliminary incident report
+
+Prioritize speed over completeness.</code></pre>
+<h2 id="programmatic-access">Programmatic Access<a class="headerlink" href="#programmatic-access" title="Permanent link">&para;</a></h2>
+<h3 id="python-client">Python Client<a class="headerlink" href="#python-client" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python">from mcp import Client
+
+async def analyze_security():
+    client = Client()
+    await client.connect("estate-sentry")
+
+    # Call a tool
+    result = await client.call_tool(
+        "analyze_alert",
+        {"alert_id": "abc-123", "depth": "deep"}
+    )
+
+    # Read a resource
+    alerts = await client.read_resource("sentry://alerts/recent")
+
+    return result, alerts</code></pre>
+<h3 id="http-api">HTTP API<a class="headerlink" href="#http-api" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># List available tools
+curl http://localhost:8002/mcp/tools
+
+# Call a tool
+curl -X POST http://localhost:8002/mcp/tools/analyze_alert \
+  -H "Content-Type: application/json" \
+  -d '{"alert_id": "abc-123"}'
+
+# Read a resource
+curl http://localhost:8002/mcp/resources/sentry%3A%2F%2Falerts%2Frecent</code></pre>
+<h2 id="security-considerations">Security Considerations<a class="headerlink" href="#security-considerations" title="Permanent link">&para;</a></h2>
+<h3 id="api-token-security">API Token Security<a class="headerlink" href="#api-token-security" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Store tokens securely (environment variables, not in config files)</li>
+<li>Rotate tokens regularly</li>
+<li>Use separate tokens for different MCP clients</li>
+</ul>
+<h3 id="access-control">Access Control<a class="headerlink" href="#access-control" title="Permanent link">&para;</a></h3>
+<p>The MCP server respects Estate Sentry's permission model:</p>
+<ul>
+<li>User tokens only access owned resources</li>
+<li>Admin tokens can access all data</li>
+<li>Read-only tokens available for monitoring</li>
+</ul>
+<h3 id="audit-logging">Audit Logging<a class="headerlink" href="#audit-logging" title="Permanent link">&para;</a></h3>
+<p>All MCP tool calls are logged:</p>
+<pre class="highlight"><code class="language-python"># View MCP audit log
+python manage.py show_mcp_audit --limit 50</code></pre>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="mcp-server-not-starting">MCP Server Not Starting<a class="headerlink" href="#mcp-server-not-starting" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Check server logs
+python -m sentry.mcp.server --debug
+
+# Common issues:
+# - Missing API token
+# - API URL unreachable
+# - Port already in use</code></pre>
+<h3 id="tool-calls-failing">Tool Calls Failing<a class="headerlink" href="#tool-calls-failing" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Test API connectivity
+curl http://localhost:8000/api/alerts/
+
+# Verify token
+curl http://localhost:8000/api/auth/user/ \
+  -H "Authorization: Token your-token"</code></pre>
+<h3 id="slow-responses">Slow Responses<a class="headerlink" href="#slow-responses" title="Permanent link">&para;</a></h3>
+<p>Deep analysis can take time. For faster responses:</p>
+<ol>
+<li>Use <code>depth: "quick"</code> for initial triage</li>
+<li>Limit <code>time_window_minutes</code> for correlations</li>
+<li>Reduce <code>limit</code> for pattern searches</li>
+</ol>
+<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../../architecture/sentry-intelligence/">Sentry Intelligence Architecture</a></li>
+<li><a href="../api-usage/">API Usage Guide</a></li>
+<li><a href="../../architecture/security/">Security Architecture</a></li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../node-deployment/" class="btn btn-neutral float-left" title="Node Deployment"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../architecture/overview/" class="btn btn-neutral float-right" title="Overview">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/QR-Madness/estate-sentry" class="fa fa-code-fork" style="color: #fcfcfc"> estate-sentry</a>
+        </span>
+    
+    
+      <span><a href="../node-deployment/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../architecture/overview/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

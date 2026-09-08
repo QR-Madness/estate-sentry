@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Estate Sentry Contributors" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Roadmap - Estate Sentry</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Roadmap";
+        var mkdocs_page_input_path = "Todo.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/typescript.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Estate Sentry
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../Specification/">Specification</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Roadmap</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#status">Status</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#milestone-1-security-hardening-critical">Milestone 1: Security Hardening (Critical)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#milestone-2-handler-registry-device-abstraction">Milestone 2: Handler Registry &amp; Device Abstraction</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#milestone-3-switchboard-foundation">Milestone 3: Switchboard Foundation</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#service-setup">Service Setup</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#nats-integration">NATS Integration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#media-storage">Media Storage</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#routing">Routing</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edge-agent">Edge Agent</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#integration">Integration</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#milestone-4-database-enhancements">Milestone 4: Database Enhancements</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#timescaledb">TimescaleDB</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#event-sourcing">Event Sourcing</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#additional-tables">Additional Tables</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#milestone-5-node-architecture">Milestone 5: Node Architecture</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#django-app">Django App</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#discovery">Discovery</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#grpc-communication">gRPC Communication</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#synchronization">Synchronization</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#security">Security</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#failover">Failover</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#milestone-6-neo4j-integration">Milestone 6: Neo4j Integration</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#milestone-7-sentry-intelligence-service">Milestone 7: Sentry Intelligence Service</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#service-setup_1">Service Setup</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#vector-store">Vector Store</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#embeddings">Embeddings</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#mcp-server">MCP Server</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#threat-analysis">Threat Analysis</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#case-reports">Case Reports</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#integration_1">Integration</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#milestone-8-frontend-updates">Milestone 8: Frontend Updates</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#milestone-9-api-enhancements">Milestone 9: API Enhancements</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#openapi">OpenAPI</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#new-endpoints">New Endpoints</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#milestone-10-testing-documentation">Milestone 10: Testing &amp; Documentation</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#documentation">Documentation</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#quick-reference-priority-order">Quick Reference: Priority Order</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#dependencies-between-milestones">Dependencies Between Milestones</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#notes">Notes</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../getting-started/installation/">Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../getting-started/quickstart/">Quick Start</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../getting-started/docker-setup/">Docker Setup</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../guides/task-reference/">Task Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../guides/api-usage/">API Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../guides/plugin-development/">Plugin Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../guides/node-deployment/">Node Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../guides/mcp-integration/">MCP Integration</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Architecture</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../architecture/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../architecture/database/">Database</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../architecture/decentralization/">Decentralization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../architecture/switchboard/">Switchboard</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../architecture/security/">Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../architecture/device-abstraction/">Device Abstraction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../architecture/sentry-intelligence/">Sentry Intelligence</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operations</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../operations/monitoring/">Monitoring</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Contributing</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../contributing/development/">Development Guide</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Estate Sentry</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Roadmap</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/QR-Madness/estate-sentry/edit/master/docs/Todo.md">Edit on estate-sentry</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="estate-sentry-development-roadmap">Estate Sentry Development Roadmap<a class="headerlink" href="#estate-sentry-development-roadmap" title="Permanent link">&para;</a></h1>
+<p>This document tracks all implementation tasks required to build a functional prototype of Estate Sentry with its full architecture including decentralization, the Switchboard, and Sentry Intelligence.</p>
+<hr />
+<h2 id="status">Status<a class="headerlink" href="#status" title="Permanent link">&para;</a></h2>
+<p>Frames move end to end: a producer writes JPEG bytes to MinIO and publishes a
+reference on <code>frames.{camera_id}.raw</code>; the perception service fetches, gates on
+motion, detects objects, matches them to zones, and appends to the event log.
+The dashboard shows live camera tiles and a detection feed.</p>
+<p><strong>Built</strong></p>
+<ul>
+<li>Switchboard transport (NATS + MinIO) behind swappable interfaces</li>
+<li>L1 motion gate, L2 object detection (RT-DETRv2, Apache-2.0 — <em>not</em> YOLOv8, which
+  is AGPL-3.0 and would conflict with this project's MIT licence)</li>
+<li>L3 zone intersection, with <code>zones</code> and <code>intelligence</code> apps</li>
+<li>HQ dashboard: Django templates + htmx, MJPEG and SSE, no build step</li>
+<li>Live overlay: detection brackets and zone perimeters drawn client-side over the
+  camera tiles, each independently toggleable</li>
+<li>Development producer in <code>../mock-estate/</code> on the real frame contract</li>
+</ul>
+<p><strong>Not built, deliberately</strong></p>
+<ul>
+<li>L4 identity, L5 action/pose, L6 correlation, L7 threat scoring</li>
+<li>Neo4j and ChromaDB integration</li>
+<li>Remaining Milestone 1 items: JSON Schema validation on the JSONFields, the
+  audit log, and rate limiting on sensor reading endpoints</li>
+</ul>
+<p><strong>Intelligence model split</strong></p>
+<p>The intended shape for the analysis layer, recorded here so it is not lost: an
+open-weights model (Gemma 4 or similar) does the bulk classification and
+summarisation locally, with a Claude reasoning agent above it for report
+generation and escalation control. Local inference keeps continuous footage
+analysis on the user's own hardware — which is the point of a self-hosted
+security system — while the reasoning agent is invoked only for the small number
+of events that clear the threat threshold, where its judgement is worth the call.</p>
+<p>This is L7 / Sentry Intelligence territory and nothing depends on it yet.</p>
+<p><strong>Known measurements</strong></p>
+<ul>
+<li>RT-DETRv2 <code>r18vd</code> on CPU: ~0.42s per frame, about 2.4 fps.</li>
+<li>End-to-end detection lag, capture to browser: ~1.0s. Was ~4s until the
+  pipeline's inbound queue was shortened to 2 — a deep queue on a slow consumer
+  turns directly into staleness, and the pipeline was analysing frames that had
+  already left the screen. The remaining second is inference plus one cycle of
+  wait, and will not improve without a faster model. Two cameras at 5 fps
+  oversubscribe the pipeline roughly fourfold; the bounded queues drop oldest-first
+  and the producer is never throttled.</li>
+</ul>
+<hr />
+<h2 id="milestone-1-security-hardening-critical">Milestone 1: Security Hardening (Critical)<a class="headerlink" href="#milestone-1-security-hardening-critical" title="Permanent link">&para;</a></h2>
+<p><strong>Priority:</strong> CRITICAL - Must be completed before any production deployment</p>
+<ul>
+<li>[x] Hash PIN storage using Django password hashers (<code>make_password</code>/<code>check_password</code>)</li>
+<li>[x] Create data migration to hash existing plaintext PINs</li>
+<li>[x] Implement <code>TrustedDevice</code> model for username-only authentication</li>
+<li>[ ] Add device fingerprint and certificate binding for trusted devices —
+      the token is the credential today; binding it to a client certificate
+      would stop a copied token working from somewhere else</li>
+<li>[x] Add rate limiting to authentication endpoints, plus a per-account lockout</li>
+<li>[ ] Add rate limiting to sensor reading endpoints (60/minute per sensor)</li>
+<li>[ ] Create <code>core/validators.py</code> with JSON Schema validators</li>
+<li>[ ] Add JSON Schema validation to <code>connection_config</code> and <code>metadata</code> fields</li>
+<li>[ ] Implement <code>audit</code> Django app with <code>AuditLog</code> model</li>
+<li>[ ] Add audit middleware for automatic security event capture</li>
+<li>[ ] Configure maximum payload sizes for JSONFields</li>
+</ul>
+<hr />
+<h2 id="milestone-2-handler-registry-device-abstraction">Milestone 2: Handler Registry &amp; Device Abstraction<a class="headerlink" href="#milestone-2-handler-registry-device-abstraction" title="Permanent link">&para;</a></h2>
+<p><strong>Priority:</strong> HIGH - Foundation for extensibility</p>
+<ul>
+<li>[ ] Create <code>sensors/registry.py</code> with <code>HandlerRegistry</code> class</li>
+<li>[ ] Implement entry point-based plugin discovery</li>
+<li>[ ] Add class-level metadata to <code>BaseSensorHandler</code> (<code>SENSOR_TYPES</code>, <code>PROTOCOLS</code>, <code>VERSION</code>)</li>
+<li>[ ] Add <code>get_schema()</code> method for reading JSON Schema</li>
+<li>[ ] Add <code>get_connection_schema()</code> method for config validation</li>
+<li>[ ] Implement <code>GlassBreakHandler</code></li>
+<li>[ ] Implement <code>MotionHandler</code></li>
+<li>[ ] Implement <code>EnvironmentalHandler</code> (smoke, CO, water, temperature)</li>
+<li>[ ] Implement <code>CameraStreamHandler</code> for Switchboard integration</li>
+<li>[ ] Refactor <code>sensors/views.py</code> to use <code>HandlerRegistry</code> instead of hardcoded map</li>
+<li>[ ] Refactor <code>sensors/serializers.py</code> to use <code>HandlerRegistry</code></li>
+<li>[ ] Create <code>devices/protocols/base.py</code> with <code>BaseProtocolAdapter</code></li>
+<li>[ ] Implement <code>MQTTProtocolAdapter</code></li>
+<li>[ ] Implement <code>RESTProtocolAdapter</code></li>
+<li>[ ] Implement <code>WebSocketProtocolAdapter</code></li>
+</ul>
+<hr />
+<h2 id="milestone-3-switchboard-foundation">Milestone 3: Switchboard Foundation<a class="headerlink" href="#milestone-3-switchboard-foundation" title="Permanent link">&para;</a></h2>
+<p><strong>Priority:</strong> HIGH - Central data routing for all sensor data</p>
+<h3 id="service-setup">Service Setup<a class="headerlink" href="#service-setup" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create <code>estate-sentry-switchboard/</code> directory structure</li>
+<li>[ ] Create <code>src/main.py</code> entry point</li>
+<li>[ ] Create <code>src/config.py</code> configuration module</li>
+<li>[ ] Add <code>requirements.txt</code> with dependencies (nats-py, minio, etc.)</li>
+<li>[ ] Create <code>Dockerfile</code> for Switchboard service</li>
+</ul>
+<h3 id="nats-integration">NATS Integration<a class="headerlink" href="#nats-integration" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Set up NATS JetStream configuration</li>
+<li>[ ] Implement <code>messaging/nats_client.py</code> wrapper</li>
+<li>[ ] Create topic structure for sensor data routing:</li>
+<li><code>sensors.{sensor_type}.{sensor_id}.readings</code></li>
+<li><code>sensors.{sensor_type}.{sensor_id}.status</code></li>
+<li><code>alerts.{severity}</code></li>
+<li><code>frames.{camera_id}</code></li>
+<li>[ ] Implement <code>messaging/handlers.py</code> for message processing</li>
+</ul>
+<h3 id="media-storage">Media Storage<a class="headerlink" href="#media-storage" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Set up MinIO for S3-compatible object storage</li>
+<li>[ ] Implement <code>storage/minio_client.py</code> wrapper</li>
+<li>[ ] Implement <code>storage/frame_store.py</code> for camera frame storage</li>
+<li>[ ] Create bucket structure for media organization</li>
+</ul>
+<h3 id="routing">Routing<a class="headerlink" href="#routing" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Implement <code>routing/router.py</code> message routing logic</li>
+<li>[ ] Implement <code>routing/topics.py</code> topic definitions</li>
+</ul>
+<h3 id="edge-agent">Edge Agent<a class="headerlink" href="#edge-agent" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create <code>edge/agent.py</code> lightweight edge agent</li>
+<li>[ ] Implement <code>edge/camera.py</code> for camera frame capture</li>
+<li>[ ] Add frame compression and encoding</li>
+</ul>
+<h3 id="integration">Integration<a class="headerlink" href="#integration" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Add Docker Compose configuration for Switchboard</li>
+<li>[ ] Create API endpoints for Switchboard status</li>
+<li>[ ] Integrate Switchboard events with Django API</li>
+</ul>
+<hr />
+<h2 id="milestone-4-database-enhancements">Milestone 4: Database Enhancements<a class="headerlink" href="#milestone-4-database-enhancements" title="Permanent link">&para;</a></h2>
+<p><strong>Priority:</strong> MEDIUM - Performance optimization</p>
+<h3 id="timescaledb">TimescaleDB<a class="headerlink" href="#timescaledb" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Add TimescaleDB extension to Docker Compose</li>
+<li>[ ] Create migration to convert <code>sensor_readings</code> to hypertable</li>
+<li>[ ] Configure chunk time interval (1 day)</li>
+<li>[ ] Add compression policy (compress after 7 days)</li>
+<li>[ ] Add retention policy (configurable, default 1 year)</li>
+</ul>
+<h3 id="event-sourcing">Event Sourcing<a class="headerlink" href="#event-sourcing" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create <code>event_log</code> table for node synchronization</li>
+<li>[ ] Add <code>vector_clock</code> field for causality tracking</li>
+<li>[ ] Implement event replay functionality</li>
+</ul>
+<h3 id="additional-tables">Additional Tables<a class="headerlink" href="#additional-tables" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create <code>media_files</code> table for MinIO references</li>
+<li>[ ] Add indexes for time-range queries</li>
+<li>[ ] Add materialized views for statistics</li>
+</ul>
+<hr />
+<h2 id="milestone-5-node-architecture">Milestone 5: Node Architecture<a class="headerlink" href="#milestone-5-node-architecture" title="Permanent link">&para;</a></h2>
+<p><strong>Priority:</strong> MEDIUM - Decentralization foundation</p>
+<h3 id="django-app">Django App<a class="headerlink" href="#django-app" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create <code>nodes</code> Django app</li>
+<li>[ ] Implement <code>Node</code> model (uuid, name, zone, role, status)</li>
+<li>[ ] Implement <code>NodeHeartbeat</code> model (node, timestamp, metrics)</li>
+<li>[ ] Implement <code>NodeCertificate</code> model (node, cert_pem, fingerprint, expires)</li>
+</ul>
+<h3 id="discovery">Discovery<a class="headerlink" href="#discovery" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Implement mDNS discovery service using <code>zeroconf</code></li>
+<li>[ ] Create manual node registration endpoint</li>
+<li>[ ] Implement node health check endpoint</li>
+</ul>
+<h3 id="grpc-communication">gRPC Communication<a class="headerlink" href="#grpc-communication" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create <code>nodes/grpc/node.proto</code> protocol definitions</li>
+<li>[ ] Generate Python stubs from proto</li>
+<li>[ ] Implement <code>nodes/grpc/server.py</code> gRPC server</li>
+<li>[ ] Implement <code>nodes/grpc/client.py</code> gRPC client</li>
+</ul>
+<h3 id="synchronization">Synchronization<a class="headerlink" href="#synchronization" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Implement <code>nodes/sync.py</code> event synchronization service</li>
+<li>[ ] Add CRDT-based conflict resolution for concurrent updates</li>
+<li>[ ] Implement sync priority tiers (critical, important, background)</li>
+</ul>
+<h3 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Implement internal CA for node certificates</li>
+<li>[ ] Add mTLS enforcement for inter-node communication</li>
+<li>[ ] Implement certificate rotation</li>
+</ul>
+<h3 id="failover">Failover<a class="headerlink" href="#failover" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Implement leader election for zone primaries (Raft-based)</li>
+<li>[ ] Add automatic failover on primary node failure</li>
+<li>[ ] Configure data replication factor (default: 2)</li>
+</ul>
+<hr />
+<h2 id="milestone-6-neo4j-integration">Milestone 6: Neo4j Integration<a class="headerlink" href="#milestone-6-neo4j-integration" title="Permanent link">&para;</a></h2>
+<p><strong>Priority:</strong> MEDIUM - Threat intelligence graphs</p>
+<ul>
+<li>[ ] Create <code>sentry/graph/neo4j_client.py</code> client wrapper</li>
+<li>[ ] Implement Django signals to sync data to Neo4j</li>
+<li>[ ] Create <code>:Sensor</code> nodes with properties</li>
+<li>[ ] Create <code>:Reading</code> nodes with temporal relationships</li>
+<li>[ ] Create <code>:Alert</code> nodes with correlation relationships</li>
+<li>[ ] Create <code>:Pattern</code> nodes for known threat patterns</li>
+<li>[ ] Create <code>:Location</code> nodes for spatial analysis</li>
+<li>[ ] Implement <code>GENERATED</code>, <code>FOLLOWED_BY</code>, <code>SIMILAR_TO</code> relationships</li>
+<li>[ ] Create temporal neighbor linking queries</li>
+<li>[ ] Implement alert correlation queries (30-minute window)</li>
+<li>[ ] Add Graph Data Science algorithms for pattern detection</li>
+<li>[ ] Create community detection queries for sensor clusters</li>
+</ul>
+<hr />
+<h2 id="milestone-7-sentry-intelligence-service">Milestone 7: Sentry Intelligence Service<a class="headerlink" href="#milestone-7-sentry-intelligence-service" title="Permanent link">&para;</a></h2>
+<p><strong>Priority:</strong> MEDIUM - AI-powered threat analysis</p>
+<h3 id="service-setup_1">Service Setup<a class="headerlink" href="#service-setup_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create <code>estate-sentry-sentry/</code> directory structure</li>
+<li>[ ] Create <code>src/main.py</code> entry point</li>
+<li>[ ] Add <code>requirements.txt</code> (chromadb, mcp, anthropic, etc.)</li>
+<li>[ ] Create <code>Dockerfile</code> for Sentry service</li>
+</ul>
+<h3 id="vector-store">Vector Store<a class="headerlink" href="#vector-store" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Implement <code>intelligence/vector_store.py</code> abstraction interface</li>
+<li>[ ] Implement <code>ChromaVectorStore</code> class</li>
+<li>[ ] Create event embedding schema</li>
+<li>[ ] Implement similarity search for historical patterns</li>
+</ul>
+<h3 id="embeddings">Embeddings<a class="headerlink" href="#embeddings" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Implement <code>intelligence/embeddings.py</code> event embedding pipeline</li>
+<li>[ ] Create text representation of security events</li>
+<li>[ ] Implement batch embedding for historical data</li>
+</ul>
+<h3 id="mcp-server">MCP Server<a class="headerlink" href="#mcp-server" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Implement <code>mcp/server.py</code> MCP server skeleton</li>
+<li>[ ] Create <code>mcp/tools/analyze.py</code> alert analysis tool</li>
+<li>[ ] Create <code>mcp/tools/correlate.py</code> event correlation tool</li>
+<li>[ ] Create <code>mcp/tools/search.py</code> pattern search tool</li>
+<li>[ ] Create <code>mcp/tools/report.py</code> report generation tool</li>
+<li>[ ] Expose resources via MCP protocol:</li>
+<li><code>sentry://alerts/recent</code></li>
+<li><code>sentry://sensors/status</code></li>
+<li><code>sentry://patterns/known</code></li>
+</ul>
+<h3 id="threat-analysis">Threat Analysis<a class="headerlink" href="#threat-analysis" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Implement <code>intelligence/scoring.py</code> threat scoring algorithm</li>
+<li>[ ] Create severity escalation rules</li>
+<li>[ ] Implement alert correlation engine</li>
+<li>[ ] Add behavioral baseline detection</li>
+</ul>
+<h3 id="case-reports">Case Reports<a class="headerlink" href="#case-reports" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create <code>reports/generator.py</code> report generator</li>
+<li>[ ] Create markdown report template</li>
+<li>[ ] Create PDF report template (optional)</li>
+<li>[ ] Implement timeline generation from correlated events</li>
+<li>[ ] Add recommendation generation based on threat score</li>
+</ul>
+<h3 id="integration_1">Integration<a class="headerlink" href="#integration_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Add Docker Compose configuration for Sentry</li>
+<li>[ ] Create API endpoints for Sentry analysis</li>
+<li>[ ] Integrate with Django alerts for automatic analysis</li>
+</ul>
+<hr />
+<h2 id="milestone-8-frontend-updates">Milestone 8: Frontend Updates<a class="headerlink" href="#milestone-8-frontend-updates" title="Permanent link">&para;</a></h2>
+<p><strong>Priority:</strong> LOW - Can work with existing frontend initially</p>
+<ul>
+<li>[ ] Add Switchboard WebSocket connection to HQ</li>
+<li>[ ] Implement real-time sensor streaming display</li>
+<li>[ ] Add node status dashboard component</li>
+<li>[ ] Create Sentry analysis panel</li>
+<li>[ ] Add case report viewer component</li>
+<li>[ ] Implement media/frame viewer for camera feeds</li>
+<li>[ ] Add node management interface</li>
+<li>[ ] Create device registration wizard</li>
+</ul>
+<hr />
+<h2 id="milestone-9-api-enhancements">Milestone 9: API Enhancements<a class="headerlink" href="#milestone-9-api-enhancements" title="Permanent link">&para;</a></h2>
+<p><strong>Priority:</strong> MEDIUM - Documentation and new endpoints</p>
+<h3 id="openapi">OpenAPI<a class="headerlink" href="#openapi" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Add <code>drf-spectacular</code> to requirements</li>
+<li>[ ] Configure <code>SPECTACULAR_SETTINGS</code> in settings.py</li>
+<li>[ ] Add schema and docs endpoints to urls.py</li>
+<li>[ ] Generate new <code>openapi.yaml</code></li>
+</ul>
+<h3 id="new-endpoints">New Endpoints<a class="headerlink" href="#new-endpoints" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Add <code>/api/switchboard/status/</code> endpoint</li>
+<li>[ ] Add <code>/api/switchboard/topics/</code> endpoint</li>
+<li>[ ] Add <code>/api/nodes/</code> CRUD endpoints</li>
+<li>[ ] Add <code>/api/nodes/{id}/health/</code> endpoint</li>
+<li>[ ] Add <code>/api/nodes/discover/</code> mDNS discovery endpoint</li>
+<li>[ ] Add <code>/api/sentry/analyze/</code> analysis endpoint</li>
+<li>[ ] Add <code>/api/sentry/correlate/</code> correlation endpoint</li>
+<li>[ ] Add <code>/api/sentry/reports/</code> report generation endpoint</li>
+</ul>
+<hr />
+<h2 id="milestone-10-testing-documentation">Milestone 10: Testing &amp; Documentation<a class="headerlink" href="#milestone-10-testing-documentation" title="Permanent link">&para;</a></h2>
+<p><strong>Priority:</strong> ONGOING</p>
+<h3 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Write tests for PIN hashing and authentication security</li>
+<li>[ ] Write tests for handler registry and discovery</li>
+<li>[ ] Write tests for Switchboard message routing</li>
+<li>[ ] Write tests for node discovery and registration</li>
+<li>[ ] Write tests for Sentry threat scoring</li>
+<li>[ ] Write integration tests for full sensor → alert pipeline</li>
+<li>[ ] Write integration tests for multi-node sync</li>
+<li>[ ] Add test fixtures for Neo4j graph data</li>
+</ul>
+<h3 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Complete architecture documentation (see docs/ updates)</li>
+<li>[ ] Write plugin development guide with examples</li>
+<li>[ ] Create deployment runbook for production</li>
+<li>[ ] Document backup and restore procedures</li>
+<li>[ ] Create troubleshooting guide</li>
+<li>[ ] Add API changelog</li>
+</ul>
+<hr />
+<h2 id="quick-reference-priority-order">Quick Reference: Priority Order<a class="headerlink" href="#quick-reference-priority-order" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>CRITICAL</strong>: Milestone 1 (Security) - Do first, blocks everything</li>
+<li><strong>HIGH</strong>: Milestone 2 (Handler Registry) - Foundation for devices</li>
+<li><strong>HIGH</strong>: Milestone 3 (Switchboard) - Central to architecture</li>
+<li><strong>MEDIUM</strong>: Milestone 4 (Database) - Performance optimization</li>
+<li><strong>MEDIUM</strong>: Milestone 5 (Nodes) - Decentralization</li>
+<li><strong>MEDIUM</strong>: Milestone 6 (Neo4j) - Intelligence backend</li>
+<li><strong>MEDIUM</strong>: Milestone 7 (Sentry) - AI analysis</li>
+<li><strong>MEDIUM</strong>: Milestone 9 (API) - Documentation</li>
+<li><strong>LOW</strong>: Milestone 8 (Frontend) - Works without changes</li>
+<li><strong>ONGOING</strong>: Milestone 10 (Testing) - Throughout development</li>
+</ol>
+<hr />
+<h2 id="dependencies-between-milestones">Dependencies Between Milestones<a class="headerlink" href="#dependencies-between-milestones" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code>Milestone 1 (Security)
+    ↓
+Milestone 2 (Handlers) ──────────────────┐
+    ↓                                    ↓
+Milestone 3 (Switchboard) ←──── Milestone 4 (Database)
+    ↓                                    ↓
+Milestone 5 (Nodes) ─────────────────────┤
+    ↓                                    ↓
+Milestone 6 (Neo4j) ←────────────────────┘
+    ↓
+Milestone 7 (Sentry)
+    ↓
+Milestone 8 (Frontend) &amp; Milestone 9 (API)
+    ↓
+Milestone 10 (Testing) - runs throughout</code></pre>
+<hr />
+<h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Each milestone should be completed in a separate feature branch</li>
+<li>Security (Milestone 1) must be merged before any production deployment</li>
+<li>Switchboard and Sentry are separate services with their own repositories</li>
+<li>Neo4j integration should use Django signals for automatic sync</li>
+<li>All new API endpoints must include OpenAPI documentation</li>
+<li>Tests should be written alongside implementation, not after</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../Specification/" class="btn btn-neutral float-left" title="Specification"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../getting-started/installation/" class="btn btn-neutral float-right" title="Installation">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/QR-Madness/estate-sentry" class="fa fa-code-fork" style="color: #fcfcfc"> estate-sentry</a>
+        </span>
+    
+    
+      <span><a href="../Specification/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../getting-started/installation/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

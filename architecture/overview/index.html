@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Estate Sentry Contributors" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Overview - Estate Sentry</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Overview";
+        var mkdocs_page_input_path = "architecture/overview.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/typescript.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Estate Sentry
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Specification/">Specification</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Todo/">Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/installation/">Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/quickstart/">Quick Start</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/docker-setup/">Docker Setup</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/task-reference/">Task Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/api-usage/">API Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/plugin-development/">Plugin Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/node-deployment/">Node Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/mcp-integration/">MCP Integration</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Architecture</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Overview</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#system-architecture-diagram">System Architecture Diagram</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#core-components">Core Components</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#1-django-rest-api-backend-estate-sentry-api">1. Django REST API Backend (estate-sentry-api)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-hq-dashboard-estate-sentry-apihq">2. HQ Dashboard (estate-sentry-api/hq)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-switchboard-data-router">3. Switchboard (Data Router)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#4-sentry-intelligence">4. Sentry Intelligence</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#decentralization">Decentralization</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#node-topology">Node Topology</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#database-architecture">Database Architecture</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#postgresql-primary-database">PostgreSQL (Primary Database)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#neo4j-graph-database">Neo4j (Graph Database)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#chromadb-vector-database">ChromaDB (Vector Database)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#device-abstraction-layer">Device Abstraction Layer</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#device-types">Device Types</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#handler-framework">Handler Framework</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#protocol-adapters">Protocol Adapters</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#authentication-system">Authentication System</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#data-flow">Data Flow</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#sensor-reading-ingestion">Sensor Reading Ingestion</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#alert-generation">Alert Generation</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#api-design">API Design</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#project-structure">Project Structure</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#security-architecture">Security Architecture</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#scalability">Scalability</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#roadmap">Roadmap</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#development-philosophy">Development Philosophy</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#related-documentation">Related Documentation</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../database/">Database</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../decentralization/">Decentralization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../switchboard/">Switchboard</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../security/">Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../device-abstraction/">Device Abstraction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../sentry-intelligence/">Sentry Intelligence</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operations</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../operations/monitoring/">Monitoring</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Contributing</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../contributing/development/">Development Guide</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Estate Sentry</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Architecture</li>
+      <li class="breadcrumb-item active">Overview</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/QR-Madness/estate-sentry/edit/master/docs/architecture/overview.md">Edit on estate-sentry</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="architecture-overview">Architecture Overview<a class="headerlink" href="#architecture-overview" title="Permanent link">&para;</a></h1>
+<p>Estate Sentry is built with a modern, extensible, and decentralized architecture designed for scalability, redundancy, and intelligent threat analysis. The system can scale from a single home deployment to a large estate with multiple nodes providing full redundancy.</p>
+<h2 id="system-architecture-diagram">System Architecture Diagram<a class="headerlink" href="#system-architecture-diagram" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code>+------------------------------------------------------------------+
+|                         ESTATE SENTRY                             |
+|                                                                   |
+|  +------------------+    +------------------+    +--------------+ |
+|  |   Zone Nodes     |    |   Switchboard    |    |   Sentry     | |
+|  |   (Distributed)  |&lt;--&gt;|   (Data Router)  |&lt;--&gt;|  (AI Intel)  | |
+|  +--------+---------+    +--------+---------+    +------+-------+ |
+|           |                       |                     |         |
+|  +--------v---------+    +--------v---------+    +------v-------+ |
+|  | Django REST API  |    |  NATS + MinIO    |    | MCP + Vector | |
+|  | PostgreSQL       |    |  (Messages/Media)|    | ChromaDB     | |
+|  | Neo4j            |    |                  |    | Neo4j        | |
+|  +------------------+    +------------------+    +--------------+ |
++------------------------------------------------------------------+
+         |                         |                      |
++--------v--------+     +----------v----------+    +------v-------+
+|  HQ Dashboard   |     |  Sensors/Devices    |    |  Claude/AI   |
+|  (Django+htmx)  |     |  (MQTT/REST/etc)    |    |  (Analysis)  |
++-----------------+     +---------------------+    +--------------+</code></pre>
+<h2 id="core-components">Core Components<a class="headerlink" href="#core-components" title="Permanent link">&para;</a></h2>
+<h3 id="1-django-rest-api-backend-estate-sentry-api">1. Django REST API Backend (<code>estate-sentry-api</code>)<a class="headerlink" href="#1-django-rest-api-backend-estate-sentry-api" title="Permanent link">&para;</a></h3>
+<p>The backend is built with Django and Django REST Framework, following a modular app-based architecture.</p>
+<p><strong>Key Features:</strong>
+- Token-based authentication with multiple methods
+- RESTful API design
+- Extensible sensor handler framework with auto-discovery
+- Real-time threat detection
+- Time-series data storage with TimescaleDB
+- Multi-node synchronization</p>
+<p><strong>Django Apps:</strong></p>
+<ul>
+<li><strong>authentication</strong> - User management with multiple auth methods (password, PIN, device certificates)</li>
+<li><strong>sensors</strong> - Sensor registration, data ingestion, handler framework with plugin support</li>
+<li><strong>alerts</strong> - Threat detection, alert generation, notification system</li>
+<li><strong>nodes</strong> - Multi-node coordination, discovery, and synchronization</li>
+<li><strong>audit</strong> - Security audit logging</li>
+</ul>
+<h3 id="2-hq-dashboard-estate-sentry-apihq">2. HQ Dashboard (<code>estate-sentry-api/hq</code>)<a class="headerlink" href="#2-hq-dashboard-estate-sentry-apihq" title="Permanent link">&para;</a></h3>
+<p>A Django app serving templates plus htmx, from the same process as the API. There
+is no build step and no second service: live video is an <code>&lt;img&gt;</code> pointed at an
+MJPEG endpoint, and the detection feed is server-sent events swapped in by htmx.</p>
+<p>The earlier Next.js application was removed — it had never built, and nothing in
+it reached the Django API.</p>
+<p><strong>Key Features:</strong>
+- Real-time dashboard with WebSocket streaming
+- Sensor monitoring and management
+- Alert management and acknowledgment
+- Node status monitoring (multi-node)
+- Case report viewing
+- Dark mode support
+- Responsive design</p>
+<p><strong>Technologies:</strong>
+- Django templates + htmx (vendored, no CDN)
+- React 18
+- TypeScript
+- Tailwind CSS
+- SWR for data fetching</p>
+<h3 id="3-switchboard-data-router">3. Switchboard (Data Router)<a class="headerlink" href="#3-switchboard-data-router" title="Permanent link">&para;</a></h3>
+<p>The Switchboard is the central data routing backbone for all sensor data.</p>
+<p><strong>Key Features:</strong>
+- NATS JetStream for message routing
+- MinIO for media/frame storage
+- Edge agents for embedded cameras
+- Multi-node federation
+- High-bandwidth video stream handling</p>
+<p><strong>See:</strong> <a href="../switchboard/">Switchboard Architecture</a></p>
+<h3 id="4-sentry-intelligence">4. Sentry Intelligence<a class="headerlink" href="#4-sentry-intelligence" title="Permanent link">&para;</a></h3>
+<p>The Sentry Intelligence system provides AI-powered threat analysis.</p>
+<p><strong>Key Features:</strong>
+- MCP server for Claude integration
+- ChromaDB vector store for pattern matching
+- Neo4j for behavioral analysis
+- Threat scoring algorithms
+- Automated case report generation</p>
+<p><strong>See:</strong> <a href="../sentry-intelligence/">Sentry Intelligence Architecture</a></p>
+<h2 id="decentralization">Decentralization<a class="headerlink" href="#decentralization" title="Permanent link">&para;</a></h2>
+<p>Estate Sentry supports deployment across multiple nodes for redundancy and scalability.</p>
+<h3 id="node-topology">Node Topology<a class="headerlink" href="#node-topology" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code>+-------------------+     +-------------------+     +-------------------+
+|   Zone: Main      |     |   Zone: Guest     |     |   Federation Hub  |
+|   Primary Node    |&lt;---&gt;|   Primary Node    |&lt;---&gt;|   (Optional)      |
+|   + Secondaries   |     |                   |     |   Sentry Intel    |
++-------------------+     +-------------------+     +-------------------+</code></pre>
+<p><strong>Features:</strong>
+- Automatic node discovery via mDNS
+- Manual registration for WAN nodes
+- gRPC with mTLS for inter-node communication
+- Event sourcing for synchronization
+- Automatic failover and leader election</p>
+<p><strong>See:</strong> <a href="../decentralization/">Decentralization Architecture</a></p>
+<h2 id="database-architecture">Database Architecture<a class="headerlink" href="#database-architecture" title="Permanent link">&para;</a></h2>
+<p>Estate Sentry uses a multi-database approach optimized for different workloads:</p>
+<h3 id="postgresql-primary-database">PostgreSQL (Primary Database)<a class="headerlink" href="#postgresql-primary-database" title="Permanent link">&para;</a></h3>
+<p>Stores relational data:
+- User accounts
+- Sensor configurations
+- Sensor readings (time-series via TimescaleDB)
+- Security alerts
+- Audit logs
+- Node registry</p>
+<p><strong>Deployment Options:</strong>
+- SQLite for local development
+- PostgreSQL with TimescaleDB for production</p>
+<h3 id="neo4j-graph-database">Neo4j (Graph Database)<a class="headerlink" href="#neo4j-graph-database" title="Permanent link">&para;</a></h3>
+<p>Stores relationship data for threat intelligence:
+- Sensor networks and spatial relationships
+- Threat patterns and correlations
+- Behavioral analysis graphs
+- Alert relationship mapping</p>
+<p><strong>Features:</strong>
+- APOC plugins
+- Graph Data Science algorithms
+- Pattern detection queries
+- Real-time synchronization from PostgreSQL</p>
+<h3 id="chromadb-vector-database">ChromaDB (Vector Database)<a class="headerlink" href="#chromadb-vector-database" title="Permanent link">&para;</a></h3>
+<p>Stores embeddings for AI analysis:
+- Alert embeddings for similarity search
+- Known threat pattern vectors
+- Historical incident embeddings</p>
+<p><strong>See:</strong> <a href="../database/">Database Architecture</a></p>
+<h2 id="device-abstraction-layer">Device Abstraction Layer<a class="headerlink" href="#device-abstraction-layer" title="Permanent link">&para;</a></h2>
+<p>Estate Sentry uses a plugin-based device abstraction layer that supports sensors, actuators, and controllers.</p>
+<h3 id="device-types">Device Types<a class="headerlink" href="#device-types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Direction</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sensor</td>
+<td>Read-only</td>
+<td>Cameras, contacts, motion, environmental</td>
+</tr>
+<tr>
+<td>Actuator</td>
+<td>Write/Control</td>
+<td>Lights, locks, sirens</td>
+</tr>
+<tr>
+<td>Controller</td>
+<td>Bidirectional</td>
+<td>PLCs, hubs, gateways</td>
+</tr>
+</tbody>
+</table>
+<h3 id="handler-framework">Handler Framework<a class="headerlink" href="#handler-framework" title="Permanent link">&para;</a></h3>
+<p>Each device type has a dedicated handler with auto-discovery:</p>
+<pre class="highlight"><code class="language-python">class BaseSensorHandler:
+    SENSOR_TYPES = ['MY_SENSOR']  # Auto-registration
+    PROTOCOLS = ['mqtt', 'rest']  # Supported protocols
+
+    def validate_reading(self, data):
+        """Validate incoming sensor data"""
+        pass
+
+    def process_reading(self, data):
+        """Process data into standard format"""
+        pass
+
+    def detect_threats(self, reading):
+        """Analyze for threats and generate alerts"""
+        pass
+
+    @classmethod
+    def get_reading_schema(cls):
+        """JSON Schema for automatic validation"""
+        pass</code></pre>
+<p><strong>Built-in Handlers:</strong>
+- <code>CameraHandler</code> - Camera systems with Switchboard integration
+- <code>ContactHandler</code> - Door/window sensors
+- <code>GlassBreakHandler</code> - Glass break detection
+- <code>MotionHandler</code> - Motion detection
+- <code>EnvironmentalHandler</code> - Smoke, CO, water leak, temperature</p>
+<h3 id="protocol-adapters">Protocol Adapters<a class="headerlink" href="#protocol-adapters" title="Permanent link">&para;</a></h3>
+<p>Communication protocol abstraction:
+- MQTT - IoT sensors, home automation
+- REST - IP cameras, web services
+- Modbus - PLCs, industrial devices
+- WebSocket - Real-time streams
+- Zigbee/Z-Wave - Consumer sensors</p>
+<p><strong>See:</strong> <a href="../device-abstraction/">Device Abstraction</a> | <a href="../../guides/plugin-development/">Plugin Development Guide</a></p>
+<h2 id="authentication-system">Authentication System<a class="headerlink" href="#authentication-system" title="Permanent link">&para;</a></h2>
+<p>Multi-method authentication supporting:
+- <strong>Password</strong> - Standard username/password
+- <strong>PIN</strong> - 4-digit PIN authentication
+- <strong>Username</strong> - Username-only for trusted devices</p>
+<p>Token-based API authentication using Django REST Framework's TokenAuthentication.</p>
+<h2 id="data-flow">Data Flow<a class="headerlink" href="#data-flow" title="Permanent link">&para;</a></h2>
+<h3 id="sensor-reading-ingestion">Sensor Reading Ingestion<a class="headerlink" href="#sensor-reading-ingestion" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Sensor submits reading via API</li>
+<li>Handler validates the data</li>
+<li>Reading is stored in PostgreSQL</li>
+<li>Handler processes and analyzes data</li>
+<li>Threats are detected</li>
+<li>Alerts are generated if needed</li>
+<li>Frontend receives real-time updates</li>
+</ol>
+<h3 id="alert-generation">Alert Generation<a class="headerlink" href="#alert-generation" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Sensor reading triggers threat detection</li>
+<li>Handler analyzes data against rules</li>
+<li>Alert is created with severity level</li>
+<li>User is notified (email/push planned)</li>
+<li>Alert appears in dashboard</li>
+<li>User can acknowledge/dismiss</li>
+</ol>
+<h2 id="api-design">API Design<a class="headerlink" href="#api-design" title="Permanent link">&para;</a></h2>
+<p>RESTful API following best practices:
+- Resource-based URLs
+- HTTP methods (GET, POST, PATCH, DELETE)
+- JSON request/response format
+- Token authentication
+- Proper status codes
+- Error handling</p>
+<h2 id="project-structure">Project Structure<a class="headerlink" href="#project-structure" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code>estate-sentry-source/
+├── estate-sentry-api/          # Django API Backend
+│   ├── .venv/                  # Python virtual environment
+│   ├── estate_sentry/          # Main Django project
+│   │   ├── settings.py         # Configuration
+│   │   └── urls.py             # URL routing
+│   ├── authentication/         # Auth app
+│   │   ├── models.py           # User model
+│   │   ├── serializers.py      # API serializers
+│   │   ├── views.py            # API endpoints
+│   │   └── tests.py            # Tests
+│   ├── sensors/                # Sensors app
+│   │   ├── models.py           # Sensor, SensorReading
+│   │   ├── handlers/           # Handler framework
+│   │   │   ├── base.py
+│   │   │   ├── camera.py
+│   │   │   ├── contact.py
+│   │   │   └── ...
+│   │   ├── serializers.py
+│   │   ├── views.py
+│   │   └── tests.py
+│   ├── alerts/                 # Alerts app
+│   │   ├── models.py           # Alert model
+│   │   ├── serializers.py
+│   │   ├── views.py
+│   │   └── tests.py
+│   ├── manage.py               # Django CLI
+│   └── requirements.txt        # Python dependencies
+│
+├── estate-sentry-api/hq/       # HQ dashboard (Django templates + htmx)
+│   ├── templates/              # Server-rendered pages and SSE fragments
+│   │   ├── _app.tsx            # App wrapper
+│   │   ├── index.tsx           # Dashboard
+│   │   └── api/                # API routes
+│   ├── components/             # React components
+│   │   ├── Layout.tsx
+│   │   ├── Header.tsx
+│   │   ├── Sidebar.tsx
+│   │   └── ...
+│   ├── contexts/               # React contexts
+│   │   ├── AuthContext.tsx
+│   │   └── AlertContext.tsx
+│   └── lib/                    # Utilities
+│
+├── data/                       # Data persistence
+│   ├── neo4j/                  # Neo4j volumes
+│   └── backups/                # Database backups
+│
+├── docs/                       # Documentation
+├── Taskfile.yaml               # Task automation
+├── docker-compose.yml          # Docker orchestration
+└── .env.example                # Environment template</code></pre>
+<h2 id="security-architecture">Security Architecture<a class="headerlink" href="#security-architecture" title="Permanent link">&para;</a></h2>
+<p>Estate Sentry implements defense-in-depth security:</p>
+<p><strong>Authentication:</strong>
+- Token-based API authentication
+- PIN authentication (hashed)
+- Device certificate binding
+- Multi-factor support</p>
+<p><strong>Authorization:</strong>
+- Ownership-based access control
+- Role-based permissions (future)</p>
+<p><strong>Data Protection:</strong>
+- mTLS for inter-node communication
+- Encryption at rest (configurable)
+- JSON Schema input validation
+- Rate limiting</p>
+<p><strong>Audit:</strong>
+- Comprehensive audit logging
+- 7-year retention (compliance)</p>
+<p><strong>See:</strong> <a href="../security/">Security Architecture</a></p>
+<h2 id="scalability">Scalability<a class="headerlink" href="#scalability" title="Permanent link">&para;</a></h2>
+<p>The architecture supports scaling from single home to large estate:</p>
+<ul>
+<li><strong>Multi-node deployment</strong> - Distributed across zones</li>
+<li><strong>Automatic failover</strong> - Leader election, data replication</li>
+<li><strong>Message queue</strong> - NATS JetStream for async processing</li>
+<li><strong>Time-series optimization</strong> - TimescaleDB for sensor data</li>
+<li><strong>Media handling</strong> - MinIO for distributed storage</li>
+</ul>
+<h2 id="roadmap">Roadmap<a class="headerlink" href="#roadmap" title="Permanent link">&para;</a></h2>
+<p>See <a href="../../Todo/">Development Roadmap</a> for the complete implementation plan.</p>
+<p><strong>Current Focus:</strong>
+- Security hardening
+- Handler registry implementation
+- Switchboard foundation
+- Node architecture</p>
+<p><strong>Future:</strong>
+- Single-shot recognition for cameras
+- Mobile applications
+- Cloud deployment options
+- Advanced ML threat detection</p>
+<h2 id="development-philosophy">Development Philosophy<a class="headerlink" href="#development-philosophy" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Framework first</strong> - Build robust structure before features</li>
+<li><strong>Extensibility</strong> - Easy to add new sensor types</li>
+<li><strong>Testing</strong> - Comprehensive test coverage</li>
+<li><strong>Documentation</strong> - Clear, accessible documentation</li>
+<li><strong>Simplicity</strong> - Clean, maintainable code</li>
+<li><strong>Open source</strong> - Transparent, community-driven</li>
+</ol>
+<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<p><strong>Architecture:</strong>
+- <a href="../database/">Database Architecture</a>
+- <a href="../decentralization/">Decentralization</a>
+- <a href="../switchboard/">Switchboard</a>
+- <a href="../security/">Security</a>
+- <a href="../device-abstraction/">Device Abstraction</a>
+- <a href="../sentry-intelligence/">Sentry Intelligence</a></p>
+<p><strong>Guides:</strong>
+- <a href="../../guides/api-usage/">API Usage Guide</a>
+- <a href="../../guides/plugin-development/">Plugin Development</a>
+- <a href="../../guides/node-deployment/">Node Deployment</a>
+- <a href="../../guides/mcp-integration/">MCP Integration</a></p>
+<p><strong>Operations:</strong>
+- <a href="../../operations/monitoring/">Monitoring</a>
+- <a href="../../contributing/development/">Development Guide</a></p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../guides/mcp-integration/" class="btn btn-neutral float-left" title="MCP Integration"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../database/" class="btn btn-neutral float-right" title="Database">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/QR-Madness/estate-sentry" class="fa fa-code-fork" style="color: #fcfcfc"> estate-sentry</a>
+        </span>
+    
+    
+      <span><a href="../../guides/mcp-integration/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../database/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

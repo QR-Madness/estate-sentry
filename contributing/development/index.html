@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Estate Sentry Contributors" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Development Guide - Estate Sentry</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Development Guide";
+        var mkdocs_page_input_path = "contributing/development.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/typescript.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Estate Sentry
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Specification/">Specification</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Todo/">Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/installation/">Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/quickstart/">Quick Start</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/docker-setup/">Docker Setup</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/task-reference/">Task Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/api-usage/">API Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/plugin-development/">Plugin Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/node-deployment/">Node Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/mcp-integration/">MCP Integration</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Architecture</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/database/">Database</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/decentralization/">Decentralization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/switchboard/">Switchboard</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/security/">Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/device-abstraction/">Device Abstraction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/sentry-intelligence/">Sentry Intelligence</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operations</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../operations/monitoring/">Monitoring</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Contributing</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Development Guide</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#initial-setup">Initial Setup</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#project-structure">Project Structure</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#development-workflow">Development Workflow</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#daily-development">Daily Development</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#making-changes">Making Changes</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#backend-development">Backend Development</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#django-apps">Django Apps</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#creating-a-new-app">Creating a New App</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#database-changes">Database Changes</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#adding-a-sensor-handler">Adding a Sensor Handler</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#writing-tests">Writing Tests</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#api-documentation">API Documentation</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#frontend-development">Frontend Development</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#component-structure">Component Structure</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#creating-components">Creating Components</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#using-api">Using API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#styling">Styling</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#docker-development">Docker Development</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#building-images">Building Images</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#development-with-docker">Development with Docker</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#dockerfile-changes">Dockerfile Changes</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#documentation">Documentation</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#writing-documentation">Writing Documentation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#documentation-standards">Documentation Standards</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#code-standards">Code Standards</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#python-backend">Python (Backend)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#typescript-frontend">TypeScript (Frontend)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#git-workflow">Git Workflow</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#commit-messages">Commit Messages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#branch-naming">Branch Naming</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pull-requests">Pull Requests</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#testing-strategy">Testing Strategy</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#unit-tests">Unit Tests</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#integration-tests">Integration Tests</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#coverage-goals">Coverage Goals</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#debugging">Debugging</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#backend-debugging">Backend Debugging</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#frontend-debugging">Frontend Debugging</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#docker-debugging">Docker Debugging</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#performance">Performance</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#database-optimization">Database Optimization</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#frontend-optimization">Frontend Optimization</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#security">Security</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#backend-security">Backend Security</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#frontend-security">Frontend Security</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#getting-help">Getting Help</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#resources">Resources</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Estate Sentry</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Contributing</li>
+      <li class="breadcrumb-item active">Development Guide</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/QR-Madness/estate-sentry/edit/master/docs/contributing/development.md">Edit on estate-sentry</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="development-guide">Development Guide<a class="headerlink" href="#development-guide" title="Permanent link">&para;</a></h1>
+<p>Welcome to Estate Sentry development! This guide will help you contribute to the project.</p>
+<h2 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h2>
+<h3 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Python 3.10+</li>
+<li>Node.js 18+</li>
+<li>Git</li>
+<li>Task (optional but recommended)</li>
+</ul>
+<h3 id="initial-setup">Initial Setup<a class="headerlink" href="#initial-setup" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Clone repository
+git clone https://github.com/yourusername/estate-sentry.git
+cd estate-sentry
+
+# Setup environment
+task setup
+
+# Create admin user
+task api:superuser
+
+# Start development servers
+task dev</code></pre>
+<h2 id="project-structure">Project Structure<a class="headerlink" href="#project-structure" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code>estate-sentry-source/
+├── estate-sentry-api/      # Django backend
+├── estate-sentry-perception/  # L1-L3 perception pipeline
+├── data/                   # Database volumes
+├── docs/                   # Documentation (mkdocs)
+├── Taskfile.yaml          # Task automation
+├── docker-compose.yml     # Docker orchestration
+└── .env.example           # Environment template</code></pre>
+<h2 id="development-workflow">Development Workflow<a class="headerlink" href="#development-workflow" title="Permanent link">&para;</a></h2>
+<h3 id="daily-development">Daily Development<a class="headerlink" href="#daily-development" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Start servers
+task dev
+
+# In another terminal
+task api:test          # Run tests
+task api:shell         # Django shell
+task check             # Run linting</code></pre>
+<h3 id="making-changes">Making Changes<a class="headerlink" href="#making-changes" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Create a feature branch</strong>
+   <pre class="highlight"><code class="language-bash">git checkout -b feature/your-feature-name</code></pre></p>
+</li>
+<li>
+<p><strong>Make your changes</strong></p>
+</li>
+<li>Backend: <code>estate-sentry-api/</code></li>
+<li>Dashboard: <code>estate-sentry-api/hq/</code></li>
+<li>
+<p>Docs: <code>docs/</code></p>
+</li>
+<li>
+<p><strong>Run tests</strong>
+   <pre class="highlight"><code class="language-bash">task test
+task check</code></pre></p>
+</li>
+<li>
+<p><strong>Commit your changes</strong>
+   <pre class="highlight"><code class="language-bash">git add .
+git commit -m "Add: your feature description"</code></pre></p>
+</li>
+<li>
+<p><strong>Push and create PR</strong>
+   <pre class="highlight"><code class="language-bash">git push origin feature/your-feature-name</code></pre></p>
+</li>
+</ol>
+<h2 id="backend-development">Backend Development<a class="headerlink" href="#backend-development" title="Permanent link">&para;</a></h2>
+<h3 id="django-apps">Django Apps<a class="headerlink" href="#django-apps" title="Permanent link">&para;</a></h3>
+<p>Estate Sentry follows Django's app-based architecture:</p>
+<ul>
+<li><strong>authentication</strong> - User management</li>
+<li><strong>sensors</strong> - Sensor framework</li>
+<li><strong>alerts</strong> - Alert system</li>
+</ul>
+<h3 id="creating-a-new-app">Creating a New App<a class="headerlink" href="#creating-a-new-app" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash">cd estate-sentry-api
+python manage.py startapp your_app_name
+
+# Add to INSTALLED_APPS in settings.py
+# Create models, views, serializers, tests</code></pre>
+<h3 id="database-changes">Database Changes<a class="headerlink" href="#database-changes" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Create migrations
+task api:makemigrations
+
+# Apply migrations
+task api:migrate
+
+# Backup first (recommended)
+task db:backup</code></pre>
+<h3 id="adding-a-sensor-handler">Adding a Sensor Handler<a class="headerlink" href="#adding-a-sensor-handler" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Create handler file</strong>
+   <pre class="highlight"><code class="language-bash"># estate-sentry-api/sensors/handlers/your_sensor.py</code></pre></p>
+</li>
+<li>
+<p><strong>Implement handler</strong>
+   <pre class="highlight"><code class="language-python">from .base import BaseSensorHandler
+
+class YourSensorHandler(BaseSensorHandler):
+    def validate_reading(self, data):
+        """Validate sensor data"""
+        if 'required_field' not in data:
+            return False, "Missing required_field"
+        return True, None
+
+    def process_reading(self, sensor, data):
+        """Process and store reading"""
+        # Your processing logic
+        return processed_data
+
+    def detect_threats(self, reading):
+        """Analyze for threats"""
+        threats = []
+        # Your threat detection logic
+        return threats</code></pre></p>
+</li>
+<li>
+<p><strong>Register handler</strong>
+   <pre class="highlight"><code class="language-python"># In sensors/serializers.py and sensors/views.py
+HANDLER_MAP = {
+    'YOUR_SENSOR': 'YourSensorHandler',
+    # ...
+}</code></pre></p>
+</li>
+<li>
+<p><strong>Write tests</strong>
+   <pre class="highlight"><code class="language-python"># In sensors/tests.py
+class YourSensorHandlerTest(TestCase):
+    def test_validate_reading(self):
+        # Test validation
+        pass</code></pre></p>
+</li>
+</ol>
+<h3 id="writing-tests">Writing Tests<a class="headerlink" href="#writing-tests" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Run all tests
+task api:test
+
+# Run specific app
+python manage.py test authentication
+
+# Run specific test
+python manage.py test sensors.tests.ContactHandlerTest
+
+# With coverage
+task api:test:coverage</code></pre>
+<p><strong>Test Structure:</strong>
+<pre class="highlight"><code class="language-python">from django.test import TestCase
+from rest_framework.test import APIClient
+
+class YourTest(TestCase):
+    def setUp(self):
+        """Setup test data"""
+        self.client = APIClient()
+        self.user = User.objects.create_user(
+            username='test',
+            password='test123'
+        )
+        self.client.force_authenticate(user=self.user)
+
+    def test_your_feature(self):
+        """Test your feature"""
+        response = self.client.get('/api/your-endpoint/')
+        self.assertEqual(response.status_code, 200)</code></pre></p>
+<h3 id="api-documentation">API Documentation<a class="headerlink" href="#api-documentation" title="Permanent link">&para;</a></h3>
+<p>Update API docs when adding endpoints:</p>
+<pre class="highlight"><code class="language-python"># In views.py
+class YourViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for your resource.
+
+    list: Get all items
+    create: Create new item
+    retrieve: Get single item
+    update: Update item
+    destroy: Delete item
+    """</code></pre>
+<h2 id="frontend-development">Frontend Development<a class="headerlink" href="#frontend-development" title="Permanent link">&para;</a></h2>
+<h3 id="component-structure">Component Structure<a class="headerlink" href="#component-structure" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code>estate-sentry-api/hq/
+├── templates/hq/       # Server-rendered pages and SSE fragments
+├── components/         # React components
+├── contexts/           # React contexts
+├── lib/               # Utilities
+└── styles/            # CSS/Tailwind</code></pre>
+<h3 id="creating-components">Creating Components<a class="headerlink" href="#creating-components" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-typescript">// components/YourComponent.tsx
+import React from 'react';
+
+interface YourComponentProps {
+  title: string;
+}
+
+export default function YourComponent({ title }: YourComponentProps) {
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;{title}&lt;/h2&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+<h3 id="using-api">Using API<a class="headerlink" href="#using-api" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-typescript">import useSWR from 'swr';
+
+function YourComponent() {
+  const { data, error } = useSWR('/api/sensors/', fetcher);
+
+  if (error) return &lt;div&gt;Error loading data&lt;/div&gt;;
+  if (!data) return &lt;div&gt;Loading...&lt;/div&gt;;
+
+  return &lt;div&gt;{/* Your component */}&lt;/div&gt;;
+}</code></pre>
+<h3 id="styling">Styling<a class="headerlink" href="#styling" title="Permanent link">&para;</a></h3>
+<p>Estate Sentry uses Tailwind CSS:</p>
+<pre class="highlight"><code class="language-tsx">&lt;div className="bg-gray-900 text-white p-4 rounded-lg shadow-xl"&gt;
+  &lt;h2 className="text-2xl font-bold mb-4"&gt;Title&lt;/h2&gt;
+&lt;/div&gt;</code></pre>
+<h2 id="docker-development">Docker Development<a class="headerlink" href="#docker-development" title="Permanent link">&para;</a></h2>
+<h3 id="building-images">Building Images<a class="headerlink" href="#building-images" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Build all images
+task docker:build
+
+# Build specific image
+task docker:build:api
+task docker:build:hq</code></pre>
+<h3 id="development-with-docker">Development with Docker<a class="headerlink" href="#development-with-docker" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Start services
+task docker:up
+
+# View logs
+task docker:logs:api
+
+# Access shell
+task docker:shell:api
+
+# Restart after code changes
+task docker:restart:api</code></pre>
+<h3 id="dockerfile-changes">Dockerfile Changes<a class="headerlink" href="#dockerfile-changes" title="Permanent link">&para;</a></h3>
+<p>When modifying Dockerfiles:</p>
+<pre class="highlight"><code class="language-bash"># Rebuild image
+task docker:build:api
+
+# Restart container
+task docker:restart:api</code></pre>
+<h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
+<h3 id="writing-documentation">Writing Documentation<a class="headerlink" href="#writing-documentation" title="Permanent link">&para;</a></h3>
+<p>Estate Sentry uses MkDocs:</p>
+<pre class="highlight"><code class="language-bash"># Serve locally
+mkdocs serve
+
+# Build documentation
+mkdocs build</code></pre>
+<p><strong>Documentation Location:</strong>
+- User docs: <code>docs/</code>
+- Code comments: In source files
+- API docs: Docstrings in views</p>
+<h3 id="documentation-standards">Documentation Standards<a class="headerlink" href="#documentation-standards" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Use clear, concise language</li>
+<li>Include code examples</li>
+<li>Add screenshots when helpful</li>
+<li>Keep structure organized</li>
+<li>Update when changing features</li>
+</ul>
+<h2 id="code-standards">Code Standards<a class="headerlink" href="#code-standards" title="Permanent link">&para;</a></h2>
+<h3 id="python-backend">Python (Backend)<a class="headerlink" href="#python-backend" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Style</strong>: PEP 8</li>
+<li><strong>Linting</strong>: flake8</li>
+<li><strong>Formatting</strong>: black (optional)</li>
+<li><strong>Type hints</strong>: Encouraged</li>
+</ul>
+<pre class="highlight"><code class="language-bash"># Lint code
+task api:lint
+
+# Format code (if black installed)
+task format</code></pre>
+<p><strong>Example:</strong>
+<pre class="highlight"><code class="language-python">from typing import List, Optional
+
+def get_sensors(user_id: int) -&gt; List[Sensor]:
+    """
+    Get all sensors for a user.
+
+    Args:
+        user_id: The user's ID
+
+    Returns:
+        List of Sensor objects
+    """
+    return Sensor.objects.filter(owner_id=user_id)</code></pre></p>
+<h3 id="typescript-frontend">TypeScript (Frontend)<a class="headerlink" href="#typescript-frontend" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Style</strong>: Airbnb/Standard</li>
+<li><strong>Linting</strong>: ESLint</li>
+<li><strong>Formatting</strong>: Prettier</li>
+</ul>
+<pre class="highlight"><code class="language-bash"># Lint code
+task hq:lint
+
+# Format code
+task format</code></pre>
+<p><strong>Example:</strong>
+<pre class="highlight"><code class="language-typescript">interface Sensor {
+  id: number;
+  name: string;
+  sensorType: string;
+  status: string;
+}
+
+function getSensors(): Promise&lt;Sensor[]&gt; {
+  return fetch('/api/sensors/')
+    .then(res =&gt; res.json());
+}</code></pre></p>
+<h2 id="git-workflow">Git Workflow<a class="headerlink" href="#git-workflow" title="Permanent link">&para;</a></h2>
+<h3 id="commit-messages">Commit Messages<a class="headerlink" href="#commit-messages" title="Permanent link">&para;</a></h3>
+<p>Use conventional commits:</p>
+<pre class="highlight"><code>feat: Add glass break sensor handler
+fix: Correct alert severity calculation
+docs: Update installation guide
+test: Add tests for contact handler
+refactor: Simplify sensor validation</code></pre>
+<h3 id="branch-naming">Branch Naming<a class="headerlink" href="#branch-naming" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code>feature/sensor-glass-break
+fix/alert-timestamp
+docs/api-reference
+test/contact-handler</code></pre>
+<h3 id="pull-requests">Pull Requests<a class="headerlink" href="#pull-requests" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Create descriptive PR title</li>
+<li>Explain changes in description</li>
+<li>Reference related issues</li>
+<li>Ensure tests pass</li>
+<li>Request review</li>
+</ol>
+<h2 id="testing-strategy">Testing Strategy<a class="headerlink" href="#testing-strategy" title="Permanent link">&para;</a></h2>
+<h3 id="unit-tests">Unit Tests<a class="headerlink" href="#unit-tests" title="Permanent link">&para;</a></h3>
+<p>Test individual components:</p>
+<pre class="highlight"><code class="language-python">def test_sensor_creation(self):
+    sensor = Sensor.objects.create(
+        name="Test Sensor",
+        sensor_type="DOOR_CONTACT",
+        owner=self.user
+    )
+    self.assertEqual(sensor.name, "Test Sensor")</code></pre>
+<h3 id="integration-tests">Integration Tests<a class="headerlink" href="#integration-tests" title="Permanent link">&para;</a></h3>
+<p>Test API endpoints:</p>
+<pre class="highlight"><code class="language-python">def test_create_sensor_endpoint(self):
+    response = self.client.post('/api/sensors/', {
+        'name': 'Front Door',
+        'sensor_type': 'DOOR_CONTACT',
+        'location': 'Main Entrance'
+    })
+    self.assertEqual(response.status_code, 201)</code></pre>
+<h3 id="coverage-goals">Coverage Goals<a class="headerlink" href="#coverage-goals" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Maintain 80%+ code coverage</li>
+<li>Test all API endpoints</li>
+<li>Test sensor handlers</li>
+<li>Test authentication flows</li>
+</ul>
+<h2 id="debugging">Debugging<a class="headerlink" href="#debugging" title="Permanent link">&para;</a></h2>
+<h3 id="backend-debugging">Backend Debugging<a class="headerlink" href="#backend-debugging" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># Add breakpoints
+import pdb; pdb.set_trace()
+
+# Or use Django's built-in debugging
+import logging
+logger = logging.getLogger(__name__)
+logger.debug(f"Sensor data: {sensor_data}")</code></pre>
+<h3 id="frontend-debugging">Frontend Debugging<a class="headerlink" href="#frontend-debugging" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-typescript">// Console debugging
+console.log('Sensor data:', sensors);
+
+// React DevTools
+// Install browser extension for component inspection</code></pre>
+<h3 id="docker-debugging">Docker Debugging<a class="headerlink" href="#docker-debugging" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># View logs
+task docker:logs:api
+
+# Access shell
+task docker:shell:api
+
+# Check environment
+docker-compose exec api env</code></pre>
+<h2 id="performance">Performance<a class="headerlink" href="#performance" title="Permanent link">&para;</a></h2>
+<h3 id="database-optimization">Database Optimization<a class="headerlink" href="#database-optimization" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># Use select_related for foreign keys
+sensors = Sensor.objects.select_related('owner').all()
+
+# Use prefetch_related for reverse relations
+users = User.objects.prefetch_related('sensors').all()
+
+# Add indexes
+class Meta:
+    indexes = [
+        Index(fields=['owner', '-created_at']),
+    ]</code></pre>
+<h3 id="frontend-optimization">Frontend Optimization<a class="headerlink" href="#frontend-optimization" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-typescript">// Use SWR for caching
+const { data } = useSWR('/api/sensors/', fetcher);
+
+// Memoize expensive computations
+const filteredSensors = useMemo(
+  () =&gt; sensors.filter(s =&gt; s.status === 'ACTIVE'),
+  [sensors]
+);</code></pre>
+<h2 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h2>
+<h3 id="backend-security">Backend Security<a class="headerlink" href="#backend-security" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Never commit secrets</li>
+<li>Use environment variables</li>
+<li>Validate all input</li>
+<li>Use Django's built-in protections</li>
+<li>Keep dependencies updated</li>
+</ul>
+<h3 id="frontend-security">Frontend Security<a class="headerlink" href="#frontend-security" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Sanitize user input</li>
+<li>Use HTTPS in production</li>
+<li>Implement CORS properly</li>
+<li>Store tokens securely</li>
+</ul>
+<h2 id="getting-help">Getting Help<a class="headerlink" href="#getting-help" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Documentation</strong>: Check <code>docs/</code></li>
+<li><strong>Issues</strong>: Open GitHub issue</li>
+<li><strong>Discussions</strong>: GitHub discussions</li>
+<li><strong>Code</strong>: Read existing code for examples</li>
+</ul>
+<h2 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://docs.djangoproject.com/">Django Documentation</a></li>
+<li><a href="https://www.django-rest-framework.org/">DRF Documentation</a></li>
+<li><a href="https://htmx.org/docs/">htmx Documentation</a></li>
+<li><a href="https://react.dev/">React Documentation</a></li>
+<li><a href="https://taskfile.dev/">Task Documentation</a></li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../operations/monitoring/" class="btn btn-neutral float-left" title="Monitoring"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/QR-Madness/estate-sentry" class="fa fa-code-fork" style="color: #fcfcfc"> estate-sentry</a>
+        </span>
+    
+    
+      <span><a href="../../operations/monitoring/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

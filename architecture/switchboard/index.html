@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Estate Sentry Contributors" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Switchboard - Estate Sentry</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Switchboard";
+        var mkdocs_page_input_path = "architecture/switchboard.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/typescript.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Estate Sentry
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Specification/">Specification</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Todo/">Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/installation/">Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/quickstart/">Quick Start</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/docker-setup/">Docker Setup</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/task-reference/">Task Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/api-usage/">API Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/plugin-development/">Plugin Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/node-deployment/">Node Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/mcp-integration/">MCP Integration</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Architecture</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../database/">Database</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../decentralization/">Decentralization</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Switchboard</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#core-components">Core Components</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#1-nats-jetstream-message-queue">1. NATS JetStream (Message Queue)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-minio-object-storage">2. MinIO (Object Storage)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-message-router">3. Message Router</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#topic-structure">Topic Structure</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#sensor-topics">Sensor Topics</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#system-topics">System Topics</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#frame-topics-high-bandwidth">Frame Topics (High-Bandwidth)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#edge-agents">Edge Agents</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#camera-edge-agent">Camera Edge Agent</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#supported-camera-types">Supported Camera Types</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edge-agent-configuration">Edge Agent Configuration</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#frame-processing-pipeline">Frame Processing Pipeline</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#ingestion">Ingestion</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#processing">Processing</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#retention">Retention</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#multi-node-switchboard">Multi-Node Switchboard</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#topology">Topology</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#nats-clustering">NATS Clustering</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#minio-replication">MinIO Replication</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#api-integration">API Integration</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#endpoints">Endpoints</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#websocket-streaming">WebSocket Streaming</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#docker-deployment">Docker Deployment</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#performance-tuning">Performance Tuning</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#nats-optimization">NATS Optimization</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#minio-optimization">MinIO Optimization</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edge-agent-optimization">Edge Agent Optimization</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#monitoring">Monitoring</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#health-checks">Health Checks</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#metrics">Metrics</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#related-documentation">Related Documentation</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../security/">Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../device-abstraction/">Device Abstraction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../sentry-intelligence/">Sentry Intelligence</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operations</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../operations/monitoring/">Monitoring</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Contributing</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../contributing/development/">Development Guide</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Estate Sentry</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Architecture</li>
+      <li class="breadcrumb-item active">Switchboard</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/QR-Madness/estate-sentry/edit/master/docs/architecture/switchboard.md">Edit on estate-sentry</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="switchboard-architecture">Switchboard Architecture<a class="headerlink" href="#switchboard-architecture" title="Permanent link">&para;</a></h1>
+<p>The Switchboard is Estate Sentry's central data routing backbone, responsible for ingesting, routing, and distributing all sensor data across the system. It handles everything from simple contact sensor states to high-bandwidth video streams from embedded cameras.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code>+------------------+     +------------------+     +------------------+
+|  Embedded Camera |     |  Motion Sensor   |     |   Door Contact   |
+|  (Edge Agent)    |     |  (MQTT)          |     |   (REST)         |
++--------+---------+     +--------+---------+     +--------+---------+
+         |                        |                        |
+         v                        v                        v
++------------------------------------------------------------------------+
+|                           SWITCHBOARD                                   |
+|  +------------------+  +------------------+  +------------------+       |
+|  |  Frame Ingress   |  |  NATS JetStream  |  |    MinIO         |      |
+|  |  (Edge Agents)   |  |  (Message Queue) |  |  (Object Store)  |      |
+|  +--------+---------+  +--------+---------+  +--------+---------+      |
+|           |                     |                     |                 |
+|           +---------------------+---------------------+                 |
+|                                 |                                       |
+|                    +------------+------------+                          |
+|                    |      Message Router     |                          |
+|                    +------------+------------+                          |
++----------------------------|--------------------------------------------+
+                             |
+         +-------------------+-------------------+
+         |                   |                   |
++--------v--------+ +--------v--------+ +--------v--------+
+|  Django API     | |  Sentry Intel   | |  Other Nodes    |
+|  (Processing)   | |  (Analysis)     | |  (Sync)         |
++-----------------+ +-----------------+ +-----------------+</code></pre>
+<h2 id="core-components">Core Components<a class="headerlink" href="#core-components" title="Permanent link">&para;</a></h2>
+<h3 id="1-nats-jetstream-message-queue">1. NATS JetStream (Message Queue)<a class="headerlink" href="#1-nats-jetstream-message-queue" title="Permanent link">&para;</a></h3>
+<p>NATS JetStream provides the messaging backbone for all sensor data routing.</p>
+<p><strong>Why NATS:</strong>
+- Extremely lightweight (single binary, ~15MB)
+- Built-in persistence with JetStream
+- At-least-once and exactly-once delivery
+- Perfect for edge deployment
+- Native clustering for multi-node setups</p>
+<p><strong>Configuration:</strong></p>
+<pre class="highlight"><code class="language-yaml"># nats-server.conf
+server_name: estate-sentry-switchboard
+port: 4222
+
+jetstream {
+  store_dir: /data/nats
+  max_memory_store: 256MB
+  max_file_store: 10GB
+}
+
+cluster {
+  name: estate-sentry
+  listen: 0.0.0.0:6222
+  routes: [
+    nats-route://node-secondary:6222
+  ]
+}</code></pre>
+<h3 id="2-minio-object-storage">2. MinIO (Object Storage)<a class="headerlink" href="#2-minio-object-storage" title="Permanent link">&para;</a></h3>
+<p>MinIO provides S3-compatible object storage for media files (images, video frames, recordings).</p>
+<p><strong>Why MinIO:</strong>
+- S3-compatible API (industry standard)
+- Self-hosted (no cloud dependency)
+- Supports erasure coding for data protection
+- Built-in replication for multi-node
+- Lightweight enough for edge devices</p>
+<p><strong>Bucket Structure:</strong></p>
+<pre class="highlight"><code>estate-sentry/
+├── frames/                    # Camera frames
+│   ├── {camera_id}/
+│   │   ├── {date}/
+│   │   │   ├── {timestamp}.jpg
+│   │   │   └── {timestamp}_thumb.jpg
+│   │
+├── recordings/                # Video recordings
+│   ├── {camera_id}/
+│   │   ├── {date}/
+│   │   │   └── {start_time}_{end_time}.mp4
+│   │
+├── snapshots/                 # Alert snapshots
+│   ├── {alert_id}/
+│   │   ├── frame.jpg
+│   │   └── context.json
+│   │
+└── exports/                   # Report exports
+    └── {report_id}/
+        └── report.pdf</code></pre>
+<h3 id="3-message-router">3. Message Router<a class="headerlink" href="#3-message-router" title="Permanent link">&para;</a></h3>
+<p>The router directs messages to appropriate consumers based on topic and content.</p>
+<pre class="highlight"><code class="language-python"># routing/router.py
+class MessageRouter:
+    """Routes messages to appropriate handlers."""
+
+    def __init__(self, nats_client, handlers):
+        self.nats = nats_client
+        self.handlers = handlers
+
+    async def route(self, subject: str, message: bytes):
+        """Route a message to its handler."""
+        # Parse subject: sensors.{type}.{id}.{event}
+        parts = subject.split('.')
+        sensor_type = parts[1]
+        sensor_id = parts[2]
+        event_type = parts[3]
+
+        handler = self.handlers.get(sensor_type)
+        if handler:
+            await handler.process(sensor_id, event_type, message)</code></pre>
+<h2 id="topic-structure">Topic Structure<a class="headerlink" href="#topic-structure" title="Permanent link">&para;</a></h2>
+<p>NATS subjects follow a hierarchical naming convention:</p>
+<pre class="highlight"><code>sensors.{sensor_type}.{sensor_id}.{event_type}</code></pre>
+<h3 id="sensor-topics">Sensor Topics<a class="headerlink" href="#sensor-topics" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Topic Pattern</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sensors.camera.{id}.frame</code></td>
+<td>Camera frame captured</td>
+<td><code>sensors.camera.front_door.frame</code></td>
+</tr>
+<tr>
+<td><code>sensors.camera.{id}.motion</code></td>
+<td>Motion detected</td>
+<td><code>sensors.camera.front_door.motion</code></td>
+</tr>
+<tr>
+<td><code>sensors.contact.{id}.state</code></td>
+<td>Door/window state</td>
+<td><code>sensors.contact.front_door.state</code></td>
+</tr>
+<tr>
+<td><code>sensors.motion.{id}.triggered</code></td>
+<td>Motion sensor triggered</td>
+<td><code>sensors.motion.hallway.triggered</code></td>
+</tr>
+<tr>
+<td><code>sensors.environmental.{id}.reading</code></td>
+<td>Environmental reading</td>
+<td><code>sensors.environmental.kitchen.reading</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="system-topics">System Topics<a class="headerlink" href="#system-topics" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Topic Pattern</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>alerts.{severity}</code></td>
+<td>Generated alerts by severity</td>
+</tr>
+<tr>
+<td><code>nodes.{node_id}.heartbeat</code></td>
+<td>Node heartbeat messages</td>
+</tr>
+<tr>
+<td><code>nodes.{node_id}.status</code></td>
+<td>Node status changes</td>
+</tr>
+<tr>
+<td><code>system.config.update</code></td>
+<td>Configuration updates</td>
+</tr>
+<tr>
+<td><code>system.sync.request</code></td>
+<td>Sync request from nodes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="frame-topics-high-bandwidth">Frame Topics (High-Bandwidth)<a class="headerlink" href="#frame-topics-high-bandwidth" title="Permanent link">&para;</a></h3>
+<p>Camera frames use a dedicated stream with special handling:</p>
+<pre class="highlight"><code>frames.{camera_id}.{quality}</code></pre>
+<table>
+<thead>
+<tr>
+<th>Quality</th>
+<th>Resolution</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>raw</code></td>
+<td>Original</td>
+<td>Storage, analysis</td>
+</tr>
+<tr>
+<td><code>hd</code></td>
+<td>1080p</td>
+<td>Streaming to dashboard</td>
+</tr>
+<tr>
+<td><code>sd</code></td>
+<td>480p</td>
+<td>Thumbnails, mobile</td>
+</tr>
+<tr>
+<td><code>thumb</code></td>
+<td>160x120</td>
+<td>Preview grid</td>
+</tr>
+</tbody>
+</table>
+<h2 id="edge-agents">Edge Agents<a class="headerlink" href="#edge-agents" title="Permanent link">&para;</a></h2>
+<p>Edge agents run on or near sensors that require local processing before data transmission.</p>
+<h3 id="camera-edge-agent">Camera Edge Agent<a class="headerlink" href="#camera-edge-agent" title="Permanent link">&para;</a></h3>
+<p>For embedded cameras and IP cameras that need frame extraction:</p>
+<pre class="highlight"><code class="language-python"># edge/camera.py
+class CameraEdgeAgent:
+    """Lightweight agent for camera frame capture and transmission."""
+
+    def __init__(self, camera_id: str, config: dict):
+        self.camera_id = camera_id
+        self.config = config
+        self.nats_client = None
+        self.minio_client = None
+
+    async def capture_loop(self):
+        """Main capture loop."""
+        while True:
+            frame = await self.capture_frame()
+
+            # Store in MinIO
+            frame_path = await self.store_frame(frame)
+
+            # Publish frame notification
+            await self.nats_client.publish(
+                f"sensors.camera.{self.camera_id}.frame",
+                json.dumps({
+                    "timestamp": datetime.utcnow().isoformat(),
+                    "path": frame_path,
+                    "resolution": frame.shape[:2],
+                    "motion_detected": self.detect_motion(frame)
+                })
+            )
+
+            await asyncio.sleep(1 / self.config['fps'])
+
+    async def store_frame(self, frame: np.ndarray) -&gt; str:
+        """Store frame in MinIO and return path."""
+        timestamp = datetime.utcnow()
+        path = f"frames/{self.camera_id}/{timestamp.date()}/{timestamp.isoformat()}.jpg"
+
+        # Encode and upload
+        _, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
+        await self.minio_client.put_object(
+            "estate-sentry",
+            path,
+            io.BytesIO(buffer),
+            len(buffer)
+        )
+
+        return path</code></pre>
+<h3 id="supported-camera-types">Supported Camera Types<a class="headerlink" href="#supported-camera-types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Connection</th>
+<th>Edge Agent Location</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IP Camera (RTSP)</td>
+<td>Network</td>
+<td>Switchboard</td>
+</tr>
+<tr>
+<td>USB Camera</td>
+<td>Direct</td>
+<td>Local device</td>
+</tr>
+<tr>
+<td>Raspberry Pi Camera</td>
+<td>CSI</td>
+<td>Pi itself</td>
+</tr>
+<tr>
+<td>ESP32-CAM</td>
+<td>WiFi</td>
+<td>ESP32 (minimal)</td>
+</tr>
+<tr>
+<td>Commercial NVR</td>
+<td>API</td>
+<td>Switchboard</td>
+</tr>
+</tbody>
+</table>
+<h3 id="edge-agent-configuration">Edge Agent Configuration<a class="headerlink" href="#edge-agent-configuration" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-yaml"># edge_agents.yaml
+cameras:
+  front_door:
+    type: rtsp
+    url: rtsp://192.168.1.100:554/stream
+    fps: 5
+    resolution: 1080p
+    motion_detection: true
+    motion_threshold: 0.05
+
+  garage:
+    type: usb
+    device: /dev/video0
+    fps: 2
+    resolution: 720p
+    motion_detection: true
+
+  doorbell:
+    type: esp32
+    endpoint: http://192.168.1.101/capture
+    fps: 1
+    motion_detection: false  # Done on device</code></pre>
+<h2 id="frame-processing-pipeline">Frame Processing Pipeline<a class="headerlink" href="#frame-processing-pipeline" title="Permanent link">&para;</a></h2>
+<h3 id="ingestion">Ingestion<a class="headerlink" href="#ingestion" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code>Camera → Edge Agent → NATS (notification) + MinIO (storage)</code></pre>
+<h3 id="processing">Processing<a class="headerlink" href="#processing" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># Switchboard processes frame notifications
+async def process_frame_notification(msg):
+    data = json.loads(msg.data)
+
+    # 1. Log the frame
+    await db.sensor_readings.insert({
+        "sensor_id": data["camera_id"],
+        "value": {
+            "frame_path": data["path"],
+            "motion_detected": data["motion_detected"]
+        },
+        "timestamp": data["timestamp"]
+    })
+
+    # 2. If motion detected, trigger analysis
+    if data["motion_detected"]:
+        await nats.publish(
+            f"alerts.LOW",
+            json.dumps({
+                "type": "MOTION",
+                "sensor_id": data["camera_id"],
+                "frame_path": data["path"],
+                "timestamp": data["timestamp"]
+            })
+        )
+
+    # 3. Forward to Sentry for ML analysis (if enabled)
+    if config.sentry_ml_enabled:
+        await nats.publish(
+            "sentry.analyze.frame",
+            msg.data
+        )</code></pre>
+<h3 id="retention">Retention<a class="headerlink" href="#retention" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># Frame retention policy
+RETENTION_POLICY = {
+    "motion_frames": timedelta(days=30),      # Frames with motion
+    "regular_frames": timedelta(days=7),       # Regular captures
+    "alert_frames": timedelta(days=365),       # Alert-related frames
+    "thumbnails": timedelta(days=90),          # Low-res thumbnails
+}</code></pre>
+<h2 id="multi-node-switchboard">Multi-Node Switchboard<a class="headerlink" href="#multi-node-switchboard" title="Permanent link">&para;</a></h2>
+<p>In decentralized deployments, each node runs its own Switchboard instance.</p>
+<h3 id="topology">Topology<a class="headerlink" href="#topology" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code>+------------------+          +------------------+
+|  Node A          |          |  Node B          |
+|  Switchboard     |&lt;--------&gt;|  Switchboard     |
+|  +-----------+   |   NATS   |  +-----------+   |
+|  | NATS      |   |  Cluster |  | NATS      |   |
+|  | MinIO     |   |          |  | MinIO     |   |
+|  +-----------+   |          |  +-----------+   |
++------------------+          +------------------+</code></pre>
+<h3 id="nats-clustering">NATS Clustering<a class="headerlink" href="#nats-clustering" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-yaml"># Node A nats.conf
+cluster {
+  name: estate-sentry
+  listen: 0.0.0.0:6222
+  routes: [
+    nats-route://node-b:6222
+    nats-route://node-c:6222
+  ]
+}
+
+# JetStream replication
+jetstream {
+  store_dir: /data/nats
+  domain: estate
+}</code></pre>
+<h3 id="minio-replication">MinIO Replication<a class="headerlink" href="#minio-replication" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Set up site replication between nodes
+mc admin replicate add \
+  node-a-minio node-b-minio \
+  --replicate "existing-objects,delete,delete-marker"</code></pre>
+<h2 id="api-integration">API Integration<a class="headerlink" href="#api-integration" title="Permanent link">&para;</a></h2>
+<p>The Switchboard exposes REST endpoints for status and control:</p>
+<h3 id="endpoints">Endpoints<a class="headerlink" href="#endpoints" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/api/switchboard/status</code></td>
+<td>GET</td>
+<td>Overall status</td>
+</tr>
+<tr>
+<td><code>/api/switchboard/streams</code></td>
+<td>GET</td>
+<td>Active NATS streams</td>
+</tr>
+<tr>
+<td><code>/api/switchboard/topics</code></td>
+<td>GET</td>
+<td>Topic subscriptions</td>
+</tr>
+<tr>
+<td><code>/api/switchboard/storage</code></td>
+<td>GET</td>
+<td>MinIO storage stats</td>
+</tr>
+<tr>
+<td><code>/api/switchboard/agents</code></td>
+<td>GET</td>
+<td>Edge agent status</td>
+</tr>
+</tbody>
+</table>
+<h3 id="websocket-streaming">WebSocket Streaming<a class="headerlink" href="#websocket-streaming" title="Permanent link">&para;</a></h3>
+<p>Real-time data streaming via WebSocket:</p>
+<pre class="highlight"><code class="language-javascript">// Connect to Switchboard WebSocket
+const ws = new WebSocket('wss://node:8000/ws/switchboard/');
+
+// Subscribe to topics
+ws.send(JSON.stringify({
+  action: 'subscribe',
+  topics: [
+    'sensors.camera.front_door.frame',
+    'alerts.*'
+  ]
+}));
+
+// Receive messages
+ws.onmessage = (event) =&gt; {
+  const data = JSON.parse(event.data);
+  console.log(`[${data.topic}]`, data.message);
+};</code></pre>
+<h2 id="docker-deployment">Docker Deployment<a class="headerlink" href="#docker-deployment" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code class="language-yaml"># docker-compose.switchboard.yml
+version: '3.8'
+
+services:
+  nats:
+    image: nats:2.10-alpine
+    command: ["-js", "-c", "/etc/nats/nats.conf"]
+    volumes:
+      - ./config/nats.conf:/etc/nats/nats.conf
+      - nats-data:/data/nats
+    ports:
+      - "4222:4222"
+      - "8222:8222"  # Monitoring
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: estate-sentry
+      MINIO_ROOT_PASSWORD: changeme
+    volumes:
+      - minio-data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"  # Console
+
+  switchboard:
+    build: ./estate-sentry-switchboard
+    environment:
+      NATS_URL: nats://nats:4222
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: estate-sentry
+      MINIO_SECRET_KEY: changeme
+    depends_on:
+      - nats
+      - minio
+    ports:
+      - "8001:8001"
+
+volumes:
+  nats-data:
+  minio-data:</code></pre>
+<h2 id="performance-tuning">Performance Tuning<a class="headerlink" href="#performance-tuning" title="Permanent link">&para;</a></h2>
+<h3 id="nats-optimization">NATS Optimization<a class="headerlink" href="#nats-optimization" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-yaml"># High-throughput configuration
+max_payload: 8MB          # For large frames
+max_pending: 256MB        # Buffer size
+write_deadline: 10s       # Write timeout
+
+jetstream:
+  max_memory_store: 1GB   # In-memory buffer
+  max_file_store: 100GB   # Persistent storage</code></pre>
+<h3 id="minio-optimization">MinIO Optimization<a class="headerlink" href="#minio-optimization" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Enable caching
+mc admin config set minio cache \
+  "drives=/tmp/minio-cache" \
+  "quota=90" \
+  "after=1" \
+  "watermark_low=70" \
+  "watermark_high=90"</code></pre>
+<h3 id="edge-agent-optimization">Edge Agent Optimization<a class="headerlink" href="#edge-agent-optimization" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Low-Power Device</th>
+<th>Standard Device</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FPS</td>
+<td>1-2</td>
+<td>5-15</td>
+</tr>
+<tr>
+<td>Resolution</td>
+<td>720p</td>
+<td>1080p</td>
+</tr>
+<tr>
+<td>JPEG Quality</td>
+<td>70</td>
+<td>85</td>
+</tr>
+<tr>
+<td>Motion Threshold</td>
+<td>0.1</td>
+<td>0.05</td>
+</tr>
+<tr>
+<td>Buffer Size</td>
+<td>5 frames</td>
+<td>30 frames</td>
+</tr>
+</tbody>
+</table>
+<h2 id="monitoring">Monitoring<a class="headerlink" href="#monitoring" title="Permanent link">&para;</a></h2>
+<h3 id="health-checks">Health Checks<a class="headerlink" href="#health-checks" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># Health check endpoint
+async def health_check():
+    return {
+        "nats": await check_nats_connection(),
+        "minio": await check_minio_connection(),
+        "agents": await check_edge_agents(),
+        "queues": await get_queue_depths(),
+        "storage": await get_storage_stats()
+    }</code></pre>
+<h3 id="metrics">Metrics<a class="headerlink" href="#metrics" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>switchboard_messages_total</code></td>
+<td>Total messages processed</td>
+</tr>
+<tr>
+<td><code>switchboard_frames_stored</code></td>
+<td>Frames stored in MinIO</td>
+</tr>
+<tr>
+<td><code>switchboard_queue_depth</code></td>
+<td>Current queue depth</td>
+</tr>
+<tr>
+<td><code>switchboard_agent_status</code></td>
+<td>Edge agent health</td>
+</tr>
+<tr>
+<td><code>switchboard_storage_used</code></td>
+<td>Storage utilization</td>
+</tr>
+</tbody>
+</table>
+<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../decentralization/">Decentralization</a> - Multi-node deployment</li>
+<li><a href="../device-abstraction/">Device Abstraction</a> - Sensor handlers</li>
+<li><a href="../../operations/monitoring/">Monitoring</a> - Operational monitoring</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../decentralization/" class="btn btn-neutral float-left" title="Decentralization"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../security/" class="btn btn-neutral float-right" title="Security">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/QR-Madness/estate-sentry" class="fa fa-code-fork" style="color: #fcfcfc"> estate-sentry</a>
+        </span>
+    
+    
+      <span><a href="../decentralization/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../security/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Estate Sentry Contributors" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Sentry Intelligence - Estate Sentry</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Sentry Intelligence";
+        var mkdocs_page_input_path = "architecture/sentry-intelligence.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/typescript.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Estate Sentry
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Specification/">Specification</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Todo/">Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/installation/">Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/quickstart/">Quick Start</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/docker-setup/">Docker Setup</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/task-reference/">Task Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/api-usage/">API Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/plugin-development/">Plugin Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/node-deployment/">Node Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/mcp-integration/">MCP Integration</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Architecture</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../database/">Database</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../decentralization/">Decentralization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../switchboard/">Switchboard</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../security/">Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../device-abstraction/">Device Abstraction</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Sentry Intelligence</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#core-components">Core Components</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#1-mcp-server">1. MCP Server</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#mcp-tool-implementations">MCP Tool Implementations</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-vector-store-chromadb">2. Vector Store (ChromaDB)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-neo4j-graph-database">3. Neo4j Graph Database</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#4-intelligence-engine">4. Intelligence Engine</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#5-report-generator">5. Report Generator</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#docker-deployment">Docker Deployment</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#api-integration">API Integration</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#related-documentation">Related Documentation</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operations</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../operations/monitoring/">Monitoring</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Contributing</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../contributing/development/">Development Guide</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Estate Sentry</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Architecture</li>
+      <li class="breadcrumb-item active">Sentry Intelligence</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/QR-Madness/estate-sentry/edit/master/docs/architecture/sentry-intelligence.md">Edit on estate-sentry</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="sentry-intelligence-system">Sentry Intelligence System<a class="headerlink" href="#sentry-intelligence-system" title="Permanent link">&para;</a></h1>
+<p>The Sentry Intelligence System is Estate Sentry's AI-powered threat analysis engine. It provides sophisticated pattern detection, alert correlation, behavioral analysis, and automated case report generation through integration with large language models via the Model Context Protocol (MCP).</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code>+------------------------------------------------------------------+
+|                     SENTRY INTELLIGENCE                           |
+|                                                                   |
+|  +------------------+    +------------------+    +--------------+ |
+|  |   MCP Server     |    |  Vector Store    |    |   Neo4j      | |
+|  |  (AI Interface)  |    |  (ChromaDB)      |    |  (Graphs)    | |
+|  +--------+---------+    +--------+---------+    +------+-------+ |
+|           |                       |                     |         |
+|           +-------------+---------+---------------------+         |
+|                         |                                         |
+|              +----------v-----------+                             |
+|              |  Intelligence Engine |                             |
+|              |  - Correlation       |                             |
+|              |  - Scoring           |                             |
+|              |  - Analysis          |                             |
+|              +----------+-----------+                             |
+|                         |                                         |
+|              +----------v-----------+                             |
+|              |   Report Generator   |                             |
+|              +----------------------+                             |
++------------------------------------------------------------------+
+         |                    |                    |
++--------v--------+  +--------v--------+  +--------v--------+
+|  Claude/LLM     |  |  Django API     |  |  Dashboard      |
+|  (Analysis)     |  |  (Alerts)       |  |  (Reports)      |
++-----------------+  +-----------------+  +-----------------+</code></pre>
+<h2 id="core-components">Core Components<a class="headerlink" href="#core-components" title="Permanent link">&para;</a></h2>
+<h3 id="1-mcp-server">1. MCP Server<a class="headerlink" href="#1-mcp-server" title="Permanent link">&para;</a></h3>
+<p>The MCP (Model Context Protocol) server exposes Estate Sentry's security data and analysis capabilities to AI assistants like Claude.</p>
+<pre class="highlight"><code class="language-python"># sentry/mcp/server.py
+from mcp import Server, Tool, Resource
+
+class SentryMCPServer(Server):
+    """MCP server for AI-powered security analysis."""
+
+    def __init__(self, intelligence_engine):
+        super().__init__(
+            name="estate-sentry",
+            version="1.0.0"
+        )
+        self.engine = intelligence_engine
+
+    def get_tools(self):
+        return [
+            Tool(
+                name="analyze_alert",
+                description="Analyze a security alert for threat assessment and context",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "alert_id": {"type": "string", "description": "Alert UUID"},
+                        "depth": {"type": "string", "enum": ["quick", "standard", "deep"]}
+                    },
+                    "required": ["alert_id"]
+                }
+            ),
+            Tool(
+                name="correlate_events",
+                description="Find related security events within a time window",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "alert_ids": {"type": "array", "items": {"type": "string"}},
+                        "time_window_minutes": {"type": "integer", "default": 30}
+                    },
+                    "required": ["alert_ids"]
+                }
+            ),
+            Tool(
+                name="search_patterns",
+                description="Search for known threat patterns matching current activity",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string"},
+                        "limit": {"type": "integer", "default": 10}
+                    },
+                    "required": ["query"]
+                }
+            ),
+            Tool(
+                name="generate_report",
+                description="Generate a comprehensive security case report",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "alert_ids": {"type": "array", "items": {"type": "string"}},
+                        "format": {"type": "string", "enum": ["markdown", "pdf", "json"]}
+                    },
+                    "required": ["alert_ids"]
+                }
+            ),
+            Tool(
+                name="get_threat_score",
+                description="Calculate threat score for a set of events",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "alert_ids": {"type": "array", "items": {"type": "string"}}
+                    },
+                    "required": ["alert_ids"]
+                }
+            )
+        ]
+
+    def get_resources(self):
+        return [
+            Resource(
+                uri="sentry://alerts/recent",
+                name="Recent Alerts",
+                description="Last 100 security alerts",
+                mime_type="application/json"
+            ),
+            Resource(
+                uri="sentry://sensors/status",
+                name="Sensor Status",
+                description="Current status of all sensors",
+                mime_type="application/json"
+            ),
+            Resource(
+                uri="sentry://patterns/known",
+                name="Known Patterns",
+                description="Database of known threat patterns",
+                mime_type="application/json"
+            ),
+            Resource(
+                uri="sentry://statistics/daily",
+                name="Daily Statistics",
+                description="Security statistics for the past 24 hours",
+                mime_type="application/json"
+            )
+        ]</code></pre>
+<h3 id="mcp-tool-implementations">MCP Tool Implementations<a class="headerlink" href="#mcp-tool-implementations" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># sentry/mcp/tools/analyze.py
+async def analyze_alert(alert_id: str, depth: str = "standard") -&gt; dict:
+    """Analyze a security alert for threat assessment."""
+
+    alert = await Alert.objects.aget(id=alert_id)
+    sensor = alert.sensor
+
+    # Gather context based on depth
+    context = {
+        "alert": AlertSerializer(alert).data,
+        "sensor": SensorSerializer(sensor).data if sensor else None,
+    }
+
+    if depth in ["standard", "deep"]:
+        # Add recent readings from this sensor
+        readings = await get_recent_readings(sensor, limit=20)
+        context["recent_readings"] = readings
+
+        # Add related alerts
+        related = await get_related_alerts(alert, window_minutes=60)
+        context["related_alerts"] = related
+
+    if depth == "deep":
+        # Add graph relationships from Neo4j
+        graph_context = await neo4j_client.get_alert_context(alert_id)
+        context["graph_relationships"] = graph_context
+
+        # Add similar historical patterns
+        similar = await vector_store.search_similar(alert, k=5)
+        context["similar_incidents"] = similar
+
+    return context</code></pre>
+<h3 id="2-vector-store-chromadb">2. Vector Store (ChromaDB)<a class="headerlink" href="#2-vector-store-chromadb" title="Permanent link">&para;</a></h3>
+<p>ChromaDB stores embeddings of security events for similarity search and pattern matching.</p>
+<pre class="highlight"><code class="language-python"># sentry/intelligence/vector_store.py
+import chromadb
+from chromadb.config import Settings
+
+class VectorStore:
+    """ChromaDB-based vector store for security patterns."""
+
+    def __init__(self, persist_directory: str = "./data/chromadb"):
+        self.client = chromadb.Client(Settings(
+            chroma_db_impl="duckdb+parquet",
+            persist_directory=persist_directory
+        ))
+
+        # Collections for different data types
+        self.alerts = self.client.get_or_create_collection(
+            name="alerts",
+            metadata={"description": "Security alert embeddings"}
+        )
+
+        self.patterns = self.client.get_or_create_collection(
+            name="patterns",
+            metadata={"description": "Known threat pattern embeddings"}
+        )
+
+        self.incidents = self.client.get_or_create_collection(
+            name="incidents",
+            metadata={"description": "Historical incident embeddings"}
+        )
+
+    async def embed_alert(self, alert: Alert) -&gt; str:
+        """Generate and store embedding for an alert."""
+        text = self._alert_to_text(alert)
+        embedding = await self._generate_embedding(text)
+
+        self.alerts.add(
+            ids=[str(alert.id)],
+            embeddings=[embedding],
+            metadatas=[{
+                "alert_type": alert.alert_type,
+                "severity": alert.severity,
+                "sensor_id": str(alert.sensor_id) if alert.sensor else None,
+                "timestamp": alert.timestamp.isoformat(),
+            }],
+            documents=[text]
+        )
+
+        return str(alert.id)
+
+    async def search_similar(self, alert: Alert, k: int = 5) -&gt; list:
+        """Find similar historical alerts."""
+        text = self._alert_to_text(alert)
+        embedding = await self._generate_embedding(text)
+
+        results = self.alerts.query(
+            query_embeddings=[embedding],
+            n_results=k,
+            where={"timestamp": {"$lt": alert.timestamp.isoformat()}}
+        )
+
+        return results
+
+    async def search_patterns(self, query: str, limit: int = 10) -&gt; list:
+        """Search known threat patterns."""
+        embedding = await self._generate_embedding(query)
+
+        results = self.patterns.query(
+            query_embeddings=[embedding],
+            n_results=limit
+        )
+
+        return results
+
+    def _alert_to_text(self, alert: Alert) -&gt; str:
+        """Convert alert to text for embedding."""
+        parts = [
+            f"Alert: {alert.alert_type}",
+            f"Severity: {alert.severity}",
+            f"Title: {alert.title}",
+            f"Description: {alert.description}",
+        ]
+        if alert.sensor:
+            parts.extend([
+                f"Sensor: {alert.sensor.name}",
+                f"Location: {alert.sensor.location}",
+                f"Type: {alert.sensor.sensor_type}",
+            ])
+        return " | ".join(parts)
+
+    async def _generate_embedding(self, text: str) -&gt; list:
+        """Generate embedding using local model or API."""
+        # Use sentence-transformers for local embedding
+        from sentence_transformers import SentenceTransformer
+        model = SentenceTransformer('all-MiniLM-L6-v2')
+        return model.encode(text).tolist()</code></pre>
+<h3 id="3-neo4j-graph-database">3. Neo4j Graph Database<a class="headerlink" href="#3-neo4j-graph-database" title="Permanent link">&para;</a></h3>
+<p>Neo4j stores relationships between entities for graph-based analysis.</p>
+<pre class="highlight"><code class="language-python"># sentry/graph/neo4j_client.py
+from neo4j import AsyncGraphDatabase
+
+class ThreatGraphClient:
+    """Neo4j client for threat intelligence graph operations."""
+
+    def __init__(self, uri: str, user: str, password: str):
+        self.driver = AsyncGraphDatabase.driver(uri, auth=(user, password))
+
+    async def create_alert_node(self, alert: Alert):
+        """Create an alert node with relationships."""
+        async with self.driver.session() as session:
+            await session.execute_write(self._create_alert_tx, alert)
+
+    @staticmethod
+    async def _create_alert_tx(tx, alert):
+        query = """
+        // Create or match sensor
+        MERGE (s:Sensor {id: $sensor_id})
+        SET s.name = $sensor_name, s.type = $sensor_type
+
+        // Create alert
+        CREATE (a:Alert {
+            id: $alert_id,
+            type: $alert_type,
+            severity: $severity,
+            timestamp: datetime($timestamp),
+            title: $title
+        })
+
+        // Create relationship
+        CREATE (s)-[:TRIGGERED]-&gt;(a)
+
+        // Link to temporal neighbors (previous alert from same sensor)
+        WITH a, s
+        OPTIONAL MATCH (prev:Alert)&lt;-[:TRIGGERED]-(s)
+        WHERE prev.timestamp &lt; a.timestamp
+        WITH a, prev ORDER BY prev.timestamp DESC LIMIT 1
+        FOREACH (_ IN CASE WHEN prev IS NOT NULL THEN [1] ELSE [] END |
+            CREATE (prev)-[:FOLLOWED_BY]-&gt;(a)
+        )
+        """
+        await tx.run(query, {
+            "sensor_id": str(alert.sensor.id),
+            "sensor_name": alert.sensor.name,
+            "sensor_type": alert.sensor.sensor_type,
+            "alert_id": str(alert.id),
+            "alert_type": alert.alert_type,
+            "severity": alert.severity,
+            "timestamp": alert.timestamp.isoformat(),
+            "title": alert.title,
+        })
+
+    async def find_correlated_alerts(
+        self,
+        alert_id: str,
+        window_minutes: int = 30
+    ) -&gt; list:
+        """Find alerts correlated in time and space."""
+        async with self.driver.session() as session:
+            result = await session.run("""
+                MATCH (a:Alert {id: $alert_id})&lt;-[:TRIGGERED]-(s:Sensor)
+                MATCH (s)-[:LOCATED_IN]-&gt;(l:Location)
+                MATCH (other:Sensor)-[:LOCATED_IN]-&gt;(l)
+                MATCH (other)-[:TRIGGERED]-&gt;(related:Alert)
+                WHERE related.timestamp &gt; a.timestamp - duration({minutes: $window})
+                  AND related.timestamp &lt; a.timestamp + duration({minutes: $window})
+                  AND related.id &lt;&gt; a.id
+                RETURN related, other.name as sensor_name
+                ORDER BY abs(duration.between(a.timestamp, related.timestamp).minutes)
+                LIMIT 20
+            """, {"alert_id": alert_id, "window": window_minutes})
+
+            return [record.data() async for record in result]
+
+    async def detect_patterns(self, timeframe_hours: int = 24) -&gt; list:
+        """Detect suspicious patterns in recent activity."""
+        async with self.driver.session() as session:
+            # Find rapid succession of alerts (potential coordinated attack)
+            rapid_succession = await session.run("""
+                MATCH (a1:Alert)-[:FOLLOWED_BY]-&gt;(a2:Alert)
+                WHERE a1.timestamp &gt; datetime() - duration({hours: $hours})
+                  AND duration.between(a1.timestamp, a2.timestamp).seconds &lt; 60
+                WITH a1, collect(a2) as followers
+                WHERE size(followers) &gt;= 3
+                RETURN a1, followers
+            """, {"hours": timeframe_hours})
+
+            # Find multiple sensors triggering in same location
+            location_burst = await session.run("""
+                MATCH (s:Sensor)-[:LOCATED_IN]-&gt;(l:Location)
+                MATCH (s)-[:TRIGGERED]-&gt;(a:Alert)
+                WHERE a.timestamp &gt; datetime() - duration({hours: $hours})
+                WITH l, collect(DISTINCT s) as sensors, collect(a) as alerts
+                WHERE size(sensors) &gt;= 2
+                RETURN l.name as location, sensors, alerts
+            """, {"hours": timeframe_hours})
+
+            return {
+                "rapid_succession": [r.data() async for r in rapid_succession],
+                "location_bursts": [r.data() async for r in location_burst]
+            }</code></pre>
+<h3 id="4-intelligence-engine">4. Intelligence Engine<a class="headerlink" href="#4-intelligence-engine" title="Permanent link">&para;</a></h3>
+<p>The intelligence engine coordinates analysis across all data sources.</p>
+<pre class="highlight"><code class="language-python"># sentry/intelligence/engine.py
+class IntelligenceEngine:
+    """Core intelligence engine for threat analysis."""
+
+    def __init__(
+        self,
+        vector_store: VectorStore,
+        graph_client: ThreatGraphClient,
+    ):
+        self.vector_store = vector_store
+        self.graph_client = graph_client
+
+    async def analyze_incident(self, alert_ids: list[str]) -&gt; dict:
+        """Comprehensive analysis of an incident."""
+
+        # Fetch alerts
+        alerts = await Alert.objects.filter(id__in=alert_ids).all()
+
+        # Get graph context
+        correlations = []
+        for alert in alerts:
+            correlated = await self.graph_client.find_correlated_alerts(
+                str(alert.id)
+            )
+            correlations.extend(correlated)
+
+        # Find similar historical incidents
+        similar_incidents = []
+        for alert in alerts:
+            similar = await self.vector_store.search_similar(alert, k=3)
+            similar_incidents.extend(similar)
+
+        # Calculate threat score
+        threat_score = self._calculate_threat_score(
+            alerts, correlations, similar_incidents
+        )
+
+        # Build timeline
+        timeline = self._build_timeline(alerts, correlations)
+
+        return {
+            "alerts": [AlertSerializer(a).data for a in alerts],
+            "correlations": correlations,
+            "similar_incidents": similar_incidents,
+            "threat_score": threat_score,
+            "timeline": timeline,
+            "recommendations": self._generate_recommendations(threat_score)
+        }
+
+    def _calculate_threat_score(
+        self,
+        alerts: list,
+        correlations: list,
+        similar_incidents: list
+    ) -&gt; dict:
+        """Calculate comprehensive threat score."""
+
+        score = 0
+        factors = []
+
+        # Severity contribution
+        severity_weights = {
+            "CRITICAL": 40,
+            "HIGH": 30,
+            "MEDIUM": 20,
+            "LOW": 10,
+            "INFO": 5
+        }
+        max_severity = max(a.severity for a in alerts)
+        severity_score = severity_weights.get(max_severity, 10)
+        score += severity_score
+        factors.append(f"Severity ({max_severity}): +{severity_score}")
+
+        # Multi-alert bonus
+        if len(alerts) &gt; 1:
+            multi_bonus = min(len(alerts) * 5, 25)
+            score += multi_bonus
+            factors.append(f"Multiple alerts ({len(alerts)}): +{multi_bonus}")
+
+        # Correlation bonus
+        if correlations:
+            corr_bonus = min(len(correlations) * 3, 15)
+            score += corr_bonus
+            factors.append(f"Correlated events ({len(correlations)}): +{corr_bonus}")
+
+        # Similar incident history
+        if similar_incidents:
+            history_factor = 10
+            score += history_factor
+            factors.append(f"Historical precedent: +{history_factor}")
+
+        # Time of day factor (nighttime = higher risk)
+        hour = datetime.now().hour
+        if 0 &lt;= hour &lt; 6:
+            night_bonus = 10
+            score += night_bonus
+            factors.append(f"Nighttime activity: +{night_bonus}")
+
+        return {
+            "score": min(score, 100),
+            "level": self._score_to_level(score),
+            "factors": factors
+        }
+
+    def _score_to_level(self, score: int) -&gt; str:
+        if score &gt;= 80:
+            return "CRITICAL"
+        elif score &gt;= 60:
+            return "HIGH"
+        elif score &gt;= 40:
+            return "MEDIUM"
+        elif score &gt;= 20:
+            return "LOW"
+        return "INFO"
+
+    def _build_timeline(self, alerts: list, correlations: list) -&gt; list:
+        """Build chronological timeline of events."""
+        events = []
+
+        for alert in alerts:
+            events.append({
+                "timestamp": alert.timestamp.isoformat(),
+                "type": "alert",
+                "data": AlertSerializer(alert).data
+            })
+
+        for corr in correlations:
+            events.append({
+                "timestamp": corr.get("timestamp"),
+                "type": "correlated",
+                "data": corr
+            })
+
+        return sorted(events, key=lambda e: e["timestamp"])
+
+    def _generate_recommendations(self, threat_score: dict) -&gt; list:
+        """Generate actionable recommendations."""
+        recommendations = []
+
+        level = threat_score["level"]
+
+        if level == "CRITICAL":
+            recommendations.extend([
+                "IMMEDIATE: Verify physical security of affected areas",
+                "Contact local authorities if intrusion confirmed",
+                "Review camera footage for the past hour",
+                "Check all entry points in affected zone"
+            ])
+        elif level == "HIGH":
+            recommendations.extend([
+                "Review all related alerts within the past 30 minutes",
+                "Verify sensor functionality",
+                "Consider arming additional zones"
+            ])
+        elif level == "MEDIUM":
+            recommendations.extend([
+                "Monitor situation for escalation",
+                "Acknowledge alerts after verification"
+            ])
+
+        return recommendations</code></pre>
+<h3 id="5-report-generator">5. Report Generator<a class="headerlink" href="#5-report-generator" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># sentry/reports/generator.py
+class CaseReportGenerator:
+    """Generate security investigation case reports."""
+
+    def __init__(self, engine: IntelligenceEngine):
+        self.engine = engine
+
+    async def generate_report(
+        self,
+        alert_ids: list[str],
+        format: str = "markdown"
+    ) -&gt; str:
+        """Generate a comprehensive case report."""
+
+        # Get analysis
+        analysis = await self.engine.analyze_incident(alert_ids)
+
+        # Build report
+        report = self._build_report(analysis)
+
+        # Format output
+        if format == "markdown":
+            return self._to_markdown(report)
+        elif format == "json":
+            return json.dumps(report, indent=2)
+        elif format == "pdf":
+            return await self._to_pdf(report)
+
+    def _build_report(self, analysis: dict) -&gt; dict:
+        return {
+            "generated_at": datetime.utcnow().isoformat(),
+            "summary": self._generate_summary(analysis),
+            "threat_assessment": analysis["threat_score"],
+            "timeline": analysis["timeline"],
+            "affected_sensors": self._extract_sensors(analysis["alerts"]),
+            "correlations": analysis["correlations"],
+            "historical_context": analysis["similar_incidents"],
+            "recommendations": analysis["recommendations"],
+        }
+
+    def _to_markdown(self, report: dict) -&gt; str:
+        return f"""
+# Security Incident Report
+
+**Generated:** {report['generated_at']}
+
+## Executive Summary
+
+{report['summary']}
+
+## Threat Assessment
+
+**Score:** {report['threat_assessment']['score']}/100
+**Level:** {report['threat_assessment']['level']}
+
+### Contributing Factors
+
+{chr(10).join('- ' + f for f in report['threat_assessment']['factors'])}
+
+## Timeline of Events
+
+| Time | Event | Details |
+|------|-------|---------|
+{self._timeline_table(report['timeline'])}
+
+## Affected Sensors
+
+{self._sensors_list(report['affected_sensors'])}
+
+## Recommendations
+
+{chr(10).join('1. ' + r for r in report['recommendations'])}
+
+---
+
+*Report generated by Estate Sentry Intelligence System*
+"""</code></pre>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code class="language-yaml"># sentry_config.yaml
+sentry:
+  # MCP Server
+  mcp:
+    host: 0.0.0.0
+    port: 8002
+    transport: stdio  # or 'sse' for web
+
+  # Vector Store
+  vector_store:
+    type: chromadb
+    persist_directory: ./data/chromadb
+    embedding_model: all-MiniLM-L6-v2
+
+  # Neo4j
+  neo4j:
+    uri: bolt://localhost:7687
+    user: neo4j
+    password: ${NEO4J_PASSWORD}
+
+  # Analysis
+  analysis:
+    correlation_window_minutes: 30
+    pattern_detection_hours: 24
+    similar_incidents_limit: 5
+
+  # Reports
+  reports:
+    output_directory: ./data/reports
+    default_format: markdown</code></pre>
+<h2 id="docker-deployment">Docker Deployment<a class="headerlink" href="#docker-deployment" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code class="language-yaml"># docker-compose.sentry.yml
+version: '3.8'
+
+services:
+  sentry:
+    build: ./estate-sentry-sentry
+    environment:
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+      CHROMADB_PATH: /data/chromadb
+    volumes:
+      - sentry-data:/data
+    ports:
+      - "8002:8002"
+    depends_on:
+      - neo4j
+
+  chromadb:
+    image: chromadb/chroma:latest
+    volumes:
+      - chromadb-data:/chroma/chroma
+    ports:
+      - "8003:8000"
+
+volumes:
+  sentry-data:
+  chromadb-data:</code></pre>
+<h2 id="api-integration">API Integration<a class="headerlink" href="#api-integration" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code class="language-python"># API endpoints for Sentry
+# alerts/views.py
+
+class AlertViewSet(viewsets.ModelViewSet):
+    @action(detail=True, methods=['post'])
+    async def analyze(self, request, pk=None):
+        """Trigger Sentry analysis for an alert."""
+        alert = self.get_object()
+        analysis = await sentry_engine.analyze_incident([str(alert.id)])
+        return Response(analysis)
+
+    @action(detail=False, methods=['post'])
+    async def correlate(self, request):
+        """Correlate multiple alerts."""
+        alert_ids = request.data.get('alert_ids', [])
+        analysis = await sentry_engine.analyze_incident(alert_ids)
+        return Response(analysis)
+
+    @action(detail=False, methods=['post'])
+    async def generate_report(self, request):
+        """Generate case report."""
+        alert_ids = request.data.get('alert_ids', [])
+        format = request.data.get('format', 'markdown')
+        report = await report_generator.generate_report(alert_ids, format)
+        return Response({'report': report})</code></pre>
+<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../../guides/mcp-integration/">MCP Integration Guide</a> - Using Sentry with Claude</li>
+<li><a href="../database/">Database Architecture</a> - Neo4j schema details</li>
+<li><a href="../security/">Security Architecture</a> - Data protection</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../device-abstraction/" class="btn btn-neutral float-left" title="Device Abstraction"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../operations/monitoring/" class="btn btn-neutral float-right" title="Monitoring">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/QR-Madness/estate-sentry" class="fa fa-code-fork" style="color: #fcfcfc"> estate-sentry</a>
+        </span>
+    
+    
+      <span><a href="../device-abstraction/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../operations/monitoring/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Estate Sentry Contributors" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Device Abstraction - Estate Sentry</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Device Abstraction";
+        var mkdocs_page_input_path = "architecture/device-abstraction.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/typescript.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Estate Sentry
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Specification/">Specification</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Todo/">Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/installation/">Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/quickstart/">Quick Start</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/docker-setup/">Docker Setup</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/task-reference/">Task Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/api-usage/">API Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/plugin-development/">Plugin Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/node-deployment/">Node Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/mcp-integration/">MCP Integration</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Architecture</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../database/">Database</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../decentralization/">Decentralization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../switchboard/">Switchboard</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../security/">Security</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Device Abstraction</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#device-hierarchy">Device Hierarchy</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#device-types">Device Types</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#device-model">Device Model</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#handler-registry">Handler Registry</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#registry-implementation">Registry Implementation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-views">Usage in Views</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#handler-interface">Handler Interface</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#base-handler">Base Handler</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#contact-handler-example">Contact Handler Example</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#camera-handler-example">Camera Handler Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#protocol-adapters">Protocol Adapters</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#base-protocol-adapter">Base Protocol Adapter</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#mqtt-adapter">MQTT Adapter</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#modbus-adapter-for-plcs">Modbus Adapter (for PLCs)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#adding-custom-handlers">Adding Custom Handlers</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#via-python-package">Via Python Package</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#via-entry-points-plugins">Via Entry Points (Plugins)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#device-lifecycle">Device Lifecycle</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#registration">Registration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#discovery">Discovery</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#health-monitoring">Health Monitoring</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#related-documentation">Related Documentation</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../sentry-intelligence/">Sentry Intelligence</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operations</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../operations/monitoring/">Monitoring</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Contributing</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../contributing/development/">Development Guide</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Estate Sentry</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Architecture</li>
+      <li class="breadcrumb-item active">Device Abstraction</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/QR-Madness/estate-sentry/edit/master/docs/architecture/device-abstraction.md">Edit on estate-sentry</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="device-abstraction-layer">Device Abstraction Layer<a class="headerlink" href="#device-abstraction-layer" title="Permanent link">&para;</a></h1>
+<p>Estate Sentry's device abstraction layer provides a unified interface for interacting with diverse security devices, from simple contact sensors to complex camera systems and industrial PLCs. This architecture enables extensibility without modifying core system code.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code>+-------------------------------------------------------------------+
+|                        Device Abstraction Layer                    |
+|  +------------------+  +------------------+  +------------------+  |
+|  |  Handler Registry|  | Protocol Adapters|  |  Device Models   |  |
+|  +------------------+  +------------------+  +------------------+  |
++-------------------------------------------------------------------+
+         |                        |                       |
++--------v-------+    +-----------v---------+    +--------v-------+
+|  Sensor        |    |  MQTT Adapter       |    |  Sensor Model  |
+|  Handlers      |    |  REST Adapter       |    |  Actuator Model|
+|  (contact,     |    |  Modbus Adapter     |    |  Controller    |
+|   camera, etc) |    |  WebSocket Adapter  |    |  Model         |
++----------------+    +---------------------+    +----------------+</code></pre>
+<h2 id="device-hierarchy">Device Hierarchy<a class="headerlink" href="#device-hierarchy" title="Permanent link">&para;</a></h2>
+<h3 id="device-types">Device Types<a class="headerlink" href="#device-types" title="Permanent link">&para;</a></h3>
+<p>Estate Sentry categorizes devices into three primary types:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Direction</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Sensor</strong></td>
+<td>Read-only</td>
+<td>Cameras, contacts, motion, environmental</td>
+</tr>
+<tr>
+<td><strong>Actuator</strong></td>
+<td>Write/Control</td>
+<td>Lights, locks, sirens, relays</td>
+</tr>
+<tr>
+<td><strong>Controller</strong></td>
+<td>Bidirectional</td>
+<td>PLCs, hubs, gateways</td>
+</tr>
+</tbody>
+</table>
+<h3 id="device-model">Device Model<a class="headerlink" href="#device-model" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># devices/models.py
+class DeviceType(models.TextChoices):
+    # Sensors (read-only)
+    SENSOR_CAMERA = 'SENSOR_CAMERA'
+    SENSOR_CONTACT = 'SENSOR_CONTACT'
+    SENSOR_MOTION = 'SENSOR_MOTION'
+    SENSOR_GLASS_BREAK = 'SENSOR_GLASS_BREAK'
+    SENSOR_ENVIRONMENTAL = 'SENSOR_ENVIRONMENTAL'
+
+    # Actuators (write/control)
+    ACTUATOR_LIGHT = 'ACTUATOR_LIGHT'
+    ACTUATOR_LOCK = 'ACTUATOR_LOCK'
+    ACTUATOR_SIREN = 'ACTUATOR_SIREN'
+    ACTUATOR_RELAY = 'ACTUATOR_RELAY'
+
+    # Controllers (bidirectional)
+    CONTROLLER_PLC = 'CONTROLLER_PLC'
+    CONTROLLER_HUB = 'CONTROLLER_HUB'
+    CONTROLLER_GATEWAY = 'CONTROLLER_GATEWAY'
+
+class Device(models.Model):
+    """Base device model for all device types."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    device_type = models.CharField(max_length=50, choices=DeviceType.choices)
+    location = models.CharField(max_length=255)
+    status = models.CharField(max_length=20, default='INACTIVE')
+
+    # Handler configuration
+    handler_class = models.CharField(max_length=255)
+    protocol = models.CharField(max_length=50)
+
+    # Flexible configuration
+    connection_config = models.JSONField(default=dict)
+    metadata = models.JSONField(default=dict)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)</code></pre>
+<h2 id="handler-registry">Handler Registry<a class="headerlink" href="#handler-registry" title="Permanent link">&para;</a></h2>
+<p>The handler registry provides auto-discovery and registration of device handlers.</p>
+<h3 id="registry-implementation">Registry Implementation<a class="headerlink" href="#registry-implementation" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># sensors/registry.py
+import importlib
+import pkgutil
+from pathlib import Path
+from typing import Dict, Type, Optional
+
+class HandlerRegistry:
+    """Central registry for sensor and device handlers."""
+
+    _instance = None
+    _handlers: Dict[str, Type['BaseSensorHandler']] = {}
+    _protocols: Dict[str, Type['BaseProtocolAdapter']] = {}
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._discovered = False
+        return cls._instance
+
+    @classmethod
+    def discover(cls):
+        """Auto-discover handlers from the handlers package."""
+        if cls._instance._discovered:
+            return
+
+        # Discover handlers in sensors/handlers/
+        handlers_path = Path(__file__).parent / 'handlers'
+        for module_info in pkgutil.iter_modules([str(handlers_path)]):
+            if module_info.name.startswith('_'):
+                continue
+
+            module = importlib.import_module(
+                f'sensors.handlers.{module_info.name}'
+            )
+
+            # Find handler classes
+            for attr_name in dir(module):
+                attr = getattr(module, attr_name)
+                if (isinstance(attr, type) and
+                    issubclass(attr, BaseSensorHandler) and
+                    attr is not BaseSensorHandler):
+                    cls.register_handler(attr)
+
+        cls._instance._discovered = True
+
+    @classmethod
+    def register_handler(cls, handler_class: Type['BaseSensorHandler']):
+        """Register a handler class."""
+        for sensor_type in handler_class.SENSOR_TYPES:
+            cls._handlers[sensor_type] = handler_class
+
+    @classmethod
+    def get_handler(cls, sensor_type: str) -&gt; Optional[Type['BaseSensorHandler']]:
+        """Get handler class for a sensor type."""
+        cls.discover()
+        return cls._handlers.get(sensor_type)
+
+    @classmethod
+    def get_all_handlers(cls) -&gt; Dict[str, Type['BaseSensorHandler']]:
+        """Get all registered handlers."""
+        cls.discover()
+        return cls._handlers.copy()
+
+    @classmethod
+    def register_protocol(cls, protocol_class: Type['BaseProtocolAdapter']):
+        """Register a protocol adapter."""
+        cls._protocols[protocol_class.PROTOCOL_NAME] = protocol_class
+
+    @classmethod
+    def get_protocol(cls, protocol_name: str) -&gt; Optional[Type['BaseProtocolAdapter']]:
+        """Get protocol adapter for a protocol name."""
+        return cls._protocols.get(protocol_name)</code></pre>
+<h3 id="usage-in-views">Usage in Views<a class="headerlink" href="#usage-in-views" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># sensors/views.py
+from .registry import HandlerRegistry
+
+class SensorViewSet(viewsets.ModelViewSet):
+    def _process_reading(self, sensor, reading_data):
+        handler_class = HandlerRegistry.get_handler(sensor.sensor_type)
+        if not handler_class:
+            raise ValueError(f"No handler for sensor type: {sensor.sensor_type}")
+
+        handler = handler_class(sensor)
+        is_valid, error = handler.validate_reading(reading_data)
+        if not is_valid:
+            raise ValidationError(error)
+
+        processed = handler.process_reading(reading_data)
+        threats = handler.detect_threats(processed)
+
+        return processed, threats</code></pre>
+<h2 id="handler-interface">Handler Interface<a class="headerlink" href="#handler-interface" title="Permanent link">&para;</a></h2>
+<h3 id="base-handler">Base Handler<a class="headerlink" href="#base-handler" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># sensors/handlers/base.py
+from abc import ABC, abstractmethod
+from typing import List, Tuple, Dict, Any, Optional
+
+class BaseSensorHandler(ABC):
+    """Abstract base class for all sensor handlers."""
+
+    # Class-level metadata for auto-registration
+    SENSOR_TYPES: List[str] = []  # e.g., ['DOOR_CONTACT', 'WINDOW_CONTACT']
+    PROTOCOLS: List[str] = []      # e.g., ['mqtt', 'rest']
+    VERSION: str = '1.0.0'
+
+    def __init__(self, sensor):
+        self.sensor = sensor
+
+    @abstractmethod
+    def validate_reading(self, data: dict) -&gt; Tuple[bool, Optional[str]]:
+        """
+        Validate incoming sensor data.
+
+        Returns:
+            Tuple of (is_valid, error_message)
+        """
+        pass
+
+    @abstractmethod
+    def process_reading(self, data: dict) -&gt; dict:
+        """
+        Process and normalize sensor data.
+
+        Returns:
+            Normalized reading data
+        """
+        pass
+
+    def detect_threats(self, reading: dict) -&gt; List[dict]:
+        """
+        Analyze reading for threats.
+
+        Returns:
+            List of alert dictionaries
+        """
+        return []
+
+    @classmethod
+    def get_reading_schema(cls) -&gt; dict:
+        """
+        Return JSON Schema for reading validation.
+
+        Override this to provide automatic validation.
+        """
+        return {"type": "object"}
+
+    @classmethod
+    def get_connection_schema(cls) -&gt; dict:
+        """
+        Return JSON Schema for connection configuration.
+        """
+        return {"type": "object"}
+
+    @classmethod
+    def get_handler_info(cls) -&gt; dict:
+        """Return handler metadata."""
+        return {
+            'sensor_types': cls.SENSOR_TYPES,
+            'protocols': cls.PROTOCOLS,
+            'version': cls.VERSION,
+            'reading_schema': cls.get_reading_schema(),
+            'connection_schema': cls.get_connection_schema(),
+        }</code></pre>
+<h3 id="contact-handler-example">Contact Handler Example<a class="headerlink" href="#contact-handler-example" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># sensors/handlers/contact.py
+class ContactHandler(BaseSensorHandler):
+    """Handler for door and window contact sensors."""
+
+    SENSOR_TYPES = ['DOOR_CONTACT', 'WINDOW_CONTACT']
+    PROTOCOLS = ['mqtt', 'rest', 'zigbee']
+    VERSION = '1.0.0'
+
+    def validate_reading(self, data: dict) -&gt; Tuple[bool, Optional[str]]:
+        if 'state' not in data:
+            return False, "Missing required field: state"
+
+        if data['state'] not in ['open', 'closed']:
+            return False, "State must be 'open' or 'closed'"
+
+        return True, None
+
+    def process_reading(self, data: dict) -&gt; dict:
+        return {
+            'state': data['state'],
+            'timestamp': data.get('timestamp', datetime.utcnow().isoformat()),
+            'battery_level': data.get('battery_level'),
+        }
+
+    def detect_threats(self, reading: dict) -&gt; List[dict]:
+        alerts = []
+
+        if reading['state'] == 'open':
+            alert_type = 'DOOR_OPEN' if 'DOOR' in self.sensor.sensor_type else 'WINDOW_OPEN'
+            alerts.append({
+                'alert_type': alert_type,
+                'severity': 'MEDIUM',
+                'title': f"{self.sensor.name} opened",
+                'description': f"Contact sensor detected {self.sensor.name} is now open",
+                'metadata': {
+                    'sensor_id': str(self.sensor.id),
+                    'state': reading['state'],
+                }
+            })
+
+        return alerts
+
+    @classmethod
+    def get_reading_schema(cls) -&gt; dict:
+        return {
+            "type": "object",
+            "properties": {
+                "state": {"type": "string", "enum": ["open", "closed"]},
+                "battery_level": {"type": "integer", "minimum": 0, "maximum": 100},
+                "timestamp": {"type": "string", "format": "date-time"},
+            },
+            "required": ["state"]
+        }</code></pre>
+<h3 id="camera-handler-example">Camera Handler Example<a class="headerlink" href="#camera-handler-example" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># sensors/handlers/camera.py
+class CameraHandler(BaseSensorHandler):
+    """Handler for camera sensors."""
+
+    SENSOR_TYPES = ['CAMERA']
+    PROTOCOLS = ['rtsp', 'rest', 'websocket']
+    VERSION = '1.0.0'
+
+    def validate_reading(self, data: dict) -&gt; Tuple[bool, Optional[str]]:
+        if not data.get('frame_path') and not data.get('motion_detected'):
+            return False, "Either frame_path or motion_detected is required"
+        return True, None
+
+    def process_reading(self, data: dict) -&gt; dict:
+        return {
+            'frame_path': data.get('frame_path'),
+            'motion_detected': data.get('motion_detected', False),
+            'timestamp': data.get('timestamp', datetime.utcnow().isoformat()),
+            'resolution': data.get('resolution'),
+            'metadata': data.get('metadata', {}),
+        }
+
+    def detect_threats(self, reading: dict) -&gt; List[dict]:
+        alerts = []
+
+        if reading.get('motion_detected'):
+            alerts.append({
+                'alert_type': 'MOTION',
+                'severity': 'LOW',
+                'title': f"Motion detected on {self.sensor.name}",
+                'description': f"Camera {self.sensor.name} detected motion",
+                'metadata': {
+                    'sensor_id': str(self.sensor.id),
+                    'frame_path': reading.get('frame_path'),
+                }
+            })
+
+        return alerts
+
+    @classmethod
+    def get_connection_schema(cls) -&gt; dict:
+        return {
+            "type": "object",
+            "properties": {
+                "stream_url": {"type": "string", "format": "uri"},
+                "fps": {"type": "integer", "minimum": 1, "maximum": 30},
+                "resolution": {"type": "string", "enum": ["720p", "1080p", "4k"]},
+                "username": {"type": "string"},
+                "password": {"type": "string"},
+            },
+            "required": ["stream_url"]
+        }</code></pre>
+<h2 id="protocol-adapters">Protocol Adapters<a class="headerlink" href="#protocol-adapters" title="Permanent link">&para;</a></h2>
+<p>Protocol adapters abstract communication with different device protocols.</p>
+<h3 id="base-protocol-adapter">Base Protocol Adapter<a class="headerlink" href="#base-protocol-adapter" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># devices/protocols/base.py
+from abc import ABC, abstractmethod
+from typing import Callable, Any
+
+class BaseProtocolAdapter(ABC):
+    """Abstract base class for protocol adapters."""
+
+    PROTOCOL_NAME: str = ""
+
+    def __init__(self, config: dict):
+        self.config = config
+        self._connected = False
+
+    @abstractmethod
+    async def connect(self) -&gt; bool:
+        """Establish connection to the device."""
+        pass
+
+    @abstractmethod
+    async def disconnect(self) -&gt; None:
+        """Close connection to the device."""
+        pass
+
+    @abstractmethod
+    async def read(self) -&gt; dict:
+        """Read current state from device."""
+        pass
+
+    @abstractmethod
+    async def write(self, command: dict) -&gt; bool:
+        """Write command to device (for actuators)."""
+        pass
+
+    @abstractmethod
+    async def subscribe(self, callback: Callable[[dict], Any]) -&gt; None:
+        """Subscribe to device updates."""
+        pass
+
+    @property
+    def is_connected(self) -&gt; bool:
+        return self._connected</code></pre>
+<h3 id="mqtt-adapter">MQTT Adapter<a class="headerlink" href="#mqtt-adapter" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># devices/protocols/mqtt.py
+import asyncio_mqtt as aiomqtt
+
+class MQTTProtocolAdapter(BaseProtocolAdapter):
+    """MQTT protocol adapter for IoT devices."""
+
+    PROTOCOL_NAME = "mqtt"
+
+    def __init__(self, config: dict):
+        super().__init__(config)
+        self.client = None
+        self.topic = config.get('topic')
+
+    async def connect(self) -&gt; bool:
+        self.client = aiomqtt.Client(
+            hostname=self.config['host'],
+            port=self.config.get('port', 1883),
+            username=self.config.get('username'),
+            password=self.config.get('password'),
+        )
+        await self.client.__aenter__()
+        self._connected = True
+        return True
+
+    async def disconnect(self) -&gt; None:
+        if self.client:
+            await self.client.__aexit__(None, None, None)
+        self._connected = False
+
+    async def read(self) -&gt; dict:
+        # MQTT is push-based, use subscribe instead
+        raise NotImplementedError("Use subscribe for MQTT")
+
+    async def write(self, command: dict) -&gt; bool:
+        if not self._connected:
+            return False
+        await self.client.publish(
+            f"{self.topic}/command",
+            json.dumps(command)
+        )
+        return True
+
+    async def subscribe(self, callback: Callable[[dict], Any]) -&gt; None:
+        async with self.client.messages() as messages:
+            await self.client.subscribe(f"{self.topic}/#")
+            async for message in messages:
+                data = json.loads(message.payload)
+                await callback(data)</code></pre>
+<h3 id="modbus-adapter-for-plcs">Modbus Adapter (for PLCs)<a class="headerlink" href="#modbus-adapter-for-plcs" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># devices/protocols/modbus.py
+from pymodbus.client import AsyncModbusTcpClient
+
+class ModbusProtocolAdapter(BaseProtocolAdapter):
+    """Modbus TCP adapter for PLCs and industrial devices."""
+
+    PROTOCOL_NAME = "modbus"
+
+    def __init__(self, config: dict):
+        super().__init__(config)
+        self.client = None
+        self.unit_id = config.get('unit_id', 1)
+
+    async def connect(self) -&gt; bool:
+        self.client = AsyncModbusTcpClient(
+            host=self.config['host'],
+            port=self.config.get('port', 502),
+        )
+        await self.client.connect()
+        self._connected = self.client.connected
+        return self._connected
+
+    async def disconnect(self) -&gt; None:
+        if self.client:
+            self.client.close()
+        self._connected = False
+
+    async def read(self) -&gt; dict:
+        """Read holding registers."""
+        address = self.config.get('address', 0)
+        count = self.config.get('count', 1)
+
+        result = await self.client.read_holding_registers(
+            address=address,
+            count=count,
+            slave=self.unit_id
+        )
+
+        if result.isError():
+            raise IOError(f"Modbus read error: {result}")
+
+        return {
+            'registers': result.registers,
+            'address': address,
+            'timestamp': datetime.utcnow().isoformat()
+        }
+
+    async def write(self, command: dict) -&gt; bool:
+        """Write to holding registers."""
+        address = command.get('address', 0)
+        values = command.get('values', [])
+
+        result = await self.client.write_registers(
+            address=address,
+            values=values,
+            slave=self.unit_id
+        )
+
+        return not result.isError()
+
+    async def subscribe(self, callback: Callable[[dict], Any]) -&gt; None:
+        """Poll registers at configured interval."""
+        interval = self.config.get('poll_interval', 1.0)
+        while self._connected:
+            data = await self.read()
+            await callback(data)
+            await asyncio.sleep(interval)</code></pre>
+<h2 id="adding-custom-handlers">Adding Custom Handlers<a class="headerlink" href="#adding-custom-handlers" title="Permanent link">&para;</a></h2>
+<h3 id="via-python-package">Via Python Package<a class="headerlink" href="#via-python-package" title="Permanent link">&para;</a></h3>
+<p>Create a new handler in the <code>sensors/handlers/</code> directory:</p>
+<pre class="highlight"><code class="language-python"># sensors/handlers/custom_sensor.py
+from .base import BaseSensorHandler
+
+class CustomSensorHandler(BaseSensorHandler):
+    SENSOR_TYPES = ['CUSTOM_TYPE']
+    PROTOCOLS = ['rest']
+    VERSION = '1.0.0'
+
+    def validate_reading(self, data: dict):
+        # Your validation logic
+        return True, None
+
+    def process_reading(self, data: dict):
+        # Your processing logic
+        return data
+
+    def detect_threats(self, reading: dict):
+        # Your threat detection logic
+        return []</code></pre>
+<h3 id="via-entry-points-plugins">Via Entry Points (Plugins)<a class="headerlink" href="#via-entry-points-plugins" title="Permanent link">&para;</a></h3>
+<p>For external packages, use Python entry points:</p>
+<pre class="highlight"><code class="language-toml"># pyproject.toml (external package)
+[project.entry-points."estate_sentry.handlers"]
+custom_handler = "my_package.handlers:CustomHandler"</code></pre>
+<p>The registry automatically discovers entry point-based handlers.</p>
+<h2 id="device-lifecycle">Device Lifecycle<a class="headerlink" href="#device-lifecycle" title="Permanent link">&para;</a></h2>
+<h3 id="registration">Registration<a class="headerlink" href="#registration" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># API: POST /api/devices/
+{
+    "name": "Front Door Lock",
+    "device_type": "ACTUATOR_LOCK",
+    "location": "Main Entrance",
+    "protocol": "mqtt",
+    "connection_config": {
+        "host": "mqtt.local",
+        "topic": "locks/front_door"
+    }
+}</code></pre>
+<h3 id="discovery">Discovery<a class="headerlink" href="#discovery" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># API: GET /api/devices/discover/
+# Returns devices found on the network (protocol-specific)
+{
+    "discovered": [
+        {
+            "address": "192.168.1.100",
+            "type": "SENSOR_CAMERA",
+            "protocol": "rtsp",
+            "name": "IP Camera"
+        }
+    ]
+}</code></pre>
+<h3 id="health-monitoring">Health Monitoring<a class="headerlink" href="#health-monitoring" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># API: GET /api/devices/{id}/health/
+{
+    "status": "ACTIVE",
+    "last_seen": "2025-01-23T10:00:00Z",
+    "battery_level": 85,
+    "signal_strength": -45,
+    "errors": []
+}</code></pre>
+<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../../guides/plugin-development/">Plugin Development Guide</a> - Creating custom handlers</li>
+<li><a href="../switchboard/">Switchboard Architecture</a> - Data routing for devices</li>
+<li><a href="../../guides/api-usage/">API Usage</a> - Device API endpoints</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../security/" class="btn btn-neutral float-left" title="Security"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../sentry-intelligence/" class="btn btn-neutral float-right" title="Sentry Intelligence">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/QR-Madness/estate-sentry" class="fa fa-code-fork" style="color: #fcfcfc"> estate-sentry</a>
+        </span>
+    
+    
+      <span><a href="../security/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../sentry-intelligence/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

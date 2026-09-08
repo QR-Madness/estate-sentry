@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Estate Sentry Contributors" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Quick Start - Estate Sentry</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Quick Start";
+        var mkdocs_page_input_path = "getting-started/quickstart.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/typescript.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Estate Sentry
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Specification/">Specification</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Todo/">Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../installation/">Installation</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Quick Start</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-1-register-a-user">Step 1: Register a User</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-2-login-and-get-token">Step 2: Login and Get Token</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-3-create-a-sensor">Step 3: Create a Sensor</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-4-submit-a-sensor-reading">Step 4: Submit a Sensor Reading</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-5-view-alerts">Step 5: View Alerts</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-6-acknowledge-an-alert">Step 6: Acknowledge an Alert</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#available-sensor-types">Available Sensor Types</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#using-task-commands">Using Task Commands</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#using-the-admin-interface">Using the Admin Interface</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#next-steps">Next Steps</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../docker-setup/">Docker Setup</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/task-reference/">Task Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/api-usage/">API Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/plugin-development/">Plugin Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/node-deployment/">Node Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/mcp-integration/">MCP Integration</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Architecture</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/database/">Database</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/decentralization/">Decentralization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/switchboard/">Switchboard</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/security/">Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/device-abstraction/">Device Abstraction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/sentry-intelligence/">Sentry Intelligence</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operations</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../operations/monitoring/">Monitoring</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Contributing</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../contributing/development/">Development Guide</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Estate Sentry</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Getting Started</li>
+      <li class="breadcrumb-item active">Quick Start</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/QR-Madness/estate-sentry/edit/master/docs/getting-started/quickstart.md">Edit on estate-sentry</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="quick-start-guide">Quick Start Guide<a class="headerlink" href="#quick-start-guide" title="Permanent link">&para;</a></h1>
+<p>This guide will help you get started with Estate Sentry by testing the API and creating your first sensors.</p>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<p>Make sure you've completed the <a href="../installation/">Installation</a> and have:</p>
+<ul>
+<li>API running at http://localhost:8000</li>
+<li>Admin user created</li>
+<li>Terminal ready for curl commands</li>
+</ul>
+<h2 id="step-1-register-a-user">Step 1: Register a User<a class="headerlink" href="#step-1-register-a-user" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code class="language-bash">curl -X POST http://localhost:8000/api/auth/register/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "testuser",
+    "email": "test@example.com",
+    "password": "securepass123",
+    "auth_method": "password"
+  }'</code></pre>
+<h2 id="step-2-login-and-get-token">Step 2: Login and Get Token<a class="headerlink" href="#step-2-login-and-get-token" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code class="language-bash">curl -X POST http://localhost:8000/api/auth/login/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "testuser",
+    "password": "securepass123"
+  }'</code></pre>
+<p><strong>Save the token from the response</strong> - you'll need it for authenticated requests.</p>
+<p>Example response:
+<pre class="highlight"><code class="language-json">{
+  "token": "abc123def456...",
+  "user": {
+    "id": 1,
+    "username": "testuser",
+    "email": "test@example.com"
+  }
+}</code></pre></p>
+<h2 id="step-3-create-a-sensor">Step 3: Create a Sensor<a class="headerlink" href="#step-3-create-a-sensor" title="Permanent link">&para;</a></h2>
+<p>Replace <code>YOUR_TOKEN_HERE</code> with the token from Step 2:</p>
+<pre class="highlight"><code class="language-bash">curl -X POST http://localhost:8000/api/sensors/ \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Token YOUR_TOKEN_HERE" \
+  -d '{
+    "name": "Front Door Sensor",
+    "sensor_type": "DOOR_CONTACT",
+    "location": "Main Entrance",
+    "status": "ACTIVE"
+  }'</code></pre>
+<p>Save the sensor <code>id</code> from the response.</p>
+<h2 id="step-4-submit-a-sensor-reading">Step 4: Submit a Sensor Reading<a class="headerlink" href="#step-4-submit-a-sensor-reading" title="Permanent link">&para;</a></h2>
+<p>Replace <code>1</code> with your sensor ID and use your token:</p>
+<pre class="highlight"><code class="language-bash">curl -X POST http://localhost:8000/api/sensors/1/readings/ \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Token YOUR_TOKEN_HERE" \
+  -d '{
+    "value": {"state": "open"},
+    "reading_type": "contact_state"
+  }'</code></pre>
+<p><strong>This will automatically create an alert</strong> because the door was opened!</p>
+<h2 id="step-5-view-alerts">Step 5: View Alerts<a class="headerlink" href="#step-5-view-alerts" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code class="language-bash">curl http://localhost:8000/api/alerts/ \
+  -H "Authorization: Token YOUR_TOKEN_HERE"</code></pre>
+<p>You should see an alert for the door opening.</p>
+<h2 id="step-6-acknowledge-an-alert">Step 6: Acknowledge an Alert<a class="headerlink" href="#step-6-acknowledge-an-alert" title="Permanent link">&para;</a></h2>
+<p>Replace <code>1</code> with your alert ID:</p>
+<pre class="highlight"><code class="language-bash">curl -X PATCH http://localhost:8000/api/alerts/1/acknowledge/ \
+  -H "Authorization: Token YOUR_TOKEN_HERE"</code></pre>
+<h2 id="available-sensor-types">Available Sensor Types<a class="headerlink" href="#available-sensor-types" title="Permanent link">&para;</a></h2>
+<p>When creating sensors, you can use these sensor types:</p>
+<ul>
+<li><code>CAMERA</code> - Camera systems</li>
+<li><code>DOOR_CONTACT</code> - Door contact sensors</li>
+<li><code>WINDOW_CONTACT</code> - Window contact sensors</li>
+<li><code>GLASS_BREAK</code> - Glass break detectors</li>
+<li><code>MOTION</code> - Motion detectors</li>
+<li><code>SMOKE</code> - Smoke detectors</li>
+<li><code>CO</code> - Carbon monoxide detectors</li>
+<li><code>WATER_LEAK</code> - Water leak detectors</li>
+<li><code>CUSTOM</code> - Custom sensor types</li>
+</ul>
+<h2 id="using-task-commands">Using Task Commands<a class="headerlink" href="#using-task-commands" title="Permanent link">&para;</a></h2>
+<p>If you're using Task, here are some helpful commands:</p>
+<pre class="highlight"><code class="language-bash"># Start development servers
+task dev
+
+# Run tests
+task test
+
+# Create superuser
+task api:superuser
+
+# Run migrations
+task api:migrate
+
+# View all available tasks
+task --list</code></pre>
+<h2 id="using-the-admin-interface">Using the Admin Interface<a class="headerlink" href="#using-the-admin-interface" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Visit http://localhost:8000/admin/</li>
+<li>Login with your superuser credentials</li>
+<li>Explore:</li>
+<li><strong>Users</strong> - Manage user accounts</li>
+<li><strong>Sensors</strong> - View and configure sensors</li>
+<li><strong>Sensor readings</strong> - View all sensor data</li>
+<li><strong>Alerts</strong> - Monitor security alerts</li>
+</ol>
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Check the <a href="../../guides/api-usage/">API Usage Guide</a> for complete endpoint documentation</li>
+<li>Read the <a href="../../architecture/overview/">Architecture Overview</a> to understand the system</li>
+<li>See the <a href="../../contributing/development/">Development Guide</a> to contribute</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../installation/" class="btn btn-neutral float-left" title="Installation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../docker-setup/" class="btn btn-neutral float-right" title="Docker Setup">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/QR-Madness/estate-sentry" class="fa fa-code-fork" style="color: #fcfcfc"> estate-sentry</a>
+        </span>
+    
+    
+      <span><a href="../installation/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../docker-setup/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
