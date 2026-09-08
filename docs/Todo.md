@@ -26,8 +26,8 @@ The dashboard shows live camera tiles and a detection feed.
 
 - L4 identity, L5 action/pose, L6 correlation, L7 threat scoring
 - Neo4j and ChromaDB integration
-- The two security items in Milestone 1 below — still outstanding, and still
-  the thing to fix before anything is exposed beyond a LAN
+- Remaining Milestone 1 items: JSON Schema validation on the JSONFields, the
+  audit log, and rate limiting on sensor reading endpoints
 
 **Intelligence model split**
 
@@ -58,11 +58,13 @@ This is L7 / Sentry Intelligence territory and nothing depends on it yet.
 
 **Priority:** CRITICAL - Must be completed before any production deployment
 
-- [ ] Hash PIN storage using Django password hashers (`make_password`/`check_password`)
-- [ ] Create data migration to hash existing plaintext PINs
-- [ ] Implement `TrustedDevice` model for username-only authentication
-- [ ] Add device fingerprint and certificate binding for trusted devices
-- [ ] Add rate limiting to authentication endpoints (5/minute for login)
+- [x] Hash PIN storage using Django password hashers (`make_password`/`check_password`)
+- [x] Create data migration to hash existing plaintext PINs
+- [x] Implement `TrustedDevice` model for username-only authentication
+- [ ] Add device fingerprint and certificate binding for trusted devices —
+      the token is the credential today; binding it to a client certificate
+      would stop a copied token working from somewhere else
+- [x] Add rate limiting to authentication endpoints, plus a per-account lockout
 - [ ] Add rate limiting to sensor reading endpoints (60/minute per sensor)
 - [ ] Create `core/validators.py` with JSON Schema validators
 - [ ] Add JSON Schema validation to `connection_config` and `metadata` fields

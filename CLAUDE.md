@@ -111,7 +111,23 @@ Handler-to-type mapping is in `SensorReadingCreateSerializer.validate()` and `Se
 
 ### Django Apps
 
-- **authentication** — Custom `User` model (extends AbstractUser) with three auth methods: username-only, PIN, password. Token-based auth via DRF `authtoken`.
+- **authentication** — Custom `User` model (extends AbstractUser) with three auth methods, plus `TrustedDevice`. Token-based auth via DRF `authtoken`.
+    - **PIN** is stored hashed (`set_pin` / `check_pin`), never in the clear.
+    - **`username`** means *trusted device*, not "no credential". The account
+      authenticates by presenting an enrolled device token, in the body as
+      `device_token` or as an `X-Device-Token` header. A username is an
+      identifier and identifiers are not secret, so the previous behaviour —
+      granting a token to anyone who could name an account — was not
+      authentication.
+    - Bootstrap with `manage.py enroll_device <username> "<device name>"`. It has
+      to be out of band: a device-authenticated account cannot log in to enrol
+      its own first device.
+    - Guessing is bounded twice over, because neither measure covers the other's
+      case. A per-account lockout (5 failures, 15 minutes) stops one account
+      being ground down; a per-client throttle on `/api/auth/login/` stops one
+      client trying one PIN against many accounts. A four-digit PIN is 10,000
+      possibilities, so this is what makes it mean anything — hashing alone
+      protects a leaked database, not a live endpoint.
 - **sensors** — `Sensor` and `SensorReading` models. `SensorViewSet` with custom `readings` (POST) and `reading_history` (GET) actions. Handler framework dispatches to type-specific processors.
 - **alerts** — `Alert` model with severity levels (INFO→CRITICAL) and acknowledgment flow. Read-only viewset with `acknowledge` (PATCH) and `statistics` (GET) actions.
 - **zones** — `Zone`, `ZonePerimeter`, `ZoneAdjacency`, `ZoneRule`. Perimeters are polygons in **normalised 0-1** coordinates, not pixels, so a resolution change does not invalidate them. `Sensor` and `Alert` both carry a nullable `zone` FK.

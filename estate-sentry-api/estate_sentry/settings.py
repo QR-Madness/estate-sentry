@@ -167,6 +167,13 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+    'DEFAULT_THROTTLE_RATES': {
+        # Bounds one client's guessing across many accounts; the per-account
+        # lockout in authentication.models bounds guessing against one account.
+        # Neither covers the other's case, so both are set.
+        'auth-login': '10/min',
+        'auth-register': '5/hour',
+    },
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 50,
     'DEFAULT_RENDERER_CLASSES': [
