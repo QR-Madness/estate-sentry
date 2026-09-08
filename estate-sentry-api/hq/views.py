@@ -23,6 +23,7 @@ from django.shortcuts import render
 from perception.ring import TooManySubscribers
 
 from sensors.models import Sensor
+from zones.models import ZonePerimeter
 
 from .live import bridge
 
@@ -66,6 +67,30 @@ async def aknown_cameras() -> list[str]:
     return names or FALLBACK_CAMERAS
 
 
+def camera_zones() -> dict[str, list[dict]]:
+    """Zone perimeters per camera, ready to draw.
+
+    Passed into the page rather than fetched by the browser. The perimeters are
+    already loaded to render this view, the payload is a few hundred bytes, and
+    an extra endpoint would need its own authentication story — the API requires
+    a token the dashboard does not have.
+    """
+    perimeters = (
+        ZonePerimeter.objects.select_related("zone", "camera")
+        .order_by("zone__name")
+    )
+    by_camera: dict[str, list[dict]] = {}
+    for perimeter in perimeters:
+        by_camera.setdefault(perimeter.camera.name, []).append(
+            {
+                "name": perimeter.zone.name,
+                "type": perimeter.zone.zone_type,
+                "polygon": perimeter.polygon,
+            }
+        )
+    return by_camera
+
+
 def dashboard(request: HttpRequest) -> HttpResponse:
     cameras = known_cameras()
     return render(
@@ -74,6 +99,7 @@ def dashboard(request: HttpRequest) -> HttpResponse:
         {
             "cameras": cameras,
             "using_fallback": cameras is FALLBACK_CAMERAS or cameras == FALLBACK_CAMERAS,
+            "camera_zones": camera_zones(),
         },
     )
 
@@ -148,6 +174,10 @@ async def events_stream(request: HttpRequest) -> HttpResponse:
                     continue
                 last_seen = entry.id
                 yield _sse(entry.id, entry.item)
+                # Geometry rides on its own event. htmx swaps the HTML one into
+                # the feed; the overlay is drawn by hand from this one, because
+                # positioning boxes over a scaled video is not a swap.
+                yield _sse_boxes(entry.id, entry.item)
 
     response = StreamingHttpResponse(stream(), content_type="text/event-stream")
     response["Cache-Control"] = "no-cache, no-store, must-revalidate"
@@ -193,6 +223,47 @@ def _sse(event_id: int, payload: bytes) -> bytes:
     )
     # SSE frames are newline-delimited, so the payload must not contain any.
     return f"id: {event_id}\nevent: detection\ndata: {html}\n\n".encode()
+
+
+def _sse_boxes(event_id: int, payload: bytes) -> bytes:
+    """Render one frame's detections as a `boxes` event carrying JSON geometry.
+
+    Boxes are normalised to 0-1 here rather than on the client. The dashboard
+    scales the stream to fit its tile and has no idea of the source resolution,
+    so pixel coordinates would be meaningless by the time they arrived.
+    """
+    try:
+        event = json.loads(payload)
+        width = float(event.get("frame_width") or 0)
+        height = float(event.get("frame_height") or 0)
+        if width <= 0 or height <= 0:
+            # Older events, or a producer that did not report dimensions. Skip
+            # rather than guess: a box drawn at the wrong scale is worse than
+            # no box, because it looks authoritative.
+            return b""
+
+        zones = event.get("zones") or []
+        boxes = []
+        for i, detection in enumerate(event.get("detections") or []):
+            x1, y1, x2, y2 = (float(v) for v in detection["box"])
+            boxes.append(
+                {
+                    "x": round(x1 / width, 5),
+                    "y": round(y1 / height, 5),
+                    "w": round((x2 - x1) / width, 5),
+                    "h": round((y2 - y1) / height, 5),
+                    "label": str(detection.get("label", "?")),
+                    "category": str(detection.get("category", "unknown")),
+                    "confidence": float(detection.get("confidence", 0)),
+                    "zones": zones[i] if i < len(zones) else [],
+                }
+            )
+        data = json.dumps({"camera": event.get("camera_id"), "boxes": boxes})
+    except (ValueError, TypeError, AttributeError, KeyError, IndexError):
+        logger.warning("discarding unrenderable box geometry", exc_info=True)
+        return b""
+
+    return f"id: {event_id}\nevent: boxes\ndata: {data}\n\n".encode()
 
 
 def _escape(value: str) -> str:

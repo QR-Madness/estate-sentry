@@ -1,6 +1,13 @@
 {% extends "hq/base.html" %}
+{% load hq_extras %}
 
 {% block content %}
+{% comment %}
+  Zone geometry travels with the page. It changes rarely, it is small, and the
+  dashboard has no API credentials of its own — so fetching it would mean
+  inventing an auth story for data already in hand here.
+{% endcomment %}
+{{ camera_zones|json_for_script:"camera-zones" }}
 <section class="cameras">
   <h2 class="section-title">Cameras</h2>
   <div class="camera-grid">
@@ -17,7 +24,7 @@
         waiting on load, and delays deferred scripts. Attaching afterwards costs
         nothing and makes the page finish loading like any other.
       {% endcomment %}
-      <div class="camera__frame" data-label="no signal">
+      <div class="camera__frame" data-label="no signal" data-camera="{{ camera }}">
         <img class="camera__view"
              data-src="{% url 'hq:camera-mjpeg' camera %}"
              alt="Live view from {{ camera }}">

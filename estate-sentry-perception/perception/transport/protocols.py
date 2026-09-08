@@ -95,8 +95,14 @@ class EventBus(Protocol):
 
     async def publish(self, subject: str, payload: bytes) -> None: ...
 
-    def subscribe(self, subject: str) -> AbstractContextManager[AsyncIterator[bytes]]:
+    def subscribe(
+        self, subject: str, *, max_queue: int | None = None
+    ) -> AbstractContextManager[AsyncIterator[bytes]]:
         """Register interest in `subject` for the duration of the context.
+
+        `max_queue` bounds how many undelivered messages are held for this
+        subscriber. A relaying consumer wants slack; one doing slow work per
+        message wants almost none, because depth turns directly into staleness.
 
         A context manager rather than a bare async generator, and the distinction
         is load-bearing. An async generator runs no code until it is first

@@ -14,6 +14,7 @@ from django.test import Client, TestCase
 
 from hq.views import _sse, known_cameras
 from sensors.models import Sensor
+from zones.models import Zone, ZonePerimeter
 
 
 def event_payload(**overrides):
@@ -138,6 +139,54 @@ class DashboardTests(TestCase):
         body = self.client.get("/hq/").content.decode()
         self.assertIn("data-src=", body)
         self.assertNotIn('<img class="camera__view"\n             src=', body)
+
+    def test_zone_geometry_is_embedded_for_the_overlay(self):
+        """Passed with the page rather than fetched: the dashboard holds no API
+        credentials, so a separate endpoint would need its own auth story for
+        data this view already has."""
+        user = get_user_model().objects.create_user(username="zg", password="x")
+        camera = Sensor.objects.create(
+            name="passageway", sensor_type="CAMERA", location="side", owner=user
+        )
+        zone = Zone.objects.create(
+            owner=user, name="Walkway", zone_type=Zone.ZoneType.HALLWAY
+        )
+        ZonePerimeter.objects.create(
+            zone=zone, camera=camera,
+            polygon=[[0.1, 0.1], [0.9, 0.1], [0.9, 0.9], [0.1, 0.9]],
+        )
+
+        body = self.client.get("/hq/").content.decode()
+        self.assertIn('id="camera-zones"', body)
+        payload = json.loads(
+            body.split('id="camera-zones" type="application/json">')[1].split("</script>")[0]
+            .replace("\\u003c", "<").replace("\\u003e", ">").replace("\\u0026", "&")
+        )
+        self.assertIn("passageway", payload)
+        self.assertEqual(payload["passageway"][0]["name"], "Walkway")
+        self.assertEqual(len(payload["passageway"][0]["polygon"]), 4)
+
+    def test_a_zone_name_cannot_break_out_of_the_json_script_tag(self):
+        """Zone names are user-supplied and land inside a <script> block. Without
+        escaping, a name containing a closing tag would end the block early and
+        everything after it would be parsed as markup."""
+        user = get_user_model().objects.create_user(username="zx", password="x")
+        camera = Sensor.objects.create(
+            name="passageway", sensor_type="CAMERA", location="s", owner=user
+        )
+        zone = Zone.objects.create(
+            owner=user, name='</script><img src=x onerror=alert(1)>',
+            zone_type=Zone.ZoneType.HALLWAY,
+        )
+        ZonePerimeter.objects.create(
+            zone=zone, camera=camera, polygon=[[0.1, 0.1], [0.9, 0.1], [0.9, 0.9]]
+        )
+
+        body = self.client.get("/hq/").content.decode()
+        block = body.split('id="camera-zones" type="application/json">')[1].split("</script>")[0]
+        self.assertNotIn("</script", block)
+        self.assertNotIn("<img", block)
+        self.assertIn("\\u003c", block)
 
     def test_unknown_camera_is_rejected(self):
         """The camera id lands in a bus subject, so it must not be free-form."""

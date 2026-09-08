@@ -48,15 +48,25 @@ class NatsEventBus(EventBus):
         await self._client.publish(subject, payload)
 
     @contextmanager
-    def subscribe(self, subject: str) -> Iterator[AsyncIterator[bytes]]:
+    def subscribe(
+        self, subject: str, *, max_queue: int | None = None
+    ) -> Iterator[AsyncIterator[bytes]]:
         """Attach a subscription for the duration of the context.
 
         Bounded, and dropping the oldest message when full, matching the policy in
         `perception.ring`. NATS would otherwise buffer for a slow consumer until
         it hit its own limits and dropped the subscriber outright — losing the
         whole stream rather than the stale end of it.
+
+        `max_queue` matters more than it looks. A consumer that merely relays
+        messages wants some slack. A consumer that does slow work per message
+        wants almost none: depth becomes staleness, and it will spend its time on
+        frames that have already scrolled off the screen. See
+        `PIPELINE_INPUT_QUEUE_MAX`.
         """
-        queue: asyncio.Queue[bytes] = asyncio.Queue(maxsize=RING_SUBSCRIBER_QUEUE_MAX)
+        queue: asyncio.Queue[bytes] = asyncio.Queue(
+            maxsize=max_queue or RING_SUBSCRIBER_QUEUE_MAX
+        )
 
         async def _on_message(msg: Msg) -> None:
             try:

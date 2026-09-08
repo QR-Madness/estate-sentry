@@ -153,6 +153,24 @@ async def test_bus_does_not_deliver_to_non_matching_subscribers():
             await asyncio.wait_for(anext(stream), timeout=0.05)
 
 
+async def test_a_bounded_subscription_keeps_the_newest_messages():
+    """The fix for detection boxes trailing the video.
+
+    A consumer that does slow work per message must not accumulate a backlog:
+    depth becomes staleness, and the pipeline ends up reporting on frames that
+    have already left the screen. Bounded, newest-wins, is what keeps it current.
+    """
+    bus = InMemoryEventBus()
+    with bus.subscribe(ALL_FRAMES_SUBJECT, max_queue=2) as stream:
+        for i in range(10):
+            await bus.publish("frames.c.raw", str(i).encode())
+
+        first = await anext(stream)
+        second = await anext(stream)
+
+    assert (first, second) == (b"8", b"9"), "a slow consumer should see the latest"
+
+
 async def test_bus_detaches_subscriber_on_context_exit():
     bus = InMemoryEventBus()
     with bus.subscribe(ALL_FRAMES_SUBJECT) as stream:

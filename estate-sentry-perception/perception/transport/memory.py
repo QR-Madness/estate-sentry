@@ -71,18 +71,33 @@ class InMemoryEventBus(EventBus):
 
     async def publish(self, subject: str, payload: bytes) -> None:
         for pattern, queue in self._subscribers:
-            if subject_matches(pattern, subject):
+            if not subject_matches(pattern, subject):
+                continue
+            try:
+                queue.put_nowait(payload)
+            except asyncio.QueueFull:
+                # Same policy as production: the newest message wins.
+                try:
+                    queue.get_nowait()
+                except asyncio.QueueEmpty:  # pragma: no cover
+                    pass
                 queue.put_nowait(payload)
 
     @contextmanager
-    def subscribe(self, subject: str) -> Iterator[AsyncIterator[bytes]]:
+    def subscribe(
+        self, subject: str, *, max_queue: int | None = None
+    ) -> Iterator[AsyncIterator[bytes]]:
         """Attach on entry, detach on exit.
 
         Registration happens here, synchronously, rather than inside the async
         generator — otherwise nothing would be listening until the consumer first
         advanced the iterator, and messages published in between would vanish.
+
+        `max_queue` is honoured so a test can exercise the same drop-oldest
+        behaviour the pipeline relies on in production. Unbounded by default,
+        because a test asserting delivery should not race its own transport.
         """
-        queue: asyncio.Queue[bytes] = asyncio.Queue()
+        queue: asyncio.Queue[bytes] = asyncio.Queue(maxsize=max_queue or 0)
         entry = (subject, queue)
         self._subscribers.append(entry)
         try:

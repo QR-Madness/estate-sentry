@@ -11,6 +11,7 @@
   {% endcomment %}
   <script src="{% static 'hq/htmx.min.js' %}" defer></script>
   <script src="{% static 'hq/htmx-ext-sse.js' %}" defer></script>
+  <script src="{% static 'hq/overlay.js' %}" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -19,6 +20,12 @@
       <h1>Estate Sentry</h1>
     </div>
     <nav class="topbar__meta">
+      <button type="button" class="toggle" id="zone-toggle" aria-pressed="true">
+        zones on
+      </button>
+      <button type="button" class="toggle" id="overlay-toggle" aria-pressed="true">
+        boxes on
+      </button>
       <span class="pill" id="conn-state" data-state="connecting">connecting</span>
     </nav>
   </header>

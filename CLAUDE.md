@@ -118,6 +118,31 @@ Handler-to-type mapping is in `SensorReadingCreateSerializer.validate()` and `Se
 - **intelligence** — `ZoneEvent`, the append-only detection log. No update or delete route: it is evidence, written once by the pipeline. The identity, action and track columns in the specification belong to L4-L6 and are deliberately absent.
 - **hq** — the dashboard. Async streaming views only; the rest is one template.
 
+### Dashboard overlay
+
+Detection brackets and zone perimeters are drawn **in the browser**, over the
+MJPEG tile, from geometry on the SSE `boxes` event. Deliberately not burned into
+the stream: that would cost a decode/draw/re-encode per frame, make the toggle a
+server round trip, and merge two different claims — what the camera saw, and what
+a model thought about it — into one artifact. It would also not reduce lag, which
+is inference time, and would *add* some, because keeping boxes on the right frame
+means holding the video back until its detection finishes.
+
+A server-side annotated render still earns its place later, for **artifacts**
+rather than the live view: alert snapshots and exported clips want the box baked
+in. That should reuse the existing per-camera pump rather than rendering per
+viewer.
+
+The `boxes` event is not an htmx swap. The SSE extension only subscribes to event
+names named in an `sse-swap` attribute, so `overlay.js` attaches its own listener
+to htmx's EventSource via `htmx:sseOpen` — one connection, two consumers.
+
+**On htmx:** it is the right choice for the feed and the page, and there is no
+build step. The stateful, canvas-like parts were never its job — the detection
+overlay is hand-written, and the zone polygon editor will be too. Reassess when
+the identity review queue arrives (L4): that is the point where several stateful
+pages exist at once and component structure would start to pay for itself.
+
 ### Key Models and Relationships
 
 ```

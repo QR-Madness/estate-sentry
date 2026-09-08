@@ -18,6 +18,8 @@ The dashboard shows live camera tiles and a detection feed.
   is AGPL-3.0 and would conflict with this project's MIT licence)
 - L3 zone intersection, with `zones` and `intelligence` apps
 - HQ dashboard: Django templates + htmx, MJPEG and SSE, no build step
+- Live overlay: detection brackets and zone perimeters drawn client-side over the
+  camera tiles, each independently toggleable
 - Development producer in `../mock-estate/` on the real frame contract
 
 **Not built, deliberately**
@@ -41,7 +43,12 @@ This is L7 / Sentry Intelligence territory and nothing depends on it yet.
 
 **Known measurements**
 
-- RT-DETRv2 `r18vd` on CPU: ~0.42s per frame, about 2.4 fps. Two cameras at 5 fps
+- RT-DETRv2 `r18vd` on CPU: ~0.42s per frame, about 2.4 fps.
+- End-to-end detection lag, capture to browser: ~1.0s. Was ~4s until the
+  pipeline's inbound queue was shortened to 2 — a deep queue on a slow consumer
+  turns directly into staleness, and the pipeline was analysing frames that had
+  already left the screen. The remaining second is inference plus one cycle of
+  wait, and will not improve without a faster model. Two cameras at 5 fps
   oversubscribe the pipeline roughly fourfold; the bounded queues drop oldest-first
   and the producer is never throttled.
 

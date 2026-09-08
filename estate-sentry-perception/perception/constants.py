@@ -30,6 +30,22 @@ RING_SUBSCRIBER_QUEUE_MAX = 20
 #: host. AgentX uses 32 for log streams; frames are heavier, so this is lower.
 RING_MAX_SUBSCRIBERS = 16
 
+#: Inbound frame queue for a consumer that does slow work — the pipeline itself.
+#: Deliberately tiny, and for a different reason than the ring sizes above.
+#:
+#: Detection runs at roughly 2.4 fps on CPU against a producer sending 5. Any
+#: depth here fills with frames the pipeline cannot reach in time, so it ends up
+#: analysing footage from seconds ago and reporting it against a live view —
+#: observed as detection boxes visibly trailing the video by several seconds.
+#: The queue was doing exactly what it was told; the depth was wrong for this
+#: consumer.
+#:
+#: At depth 2 the pipeline always works on a nearly-current frame and discards
+#: the rest, so the only remaining lag is inference itself. For a live monitor
+#: that is the right trade: a detection on the frame you are looking at beats a
+#: complete record of frames you are not.
+PIPELINE_INPUT_QUEUE_MAX = 2
+
 # =============================================================================
 # Capture
 # =============================================================================

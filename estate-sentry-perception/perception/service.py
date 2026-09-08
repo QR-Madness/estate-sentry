@@ -23,6 +23,7 @@ import numpy as np
 
 from .api_client import ApiClient
 from .constants import (
+    PIPELINE_INPUT_QUEUE_MAX,
     WATCHDOG_REPEAT_SECONDS,
     WATCHDOG_SILENCE_SECONDS,
     ZONE_ANCHOR,
@@ -53,6 +54,11 @@ class DetectionEvent:
     captured_at: datetime
     motion: bool
     motion_reason: str
+    #: Source frame dimensions. Carried so a consumer can normalise the pixel
+    #: boxes below without having to fetch the frame itself — the dashboard
+    #: overlays them on a stream it scales to fit, and cannot guess the original.
+    frame_width: int = 0
+    frame_height: int = 0
     detections: list[Detection] = field(default_factory=list)
     #: Zone names each detection landed in, positionally aligned with
     #: `detections`. A list per detection, since perimeters may overlap.
@@ -166,6 +172,8 @@ class PerceptionService:
             captured_at=ref.captured_at,
             motion=True,
             motion_reason=motion.reason,
+            frame_width=ref.width,
+            frame_height=ref.height,
             detections=detections,
             zones=zone_names,
         )
@@ -256,7 +264,12 @@ class PerceptionService:
 
         watchdog = asyncio.create_task(self._watchdog(stop))
         try:
-            with self.bus.subscribe(ALL_FRAMES_SUBJECT) as stream:
+            # A shallow queue on purpose: see PIPELINE_INPUT_QUEUE_MAX. Holding
+            # frames the detector cannot reach in time makes it report on footage
+            # that has already left the screen.
+            with self.bus.subscribe(
+                ALL_FRAMES_SUBJECT, max_queue=PIPELINE_INPUT_QUEUE_MAX
+            ) as stream:
                 logger.info("subscribed to %s", ALL_FRAMES_SUBJECT)
                 consumer = asyncio.create_task(self._consume(stream))
                 stopper = asyncio.create_task(stop.wait())
