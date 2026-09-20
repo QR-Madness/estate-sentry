@@ -75,6 +75,12 @@ This is L7 / Sentry Intelligence territory and nothing depends on it yet.
       would stop a copied token working from somewhere else
 - [x] Add rate limiting to authentication endpoints, plus a per-account lockout
 - [x] Add rate limiting to sensor reading endpoints (60/minute per sensor)
+- [ ] Add `public_key` to `Sensor` and verify reading signatures — rescued from
+      issue #4, which predates the Django rewrite. Every other field it asked
+      for exists; this one does not, and nothing else records it. Today any
+      account holder can post any reading as any of their sensors, so a reading
+      is only as trustworthy as the account token. Signing makes a reading
+      attributable to the device that produced it
 - [ ] Create `core/validators.py` with JSON Schema validators
 - [ ] Add JSON Schema validation to `connection_config` and `metadata` fields
 - [ ] Implement `audit` Django app with `AuditLog` model
@@ -322,7 +328,7 @@ This is L7 / Sentry Intelligence territory and nothing depends on it yet.
 **Priority:** ONGOING
 
 ### Testing
-- [ ] Write tests for PIN hashing and authentication security
+- [x] Write tests for PIN hashing and authentication security
 - [ ] Write tests for handler registry and discovery
 - [ ] Write tests for Switchboard message routing
 - [ ] Write tests for node discovery and registration
