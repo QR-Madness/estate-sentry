@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'zones.apps.ZonesConfig',
     'intelligence.apps.IntelligenceConfig',
     'hq.apps.HqConfig',
+    'audit.apps.AuditConfig',
 ]
 
 MIDDLEWARE = [
@@ -60,6 +61,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # Last, so it is closest to the view: it needs the resolved route and the
+    # final status code, and it must run after AuthenticationMiddleware has
+    # populated request.user.
+    'audit.middleware.AuditMiddleware',
 ]
 
 ROOT_URLCONF = 'estate_sentry.urls'

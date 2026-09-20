@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
+from audit.context import set_audit_context
+
 from .models import TrustedDevice, User
 from .serializers import (
     LoginSerializer,
@@ -28,6 +30,10 @@ class RegisterView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+
+        # Same reason as login: registration runs anonymously, so the account
+        # that was just created has to name itself.
+        set_audit_context(request, actor=user, actor_username=user.get_username())
 
         # Create auth token for the new user
         token, created = Token.objects.get_or_create(user=user)
@@ -53,12 +59,27 @@ class LoginView(APIView):
     throttle_scope = 'auth-login'
 
     def post(self, request):
+        # Record the attempted username *before* validating. A failed login is
+        # the entry an investigator most wants, and it is the one where there is
+        # no user to attach — only a name that was tried. `is_valid` below
+        # raises, so anything set after it would never run on that path.
+        attempted = request.data.get('username')
+        if attempted:
+            set_audit_context(request, actor_username=str(attempted)[:150])
+
         # `context` matters: the serializer reads the device token from a header
         # as well as the body, so a kiosk can send it out of band.
         serializer = LoginSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
 
         user = serializer.validated_data['user']
+
+        # The request is anonymous while it runs — a token is what it is here to
+        # obtain — so the middleware cannot infer who succeeded. Say so.
+        set_audit_context(
+            request, actor=user, actor_username=user.get_username(),
+            metadata={'auth_method': user.auth_method},
+        )
 
         # Get or create auth token
         token, created = Token.objects.get_or_create(user=user)

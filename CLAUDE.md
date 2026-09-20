@@ -134,6 +134,27 @@ Handler-to-type mapping is in `SensorReadingCreateSerializer.validate()` and `Se
 - **zones** — `Zone`, `ZonePerimeter`, `ZoneAdjacency`, `ZoneRule`. Perimeters are polygons in **normalised 0-1** coordinates, not pixels, so a resolution change does not invalidate them. `Sensor` and `Alert` both carry a nullable `zone` FK.
 - **intelligence** — `ZoneEvent`, the append-only detection log. No update or delete route: it is evidence, written once by the pipeline. The identity, action and track columns in the specification belong to L4-L6 and are deliberately absent.
 - **hq** — the dashboard. Async streaming views only; the rest is one template.
+- **audit** — `AuditLog`, the append-only security record, written by
+  `audit.middleware.AuditMiddleware`. Not exposed over the API: reading it is an
+  operator task.
+    - **Allowlisted, not blanket.** `AUDITED` maps `(view_name, method)` to an
+      action. Reading ingest is deliberately absent — 60/min per sensor, and
+      `SensorReading` is already the record — as are `/api/health/` (polled every
+      30s) and the HQ streams. Reads are not audited; changes are.
+    - **Async-capable.** The project runs under ASGI with long-lived MJPEG and
+      SSE views, so an async middleware touching the ORM directly would raise
+      `SynchronousOnlyOperation`. The write goes through `sync_to_async`, and the
+      allowlist is consulted *before* that hop so a stream never pays for a
+      thread it does not need.
+    - **Append-only structurally**, not by convention: `save()` refuses to
+      rewrite, `delete()` refuses, and a custom queryset refuses bulk
+      `update()`/`delete()`, which would otherwise go straight to SQL past both.
+    - **Views enrich it** via `audit.context.set_audit_context`. Login and
+      registration need it: the request is still anonymous while they run, so
+      the middleware cannot infer who succeeded — and on a *failed* login there
+      is only an attempted username. The helper unwraps DRF's `Request`, because
+      a `setattr` on the wrapper never reaches the `HttpRequest` the middleware
+      sees.
 
 **`core/`** is a plain Python package, not an app — it has no models, so no
 migrations and no `INSTALLED_APPS` entry. It holds the JSONField validators.

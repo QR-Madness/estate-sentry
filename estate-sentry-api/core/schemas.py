@@ -27,6 +27,7 @@ MAX_BYTES = {
     'sensor.metadata': 16 * 1024,
     'sensor_reading.value': 64 * 1024,
     'alert.metadata': 16 * 1024,
+    'audit.metadata': 8 * 1024,
 }
 
 _OBJECT = {
@@ -63,6 +64,11 @@ SCHEMAS = {
 
     # Alert context: the reading that caused it, a frame path, a timestamp.
     'alert.metadata': {**_OBJECT, 'additionalProperties': True},
+
+    # Whatever a view chose to record about a security event. Small by
+    # intention: the audit log is an index of what happened, not a copy of the
+    # request that caused it.
+    'audit.metadata': {**_OBJECT, 'additionalProperties': True},
 }
 
 # Compile once, at import. Two reasons: `check_schema` turns a malformed schema
