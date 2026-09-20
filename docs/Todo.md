@@ -22,6 +22,7 @@ The dashboard shows live camera tiles and a detection feed.
   camera tiles, each independently toggleable
 - Development producer in `../mock-estate/` on the real frame contract
 - Ingest rate limiting: 60/min per sensor on the readings endpoint
+- Redis as the Django cache, so DRF's rate limits hold across worker processes
 
 **Not built, deliberately**
 
@@ -45,6 +46,13 @@ This is L7 / Sentry Intelligence territory and nothing depends on it yet.
 **Known measurements**
 
 - RT-DETRv2 `r18vd` on CPU: ~0.42s per frame, about 2.4 fps.
+- Rate limits and the cache backend. The real `SensorReadingRateThrottle`, run
+  100 times against one sensor from two separate processes — which is what two
+  gunicorn workers are. On LocMemCache both processes allowed 60, so a
+  "60/min" limit passed 120; the Dockerfile runs three workers, so it was
+  really 180. On a shared Redis the second process allowed 0 and the total was
+  60. DRF counts in the Django cache, so a per-process cache multiplies every
+  limit — including the auth ones — by the worker count, silently.
 - End-to-end detection lag, capture to browser: ~1.0s. Was ~4s until the
   pipeline's inbound queue was shortened to 2 — a deep queue on a slow consumer
   turns directly into staleness, and the pipeline was analysing frames that had

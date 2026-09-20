@@ -158,6 +158,37 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Custom User Model
 AUTH_USER_MODEL = 'authentication.User'
 
+# Cache
+#
+# This is load-bearing for security, not just performance. DRF keeps rate-limit
+# counters here, so the cache is what makes the throttle rates below mean what
+# they say. LocMemCache is per-process: under the Dockerfile's
+# `gunicorn --workers 3` it gives each worker a private set of counters, which
+# multiplies every limit by the worker count and makes which bucket a request
+# lands in a function of load balancing. Compose therefore always sets
+# REDIS_URL for the api service.
+#
+# The LocMemCache fallback is for single-process local dev, where it is
+# correct and saves running a container to use `manage.py runserver`. Anything
+# serving concurrently needs REDIS_URL set.
+REDIS_URL = os.environ.get('REDIS_URL')
+
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': REDIS_URL,
+        }
+    }
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'estate-sentry-locmem',
+        }
+    }
+
+
 # Django REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -167,13 +198,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
-    # NOTE: every rate below is only as good as the cache behind it. DRF keeps
-    # throttle counters in the Django cache, and no CACHES block is configured,
-    # so this falls back to LocMemCache — which is per-process. The Dockerfile
-    # runs gunicorn with `--workers 3`, so in that deployment each limit is
-    # effectively multiplied by the worker count and which bucket a request hits
-    # depends on how it was balanced. `.env.example` already anticipates a
-    # REDIS_URL; wiring a shared cache is what makes these numbers literal.
+    # These numbers are only as literal as the cache behind them — see CACHES
+    # above. With a shared cache they are per-key limits; without one they are
+    # per-key-per-process.
     'DEFAULT_THROTTLE_RATES': {
         # Bounds one client's guessing across many accounts; the per-account
         # lockout in authentication.models bounds guessing against one account.

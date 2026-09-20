@@ -102,6 +102,33 @@ services:
       - estate-sentry
 
   # =============================================================================
+  # CACHE
+  # =============================================================================
+
+  # Shared throttle state. DRF counts rate limits in the Django cache, so with a
+  # per-process cache the api service's three gunicorn workers would each keep
+  # their own counters and every limit would be silently tripled. This is what
+  # makes those limits literal.
+  redis:
+    image: redis:7-alpine
+    container_name: estate-sentry-redis
+    restart: unless-stopped
+    # `--save ""` disables RDB snapshots: this holds throttle counters and
+    # nothing else, all of it short-lived and safe to lose on restart. Losing
+    # them forgives a few in-flight requests; persisting them buys nothing and
+    # writes to disk on every window.
+    command: redis-server --save "" --appendonly no --maxmemory 64mb --maxmemory-policy allkeys-lru
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - estate-sentry
+
+  # =============================================================================
   # VECTOR DATABASE
   # =============================================================================
 
@@ -170,6 +197,10 @@ services:
       CHROMADB_HOST: chromadb
       CHROMADB_PORT: 8000
 
+      # Redis. Always set here: this service runs multiple workers, and DRF's
+      # rate limits are only correct when they share one cache.
+      REDIS_URL: redis://redis:6379/0
+
       # CORS
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:8000}
     volumes:
@@ -183,6 +214,8 @@ services:
       neo4j:
         condition: service_healthy
       nats:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]

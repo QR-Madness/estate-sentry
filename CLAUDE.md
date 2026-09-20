@@ -189,6 +189,15 @@ DATABASE_ENGINE=sqlite      # Local dev default
 DATABASE_ENGINE=postgresql  # Docker/production
 ```
 
+**The cache is a security dependency, not just a performance one.** DRF keeps
+rate-limit counters in the Django cache, so a per-process cache gives each
+worker its own counters and multiplies every limit by the worker count — the
+Dockerfile runs `gunicorn --workers 3`, so the auth and ingest limits would all
+be three times looser than they read. Compose always sets `REDIS_URL` for the
+api service. Settings fall back to LocMemCache when it is unset, which is
+correct only because the dev servers (`task hq:dev`, `hq:serve`, `runserver`)
+are single-process; anything serving concurrently needs `REDIS_URL`.
+
 | Database | Port | Purpose |
 |----------|------|---------|
 | PostgreSQL (TimescaleDB 16) | 5432 | Relational data, sensor readings, alerts |
@@ -196,6 +205,7 @@ DATABASE_ENGINE=postgresql  # Docker/production
 | NATS 2.10 | 4222/8222 | Message bus with JetStream (configured, not yet integrated) |
 | MinIO | 9000/9001 | Object storage for frames/media (configured, not yet integrated) |
 | ChromaDB | 8001 | Vector embeddings (configured, not yet integrated) |
+| Redis 7 | 6379 | Django cache — holds DRF rate-limit counters |
 
 ### API Routes
 

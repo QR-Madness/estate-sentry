@@ -9,14 +9,25 @@ is bounded.
 from datetime import timedelta
 
 from django.core.cache import cache
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient
 
 from .models import MAX_FAILED_ATTEMPTS, TrustedDevice, User
 
+# Throttle tests count on a cache they exclusively own. Pinned to LocMemCache so
+# the suite neither depends on a running Redis nor flushes a developer's real one
+# when REDIS_URL happens to be set in the environment.
+TEST_CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'estate-sentry-tests',
+    }
+}
 
+
+@override_settings(CACHES=TEST_CACHES)
 class AuthTestCase(TestCase):
     """Base that clears the throttle state between tests.
 

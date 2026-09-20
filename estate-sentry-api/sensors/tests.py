@@ -6,7 +6,7 @@ Milestone 10.
 """
 
 from django.core.cache import cache
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -22,6 +22,18 @@ OVER_THE_LIMIT = 65
 READING = {'value': {'state': 'closed'}, 'reading_type': 'state'}
 
 
+# Throttle tests count on a cache they exclusively own. Pinned to LocMemCache so
+# the suite neither depends on a running Redis nor flushes a developer's real one
+# when REDIS_URL happens to be set in the environment.
+TEST_CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'estate-sentry-tests',
+    }
+}
+
+
+@override_settings(CACHES=TEST_CACHES)
 class SensorTestCase(TestCase):
     """Base that clears the throttle state between tests.
 
