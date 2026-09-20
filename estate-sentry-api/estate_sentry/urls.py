@@ -6,8 +6,13 @@ from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
 
+from .health import health
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # Ahead of the app includes: the compose healthcheck polls this and it must
+    # not depend on any of them resolving.
+    path('api/health/', health, name='health'),
     path('api/auth/', include('authentication.urls')),
     path('api/', include('sensors.urls')),
     path('api/', include('alerts.urls')),

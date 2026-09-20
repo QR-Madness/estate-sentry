@@ -210,6 +210,8 @@ are single-process; anything serving concurrently needs `REDIS_URL`.
 ### API Routes
 
 ```
+GET         /api/health/                      # container healthcheck, unauthenticated
+
 POST        /api/auth/register/
 POST        /api/auth/login/
 POST        /api/auth/logout/
