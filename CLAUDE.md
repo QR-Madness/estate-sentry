@@ -129,6 +129,7 @@ Handler-to-type mapping is in `SensorReadingCreateSerializer.validate()` and `Se
       possibilities, so this is what makes it mean anything — hashing alone
       protects a leaked database, not a live endpoint.
 - **sensors** — `Sensor` and `SensorReading` models. `SensorViewSet` with custom `readings` (POST) and `reading_history` (GET) actions. Handler framework dispatches to type-specific processors.
+    - Ingest is throttled at **60/min per sensor** by `sensors.throttling.SensorReadingRateThrottle`, keyed on the sensor *and* its caller. Per-account keying would have made every sensor on an estate share one budget; sensor-only keying would have let any authenticated account drain a stranger's budget, since throttles run before `get_object()` establishes ownership. Only the write path is bounded — `reading_history` is a read and is left alone.
 - **alerts** — `Alert` model with severity levels (INFO→CRITICAL) and acknowledgment flow. Read-only viewset with `acknowledge` (PATCH) and `statistics` (GET) actions.
 - **zones** — `Zone`, `ZonePerimeter`, `ZoneAdjacency`, `ZoneRule`. Perimeters are polygons in **normalised 0-1** coordinates, not pixels, so a resolution change does not invalidate them. `Sensor` and `Alert` both carry a nullable `zone` FK.
 - **intelligence** — `ZoneEvent`, the append-only detection log. No update or delete route: it is evidence, written once by the pipeline. The identity, action and track columns in the specification belong to L4-L6 and are deliberately absent.

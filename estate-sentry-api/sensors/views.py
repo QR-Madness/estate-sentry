@@ -9,6 +9,7 @@ from .serializers import (
     SensorReadingSerializer,
     SensorSerializer,
 )
+from .throttling import SensorReadingRateThrottle
 
 
 class SensorViewSet(viewsets.ModelViewSet):
@@ -22,11 +23,21 @@ class SensorViewSet(viewsets.ModelViewSet):
         """Return sensors owned by the current user."""
         return Sensor.objects.filter(owner=self.request.user)
 
-    @action(detail=True, methods=['post'])
+    @action(
+        detail=True,
+        methods=['post'],
+        throttle_classes=[SensorReadingRateThrottle],
+    )
     def readings(self, request, pk=None):
         """
         Submit a new sensor reading.
         POST /api/sensors/{id}/readings/
+
+        Throttled per sensor. Only the write path is bounded: this is the
+        endpoint that creates rows and runs threat detection, so it is the one
+        where a runaway or hostile client costs something. `reading_history` is
+        a read of at most 100 rows and is left alone, since capping it at the
+        same rate would throttle a dashboard polling its own data.
         """
         sensor = self.get_object()
 

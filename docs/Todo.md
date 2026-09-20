@@ -21,13 +21,14 @@ The dashboard shows live camera tiles and a detection feed.
 - Live overlay: detection brackets and zone perimeters drawn client-side over the
   camera tiles, each independently toggleable
 - Development producer in `../mock-estate/` on the real frame contract
+- Ingest rate limiting: 60/min per sensor on the readings endpoint
 
 **Not built, deliberately**
 
 - L4 identity, L5 action/pose, L6 correlation, L7 threat scoring
 - Neo4j and ChromaDB integration
 - Remaining Milestone 1 items: JSON Schema validation on the JSONFields, the
-  audit log, and rate limiting on sensor reading endpoints
+  audit log, and certificate binding for trusted devices
 
 **Intelligence model split**
 
@@ -65,7 +66,7 @@ This is L7 / Sentry Intelligence territory and nothing depends on it yet.
       the token is the credential today; binding it to a client certificate
       would stop a copied token working from somewhere else
 - [x] Add rate limiting to authentication endpoints, plus a per-account lockout
-- [ ] Add rate limiting to sensor reading endpoints (60/minute per sensor)
+- [x] Add rate limiting to sensor reading endpoints (60/minute per sensor)
 - [ ] Create `core/validators.py` with JSON Schema validators
 - [ ] Add JSON Schema validation to `connection_config` and `metadata` fields
 - [ ] Implement `audit` Django app with `AuditLog` model

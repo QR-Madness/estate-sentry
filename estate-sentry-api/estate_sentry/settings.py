@@ -167,12 +167,25 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+    # NOTE: every rate below is only as good as the cache behind it. DRF keeps
+    # throttle counters in the Django cache, and no CACHES block is configured,
+    # so this falls back to LocMemCache — which is per-process. The Dockerfile
+    # runs gunicorn with `--workers 3`, so in that deployment each limit is
+    # effectively multiplied by the worker count and which bucket a request hits
+    # depends on how it was balanced. `.env.example` already anticipates a
+    # REDIS_URL; wiring a shared cache is what makes these numbers literal.
     'DEFAULT_THROTTLE_RATES': {
         # Bounds one client's guessing across many accounts; the per-account
         # lockout in authentication.models bounds guessing against one account.
         # Neither covers the other's case, so both are set.
         'auth-login': '10/min',
         'auth-register': '5/hour',
+        # Ingest. Keyed per sensor rather than per account — see
+        # sensors.throttling.SensorReadingRateThrottle. 60/min is an order of
+        # magnitude above any sensor's real duty cycle: contact sensors report
+        # on state change, and cameras go through the perception pipeline and
+        # the frame bus, not this endpoint.
+        'sensor-readings': '60/min',
     },
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 50,
