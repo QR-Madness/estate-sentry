@@ -24,6 +24,16 @@ The dashboard shows live camera tiles and a detection feed.
 - Ingest rate limiting: 60/min per sensor on the readings endpoint
 - Redis as the Django cache, so DRF's rate limits hold across worker processes
 
+**Known gap**
+
+Seven of the ten sensor types — `GLASS_BREAK`, `MOTION`, `SMOKE`, `CO`,
+`WATER_LEAK`, `TEMPERATURE`, `CUSTOM` — have no entry in the handler map, so
+`SensorReadingCreateSerializer.validate()` falls through and stores whatever
+arrives, unchecked and unnormalised, with no threat detection. A smoke detector
+reporting smoke currently raises nothing. Pinned by tests in `sensors/tests.py`
+so the behaviour is visible rather than surprising. JSON Schema validation
+(Milestone 1) bounds the shape; the handler registry (Milestone 2) closes it.
+
 **Not built, deliberately**
 
 - L4 identity, L5 action/pose, L6 correlation, L7 threat scoring
@@ -333,7 +343,7 @@ This is L7 / Sentry Intelligence territory and nothing depends on it yet.
 - [ ] Write tests for Switchboard message routing
 - [ ] Write tests for node discovery and registration
 - [ ] Write tests for Sentry threat scoring
-- [ ] Write integration tests for full sensor → alert pipeline
+- [x] Write integration tests for full sensor → alert pipeline
 - [ ] Write integration tests for multi-node sync
 - [ ] Add test fixtures for Neo4j graph data
 
