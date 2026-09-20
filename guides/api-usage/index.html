@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Estate Sentry Contributors" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>API Usage - Estate Sentry</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "API Usage";
+        var mkdocs_page_input_path = "guides/api-usage.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/typescript.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Estate Sentry
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Specification/">Specification</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Todo/">Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/installation/">Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/quickstart/">Quick Start</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/docker-setup/">Docker Setup</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../task-reference/">Task Reference</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">API Usage</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#base-url">Base URL</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#authentication">Authentication</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#authentication-endpoints">Authentication Endpoints</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#register-user">Register User</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#login">Login</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#logout">Logout</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#get-current-user">Get Current User</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#update-user-profile">Update User Profile</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#sensor-endpoints">Sensor Endpoints</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#list-sensors">List Sensors</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#create-sensor">Create Sensor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#get-sensor-details">Get Sensor Details</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#update-sensor">Update Sensor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#delete-sensor">Delete Sensor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#submit-sensor-reading">Submit Sensor Reading</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#get-reading-history">Get Reading History</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#alert-endpoints">Alert Endpoints</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#list-alerts">List Alerts</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#get-alert-details">Get Alert Details</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#acknowledge-alert">Acknowledge Alert</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#get-alert-statistics">Get Alert Statistics</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#error-responses">Error Responses</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#rate-limiting">Rate Limiting</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pagination">Pagination</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#websocket-support-future">WebSocket Support (Future)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#additional-resources">Additional Resources</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../plugin-development/">Plugin Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../node-deployment/">Node Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../mcp-integration/">MCP Integration</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Architecture</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/database/">Database</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/decentralization/">Decentralization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/switchboard/">Switchboard</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/security/">Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/device-abstraction/">Device Abstraction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/sentry-intelligence/">Sentry Intelligence</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operations</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../operations/monitoring/">Monitoring</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Contributing</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../contributing/development/">Development Guide</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Estate Sentry</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Guides</li>
+      <li class="breadcrumb-item active">API Usage</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/QR-Madness/estate-sentry/edit/master/docs/guides/api-usage.md">Edit on estate-sentry</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="api-usage-guide">API Usage Guide<a class="headerlink" href="#api-usage-guide" title="Permanent link">&para;</a></h1>
+<p>Complete reference for the Estate Sentry REST API endpoints.</p>
+<h2 id="base-url">Base URL<a class="headerlink" href="#base-url" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Development</strong>: <code>http://localhost:8000</code></li>
+<li><strong>Docker</strong>: <code>http://localhost:8000</code></li>
+</ul>
+<h2 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
+<p>Estate Sentry uses token-based authentication. Include the token in the Authorization header:</p>
+<pre class="highlight"><code>Authorization: Token YOUR_TOKEN_HERE</code></pre>
+<h2 id="authentication-endpoints">Authentication Endpoints<a class="headerlink" href="#authentication-endpoints" title="Permanent link">&para;</a></h2>
+<h3 id="register-user">Register User<a class="headerlink" href="#register-user" title="Permanent link">&para;</a></h3>
+<p><strong>POST</strong> <code>/api/auth/register/</code></p>
+<p>Create a new user account.</p>
+<p><strong>Request Body:</strong>
+<pre class="highlight"><code class="language-json">{
+  "username": "testuser",
+  "email": "test@example.com",
+  "password": "securepass123",
+  "auth_method": "password"
+}</code></pre></p>
+<p><strong>Auth Methods:</strong>
+- <code>"password"</code> - Standard username/password
+- <code>"pin"</code> - 4-digit PIN authentication
+- <code>"username"</code> - Username-only (for trusted devices)</p>
+<p><strong>Response:</strong>
+<pre class="highlight"><code class="language-json">{
+  "id": 1,
+  "username": "testuser",
+  "email": "test@example.com",
+  "auth_method": "password"
+}</code></pre></p>
+<h3 id="login">Login<a class="headerlink" href="#login" title="Permanent link">&para;</a></h3>
+<p><strong>POST</strong> <code>/api/auth/login/</code></p>
+<p>Login and receive authentication token.</p>
+<p><strong>Request Body:</strong>
+<pre class="highlight"><code class="language-json">{
+  "username": "testuser",
+  "password": "securepass123"
+}</code></pre></p>
+<p><strong>Response:</strong>
+<pre class="highlight"><code class="language-json">{
+  "token": "abc123def456...",
+  "user": {
+    "id": 1,
+    "username": "testuser",
+    "email": "test@example.com"
+  }
+}</code></pre></p>
+<h3 id="logout">Logout<a class="headerlink" href="#logout" title="Permanent link">&para;</a></h3>
+<p><strong>POST</strong> <code>/api/auth/logout/</code></p>
+<p>Invalidate the current authentication token.</p>
+<p><strong>Headers:</strong> Requires authentication</p>
+<p><strong>Response:</strong>
+<pre class="highlight"><code class="language-json">{
+  "message": "Successfully logged out"
+}</code></pre></p>
+<h3 id="get-current-user">Get Current User<a class="headerlink" href="#get-current-user" title="Permanent link">&para;</a></h3>
+<p><strong>GET</strong> <code>/api/auth/user/</code></p>
+<p>Get current user information.</p>
+<p><strong>Headers:</strong> Requires authentication</p>
+<p><strong>Response:</strong>
+<pre class="highlight"><code class="language-json">{
+  "id": 1,
+  "username": "testuser",
+  "email": "test@example.com",
+  "auth_method": "password"
+}</code></pre></p>
+<h3 id="update-user-profile">Update User Profile<a class="headerlink" href="#update-user-profile" title="Permanent link">&para;</a></h3>
+<p><strong>PATCH</strong> <code>/api/auth/user/</code></p>
+<p>Update user profile information.</p>
+<p><strong>Headers:</strong> Requires authentication</p>
+<p><strong>Request Body:</strong>
+<pre class="highlight"><code class="language-json">{
+  "email": "newemail@example.com"
+}</code></pre></p>
+<h2 id="sensor-endpoints">Sensor Endpoints<a class="headerlink" href="#sensor-endpoints" title="Permanent link">&para;</a></h2>
+<h3 id="list-sensors">List Sensors<a class="headerlink" href="#list-sensors" title="Permanent link">&para;</a></h3>
+<p><strong>GET</strong> <code>/api/sensors/</code></p>
+<p>Get all sensors for the authenticated user.</p>
+<p><strong>Headers:</strong> Requires authentication</p>
+<p><strong>Response:</strong>
+<pre class="highlight"><code class="language-json">[
+  {
+    "id": 1,
+    "name": "Front Door Sensor",
+    "sensor_type": "DOOR_CONTACT",
+    "location": "Main Entrance",
+    "status": "ACTIVE",
+    "handler_class": "ContactHandler",
+    "connection_config": {},
+    "metadata": {},
+    "created_at": "2024-11-27T10:00:00Z",
+    "updated_at": "2024-11-27T10:00:00Z"
+  }
+]</code></pre></p>
+<h3 id="create-sensor">Create Sensor<a class="headerlink" href="#create-sensor" title="Permanent link">&para;</a></h3>
+<p><strong>POST</strong> <code>/api/sensors/</code></p>
+<p>Register a new sensor.</p>
+<p><strong>Headers:</strong> Requires authentication</p>
+<p><strong>Request Body:</strong>
+<pre class="highlight"><code class="language-json">{
+  "name": "Front Door Sensor",
+  "sensor_type": "DOOR_CONTACT",
+  "location": "Main Entrance",
+  "status": "ACTIVE",
+  "connection_config": {},
+  "metadata": {}
+}</code></pre></p>
+<p><strong>Sensor Types:</strong>
+- <code>CAMERA</code>
+- <code>DOOR_CONTACT</code>
+- <code>WINDOW_CONTACT</code>
+- <code>GLASS_BREAK</code>
+- <code>MOTION</code>
+- <code>SMOKE</code>
+- <code>CO</code>
+- <code>WATER_LEAK</code>
+- <code>CUSTOM</code></p>
+<p><strong>Sensor Status:</strong>
+- <code>ACTIVE</code>
+- <code>INACTIVE</code>
+- <code>ERROR</code>
+- <code>MAINTENANCE</code></p>
+<h3 id="get-sensor-details">Get Sensor Details<a class="headerlink" href="#get-sensor-details" title="Permanent link">&para;</a></h3>
+<p><strong>GET</strong> <code>/api/sensors/{id}/</code></p>
+<p>Get details for a specific sensor.</p>
+<p><strong>Headers:</strong> Requires authentication</p>
+<p><strong>Response:</strong>
+<pre class="highlight"><code class="language-json">{
+  "id": 1,
+  "name": "Front Door Sensor",
+  "sensor_type": "DOOR_CONTACT",
+  "location": "Main Entrance",
+  "status": "ACTIVE",
+  "handler_class": "ContactHandler",
+  "connection_config": {},
+  "metadata": {},
+  "created_at": "2024-11-27T10:00:00Z",
+  "updated_at": "2024-11-27T10:00:00Z"
+}</code></pre></p>
+<h3 id="update-sensor">Update Sensor<a class="headerlink" href="#update-sensor" title="Permanent link">&para;</a></h3>
+<p><strong>PATCH</strong> <code>/api/sensors/{id}/</code></p>
+<p>Update sensor configuration.</p>
+<p><strong>Headers:</strong> Requires authentication</p>
+<p><strong>Request Body:</strong>
+<pre class="highlight"><code class="language-json">{
+  "location": "Side Entrance",
+  "status": "INACTIVE"
+}</code></pre></p>
+<h3 id="delete-sensor">Delete Sensor<a class="headerlink" href="#delete-sensor" title="Permanent link">&para;</a></h3>
+<p><strong>DELETE</strong> <code>/api/sensors/{id}/</code></p>
+<p>Remove a sensor.</p>
+<p><strong>Headers:</strong> Requires authentication</p>
+<p><strong>Response:</strong>
+<pre class="highlight"><code class="language-json">{
+  "message": "Sensor deleted successfully"
+}</code></pre></p>
+<h3 id="submit-sensor-reading">Submit Sensor Reading<a class="headerlink" href="#submit-sensor-reading" title="Permanent link">&para;</a></h3>
+<p><strong>POST</strong> <code>/api/sensors/{id}/readings/</code></p>
+<p>Submit a new sensor reading.</p>
+<p><strong>Headers:</strong> Requires authentication</p>
+<p><strong>Request Body:</strong>
+<pre class="highlight"><code class="language-json">{
+  "value": {"state": "open"},
+  "reading_type": "contact_state"
+}</code></pre></p>
+<p><strong>Response:</strong>
+<pre class="highlight"><code class="language-json">{
+  "id": 1,
+  "sensor": 1,
+  "value": {"state": "open"},
+  "reading_type": "contact_state",
+  "timestamp": "2024-11-27T10:30:00Z",
+  "processed": true
+}</code></pre></p>
+<p><strong>Note:</strong> This automatically triggers threat detection and may create alerts.</p>
+<h3 id="get-reading-history">Get Reading History<a class="headerlink" href="#get-reading-history" title="Permanent link">&para;</a></h3>
+<p><strong>GET</strong> <code>/api/sensors/{id}/reading_history/</code></p>
+<p>Get historical readings for a sensor.</p>
+<p><strong>Headers:</strong> Requires authentication</p>
+<p><strong>Query Parameters:</strong>
+- <code>limit</code> - Number of readings to return (default: 100)
+- <code>start_date</code> - Filter readings after this date (ISO 8601)
+- <code>end_date</code> - Filter readings before this date (ISO 8601)</p>
+<p><strong>Response:</strong>
+<pre class="highlight"><code class="language-json">[
+  {
+    "id": 1,
+    "value": {"state": "open"},
+    "reading_type": "contact_state",
+    "timestamp": "2024-11-27T10:30:00Z",
+    "processed": true
+  }
+]</code></pre></p>
+<h2 id="alert-endpoints">Alert Endpoints<a class="headerlink" href="#alert-endpoints" title="Permanent link">&para;</a></h2>
+<h3 id="list-alerts">List Alerts<a class="headerlink" href="#list-alerts" title="Permanent link">&para;</a></h3>
+<p><strong>GET</strong> <code>/api/alerts/</code></p>
+<p>Get all alerts for the authenticated user.</p>
+<p><strong>Headers:</strong> Requires authentication</p>
+<p><strong>Query Parameters:</strong>
+- <code>severity</code> - Filter by severity (INFO, LOW, MEDIUM, HIGH, CRITICAL)
+- <code>acknowledged</code> - Filter by acknowledgment status (true/false)
+- <code>sensor</code> - Filter by sensor ID</p>
+<p><strong>Response:</strong>
+<pre class="highlight"><code class="language-json">[
+  {
+    "id": 1,
+    "alert_type": "INTRUSION",
+    "severity": "HIGH",
+    "sensor": 1,
+    "sensor_name": "Front Door Sensor",
+    "description": "Door opened unexpectedly",
+    "timestamp": "2024-11-27T10:30:00Z",
+    "acknowledged": false,
+    "acknowledged_at": null,
+    "metadata": {}
+  }
+]</code></pre></p>
+<h3 id="get-alert-details">Get Alert Details<a class="headerlink" href="#get-alert-details" title="Permanent link">&para;</a></h3>
+<p><strong>GET</strong> <code>/api/alerts/{id}/</code></p>
+<p>Get details for a specific alert.</p>
+<p><strong>Headers:</strong> Requires authentication</p>
+<p><strong>Response:</strong>
+<pre class="highlight"><code class="language-json">{
+  "id": 1,
+  "alert_type": "INTRUSION",
+  "severity": "HIGH",
+  "sensor": 1,
+  "sensor_name": "Front Door Sensor",
+  "description": "Door opened unexpectedly",
+  "timestamp": "2024-11-27T10:30:00Z",
+  "acknowledged": false,
+  "acknowledged_at": null,
+  "metadata": {}
+}</code></pre></p>
+<h3 id="acknowledge-alert">Acknowledge Alert<a class="headerlink" href="#acknowledge-alert" title="Permanent link">&para;</a></h3>
+<p><strong>PATCH</strong> <code>/api/alerts/{id}/acknowledge/</code></p>
+<p>Mark an alert as acknowledged.</p>
+<p><strong>Headers:</strong> Requires authentication</p>
+<p><strong>Response:</strong>
+<pre class="highlight"><code class="language-json">{
+  "id": 1,
+  "acknowledged": true,
+  "acknowledged_at": "2024-11-27T10:35:00Z"
+}</code></pre></p>
+<h3 id="get-alert-statistics">Get Alert Statistics<a class="headerlink" href="#get-alert-statistics" title="Permanent link">&para;</a></h3>
+<p><strong>GET</strong> <code>/api/alerts/statistics/</code></p>
+<p>Get alert statistics and trends.</p>
+<p><strong>Headers:</strong> Requires authentication</p>
+<p><strong>Query Parameters:</strong>
+- <code>days</code> - Number of days to include (default: 7)</p>
+<p><strong>Response:</strong>
+<pre class="highlight"><code class="language-json">{
+  "total_alerts": 42,
+  "by_severity": {
+    "CRITICAL": 2,
+    "HIGH": 8,
+    "MEDIUM": 15,
+    "LOW": 12,
+    "INFO": 5
+  },
+  "by_type": {
+    "INTRUSION": 10,
+    "ENVIRONMENTAL": 5,
+    "SYSTEM": 2
+  },
+  "acknowledged": 30,
+  "unacknowledged": 12
+}</code></pre></p>
+<h2 id="error-responses">Error Responses<a class="headerlink" href="#error-responses" title="Permanent link">&para;</a></h2>
+<p>All endpoints return standard error responses:</p>
+<p><strong>400 Bad Request:</strong>
+<pre class="highlight"><code class="language-json">{
+  "error": "Invalid data provided",
+  "details": {
+    "field_name": ["Error message"]
+  }
+}</code></pre></p>
+<p><strong>401 Unauthorized:</strong>
+<pre class="highlight"><code class="language-json">{
+  "detail": "Authentication credentials were not provided."
+}</code></pre></p>
+<p><strong>403 Forbidden:</strong>
+<pre class="highlight"><code class="language-json">{
+  "detail": "You do not have permission to perform this action."
+}</code></pre></p>
+<p><strong>404 Not Found:</strong>
+<pre class="highlight"><code class="language-json">{
+  "detail": "Not found."
+}</code></pre></p>
+<p><strong>500 Internal Server Error:</strong>
+<pre class="highlight"><code class="language-json">{
+  "error": "An unexpected error occurred"
+}</code></pre></p>
+<h2 id="rate-limiting">Rate Limiting<a class="headerlink" href="#rate-limiting" title="Permanent link">&para;</a></h2>
+<p>Currently no rate limiting is implemented. This will be added in future versions.</p>
+<h2 id="pagination">Pagination<a class="headerlink" href="#pagination" title="Permanent link">&para;</a></h2>
+<p>List endpoints support pagination:</p>
+<p><strong>Query Parameters:</strong>
+- <code>page</code> - Page number (default: 1)
+- <code>page_size</code> - Items per page (default: 100, max: 1000)</p>
+<p><strong>Response:</strong>
+<pre class="highlight"><code class="language-json">{
+  "count": 150,
+  "next": "http://localhost:8000/api/sensors/?page=2",
+  "previous": null,
+  "results": [...]
+}</code></pre></p>
+<h2 id="websocket-support-future">WebSocket Support (Future)<a class="headerlink" href="#websocket-support-future" title="Permanent link">&para;</a></h2>
+<p>Real-time sensor data streaming via WebSockets is planned for future releases using Django Channels.</p>
+<h2 id="additional-resources">Additional Resources<a class="headerlink" href="#additional-resources" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../../getting-started/quickstart/">Quick Start Guide</a></li>
+<li><a href="../../architecture/overview/">Architecture Overview</a></li>
+<li><a href="../../contributing/development/">Development Guide</a></li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../task-reference/" class="btn btn-neutral float-left" title="Task Reference"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../plugin-development/" class="btn btn-neutral float-right" title="Plugin Development">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/QR-Madness/estate-sentry" class="fa fa-code-fork" style="color: #fcfcfc"> estate-sentry</a>
+        </span>
+    
+    
+      <span><a href="../task-reference/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../plugin-development/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

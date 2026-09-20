@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Estate Sentry Contributors" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Docker Setup - Estate Sentry</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Docker Setup";
+        var mkdocs_page_input_path = "getting-started/docker-setup.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/typescript.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Estate Sentry
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Specification/">Specification</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Todo/">Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../installation/">Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../quickstart/">Quick Start</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Docker Setup</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#quick-start">Quick Start</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#services">Services</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#1-postgresql-database">1. PostgreSQL Database</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-neo4j-graph-database">2. Neo4j Graph Database</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-django-api">3. Django API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#4-hq-dashboard">4. HQ Dashboard</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#environment-configuration">Environment Configuration</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#key-environment-variables">Key Environment Variables</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#docker-tasks-reference">Docker Tasks Reference</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#building">Building</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#startingstopping">Starting/Stopping</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#viewing-logs">Viewing Logs</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#shell-access">Shell Access</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#database-management">Database Management</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#cleanup">Cleanup</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#data-persistence">Data Persistence</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#neo4j-data-synchronization">Neo4j Data Synchronization</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#postgresql-data">PostgreSQL Data</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#api-staticmedia-files">API Static/Media Files</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#development-workflow">Development Workflow</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#initial-setup">Initial Setup</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#daily-development">Daily Development</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#making-database-changes">Making Database Changes</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#production-deployment">Production Deployment</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#security-checklist">Security Checklist</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#containers-wont-start">Containers won't start</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#database-connection-errors">Database connection errors</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#port-conflicts">Port conflicts</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#rebuild-after-changes">Rebuild after changes</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#additional-resources">Additional Resources</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/task-reference/">Task Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/api-usage/">API Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/plugin-development/">Plugin Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/node-deployment/">Node Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/mcp-integration/">MCP Integration</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Architecture</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/database/">Database</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/decentralization/">Decentralization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/switchboard/">Switchboard</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/security/">Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/device-abstraction/">Device Abstraction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/sentry-intelligence/">Sentry Intelligence</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operations</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../operations/monitoring/">Monitoring</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Contributing</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../contributing/development/">Development Guide</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Estate Sentry</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Getting Started</li>
+      <li class="breadcrumb-item active">Docker Setup</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/QR-Madness/estate-sentry/edit/master/docs/getting-started/docker-setup.md">Edit on estate-sentry</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="docker-setup-guide">Docker Setup Guide<a class="headerlink" href="#docker-setup-guide" title="Permanent link">&para;</a></h1>
+<p>Estate Sentry provides full Docker support with PostgreSQL and Neo4j databases for production-ready deployments.</p>
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code class="language-bash"># 1. Copy environment file and configure
+cp .env.example .env
+# Edit .env with your settings
+
+# 2. Build Docker images
+task docker:build
+
+# 3. Start all services
+task docker:up
+
+# 4. Run migrations
+task db:migrate:docker
+
+# 5. Create admin user
+docker-compose exec api python manage.py createsuperuser</code></pre>
+<p>Your services will be available at:</p>
+<ul>
+<li><strong>API</strong>: http://localhost:8000</li>
+<li><strong>HQ Dashboard</strong>: http://localhost:8000/hq/ (served by the API)</li>
+<li><strong>Neo4j Browser</strong>: http://localhost:7474</li>
+<li><strong>PostgreSQL</strong>: localhost:5432</li>
+</ul>
+<h2 id="services">Services<a class="headerlink" href="#services" title="Permanent link">&para;</a></h2>
+<h3 id="1-postgresql-database">1. PostgreSQL Database<a class="headerlink" href="#1-postgresql-database" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Container</strong>: estate-sentry-postgres</li>
+<li><strong>Image</strong>: postgres:16-alpine</li>
+<li><strong>Port</strong>: 5432</li>
+<li><strong>Database</strong>: estate_sentry</li>
+<li><strong>User</strong>: estate_sentry (configurable via .env)</li>
+</ul>
+<h3 id="2-neo4j-graph-database">2. Neo4j Graph Database<a class="headerlink" href="#2-neo4j-graph-database" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Container</strong>: estate-sentry-neo4j</li>
+<li><strong>Image</strong>: neo4j:5.15-community</li>
+<li><strong>HTTP Port</strong>: 7474 (Browser UI)</li>
+<li><strong>Bolt Port</strong>: 7687 (Database connection)</li>
+<li><strong>Plugins</strong>: APOC, Graph Data Science</li>
+<li><strong>Data Location</strong>: <code>./data/neo4j/</code></li>
+</ul>
+<h3 id="3-django-api">3. Django API<a class="headerlink" href="#3-django-api" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Container</strong>: estate-sentry-api</li>
+<li><strong>Image</strong>: estate-sentry-api:latest</li>
+<li><strong>Port</strong>: 8000</li>
+<li><strong>Runtime</strong>: Python 3.11 with Gunicorn</li>
+</ul>
+<h3 id="4-hq-dashboard">4. HQ Dashboard<a class="headerlink" href="#4-hq-dashboard" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Container</strong>: none — served by the <code>api</code> container at <code>/hq/</code></li>
+<li>The separate frontend service was removed along with the Next.js application</li>
+<li><strong>Port</strong>: 3000</li>
+<li><strong>Runtime</strong>: Node.js 18</li>
+</ul>
+<h2 id="environment-configuration">Environment Configuration<a class="headerlink" href="#environment-configuration" title="Permanent link">&para;</a></h2>
+<p>Copy <code>.env.example</code> to <code>.env</code> and configure:</p>
+<pre class="highlight"><code class="language-bash">cp .env.example .env</code></pre>
+<h3 id="key-environment-variables">Key Environment Variables<a class="headerlink" href="#key-environment-variables" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Django
+DJANGO_SECRET_KEY=your-secret-key-here
+DJANGO_DEBUG=False
+DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,api
+
+# PostgreSQL
+POSTGRES_DB=estate_sentry
+POSTGRES_USER=estate_sentry
+POSTGRES_PASSWORD=your-secure-password
+
+# Neo4j
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=your-secure-password
+
+# Ports (optional, defaults shown)
+API_PORT=8000
+HQ_PORT=3000
+NEO4J_HTTP_PORT=7474
+NEO4J_BOLT_PORT=7687
+POSTGRES_PORT=5432</code></pre>
+<h2 id="docker-tasks-reference">Docker Tasks Reference<a class="headerlink" href="#docker-tasks-reference" title="Permanent link">&para;</a></h2>
+<h3 id="building">Building<a class="headerlink" href="#building" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash">task docker:build              # Build all images
+task docker:build:api          # Build API image only
+task docker:build:hq           # Build HQ image only</code></pre>
+<h3 id="startingstopping">Starting/Stopping<a class="headerlink" href="#startingstopping" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash">task docker:up                 # Start all services (detached)
+task docker:up:logs            # Start and follow logs
+task docker:down               # Stop and remove containers
+task docker:down:volumes       # Stop and remove volumes (⚠️ deletes data)
+task docker:restart            # Restart all services
+task docker:restart:api        # Restart API only
+task docker:restart:hq         # Restart HQ only</code></pre>
+<h3 id="viewing-logs">Viewing Logs<a class="headerlink" href="#viewing-logs" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash">task docker:logs               # View all logs
+task docker:logs:api           # View API logs
+task docker:logs:hq            # View HQ logs
+task docker:logs:postgres      # View PostgreSQL logs
+task docker:logs:neo4j         # View Neo4j logs</code></pre>
+<h3 id="shell-access">Shell Access<a class="headerlink" href="#shell-access" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash">task docker:shell:api          # Bash shell in API container
+task docker:shell:postgres     # PostgreSQL psql shell
+task docker:shell:neo4j        # Neo4j Cypher shell
+task docker:ps                 # Show running containers</code></pre>
+<h3 id="database-management">Database Management<a class="headerlink" href="#database-management" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Migrations
+task db:migrate:docker         # Run Django migrations in Docker
+
+# PostgreSQL Backup/Restore
+task db:postgres:backup        # Backup to data/backups/
+task db:postgres:restore       # Restore from latest backup
+task db:reset:docker           # Reset database (⚠️ deletes data)
+
+# Neo4j Export/Import
+task db:neo4j:export           # Export to data/neo4j/export/
+task db:neo4j:import           # Import from latest export
+task db:neo4j:sync             # Show sync status
+task db:neo4j:clear            # Clear all graph data (⚠️)</code></pre>
+<h3 id="cleanup">Cleanup<a class="headerlink" href="#cleanup" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash">task docker:clean              # Remove stopped containers and unused images</code></pre>
+<h2 id="data-persistence">Data Persistence<a class="headerlink" href="#data-persistence" title="Permanent link">&para;</a></h2>
+<h3 id="neo4j-data-synchronization">Neo4j Data Synchronization<a class="headerlink" href="#neo4j-data-synchronization" title="Permanent link">&para;</a></h3>
+<p>Neo4j data is automatically synchronized to <code>./data/neo4j/</code>:</p>
+<ul>
+<li><strong>data/</strong> - Database files</li>
+<li><strong>logs/</strong> - Server logs</li>
+<li><strong>import/</strong> - Place files here for importing</li>
+<li><strong>export/</strong> - Database exports</li>
+<li><strong>plugins/</strong> - Installed plugins</li>
+</ul>
+<h3 id="postgresql-data">PostgreSQL Data<a class="headerlink" href="#postgresql-data" title="Permanent link">&para;</a></h3>
+<p>PostgreSQL data is stored in a Docker volume:</p>
+<ul>
+<li><strong>Volume</strong>: <code>postgres_data</code></li>
+<li><strong>Backups</strong>: Stored in <code>./data/backups/</code></li>
+</ul>
+<h3 id="api-staticmedia-files">API Static/Media Files<a class="headerlink" href="#api-staticmedia-files" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Static files</strong>: Docker volume <code>api_static</code></li>
+<li><strong>Media files</strong>: Docker volume <code>api_media</code></li>
+</ul>
+<h2 id="development-workflow">Development Workflow<a class="headerlink" href="#development-workflow" title="Permanent link">&para;</a></h2>
+<h3 id="initial-setup">Initial Setup<a class="headerlink" href="#initial-setup" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># 1. Configure environment
+cp .env.example .env
+# Edit .env with your settings
+
+# 2. Build images
+task docker:build
+
+# 3. Start services
+task docker:up
+
+# 4. Run migrations
+task db:migrate:docker
+
+# 5. Create admin user
+docker-compose exec api python manage.py createsuperuser</code></pre>
+<h3 id="daily-development">Daily Development<a class="headerlink" href="#daily-development" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Start services
+task docker:up
+
+# View logs
+task docker:logs:api
+
+# Access shells
+task docker:shell:api
+task docker:shell:neo4j
+
+# Restart after code changes
+task docker:restart:api</code></pre>
+<h3 id="making-database-changes">Making Database Changes<a class="headerlink" href="#making-database-changes" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># 1. Create migrations
+docker-compose exec api python manage.py makemigrations
+
+# 2. Apply migrations
+task db:migrate:docker
+
+# 3. Backup if needed
+task db:postgres:backup</code></pre>
+<h2 id="production-deployment">Production Deployment<a class="headerlink" href="#production-deployment" title="Permanent link">&para;</a></h2>
+<h3 id="security-checklist">Security Checklist<a class="headerlink" href="#security-checklist" title="Permanent link">&para;</a></h3>
+<p>Before deploying to production:</p>
+<ol>
+<li><strong>Change all default passwords</strong> in <code>.env</code></li>
+<li><strong>Generate new Django secret key</strong>:
+   <pre class="highlight"><code class="language-bash">python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"</code></pre></li>
+<li><strong>Set <code>DJANGO_DEBUG=False</code></strong></li>
+<li><strong>Configure <code>DJANGO_ALLOWED_HOSTS</code></strong> with your domain</li>
+<li><strong>Use HTTPS</strong> (add reverse proxy like Nginx)</li>
+<li><strong>Set up regular backups</strong>:
+   <pre class="highlight"><code class="language-bash"># Add to crontab
+0 2 * * * cd /path/to/estate-sentry &amp;&amp; task db:postgres:backup
+0 2 * * * cd /path/to/estate-sentry &amp;&amp; task db:neo4j:export</code></pre></li>
+</ol>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="containers-wont-start">Containers won't start<a class="headerlink" href="#containers-wont-start" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Check container status
+task docker:ps
+
+# View logs for errors
+task docker:logs
+
+# Check specific service
+task docker:logs:api
+task docker:logs:postgres
+task docker:logs:neo4j</code></pre>
+<h3 id="database-connection-errors">Database connection errors<a class="headerlink" href="#database-connection-errors" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p>Ensure databases are healthy:
+   <pre class="highlight"><code class="language-bash">docker-compose ps</code></pre>
+   All services should show "healthy" status</p>
+</li>
+<li>
+<p>Check environment variables in <code>.env</code></p>
+</li>
+<li>
+<p>Verify network connectivity:
+   <pre class="highlight"><code class="language-bash">docker network inspect estate-sentry-source_estate-sentry-network</code></pre></p>
+</li>
+</ol>
+<h3 id="port-conflicts">Port conflicts<a class="headerlink" href="#port-conflicts" title="Permanent link">&para;</a></h3>
+<p>If ports are already in use, change them in <code>.env</code>:</p>
+<pre class="highlight"><code class="language-bash">API_PORT=8001
+HQ_PORT=3001
+NEO4J_HTTP_PORT=7475
+NEO4J_BOLT_PORT=7688
+POSTGRES_PORT=5433</code></pre>
+<h3 id="rebuild-after-changes">Rebuild after changes<a class="headerlink" href="#rebuild-after-changes" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Rebuild specific service
+task docker:build:api
+
+# Rebuild and restart
+task docker:build:api &amp;&amp; task docker:restart:api
+
+# Complete rebuild
+task docker:down
+task docker:build
+task docker:up</code></pre>
+<h2 id="additional-resources">Additional Resources<a class="headerlink" href="#additional-resources" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://docs.docker.com/">Docker Documentation</a></li>
+<li><a href="https://docs.docker.com/compose/">Docker Compose Documentation</a></li>
+<li><a href="https://neo4j.com/docs/operations-manual/current/docker/">Neo4j Docker Documentation</a></li>
+<li><a href="https://hub.docker.com/_/postgres">PostgreSQL Docker Documentation</a></li>
+<li>Task commands: <code>task --list</code></li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../quickstart/" class="btn btn-neutral float-left" title="Quick Start"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../guides/task-reference/" class="btn btn-neutral float-right" title="Task Reference">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/QR-Madness/estate-sentry" class="fa fa-code-fork" style="color: #fcfcfc"> estate-sentry</a>
+        </span>
+    
+    
+      <span><a href="../quickstart/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../guides/task-reference/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

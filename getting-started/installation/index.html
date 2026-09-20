@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Estate Sentry Contributors" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Installation - Estate Sentry</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Installation";
+        var mkdocs_page_input_path = "getting-started/installation.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/typescript.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Estate Sentry
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Specification/">Specification</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Todo/">Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Installation</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#option-1-docker-setup-recommended-for-production">Option 1: Docker Setup (Recommended for Production)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#option-2-task-setup-recommended-for-development">Option 2: Task Setup (Recommended for Development)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#option-3-manual-setup">Option 3: Manual Setup</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#backend-django-api">Backend (Django API)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#frontend-estate-sentry-hq">Frontend (Estate Sentry HQ)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#verify-installation">Verify Installation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#next-steps">Next Steps</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../quickstart/">Quick Start</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../docker-setup/">Docker Setup</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/task-reference/">Task Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/api-usage/">API Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/plugin-development/">Plugin Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/node-deployment/">Node Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/mcp-integration/">MCP Integration</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Architecture</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/database/">Database</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/decentralization/">Decentralization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/switchboard/">Switchboard</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/security/">Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/device-abstraction/">Device Abstraction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/sentry-intelligence/">Sentry Intelligence</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operations</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../operations/monitoring/">Monitoring</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Contributing</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../contributing/development/">Development Guide</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Estate Sentry</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Getting Started</li>
+      <li class="breadcrumb-item active">Installation</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/QR-Madness/estate-sentry/edit/master/docs/getting-started/installation.md">Edit on estate-sentry</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h1>
+<p>There are three ways to get started with Estate Sentry:</p>
+<ol>
+<li><strong>Docker Setup</strong> (Recommended for production)</li>
+<li><strong>Task Setup</strong> (Recommended for development)</li>
+<li><strong>Manual Setup</strong> (For those who prefer full control)</li>
+</ol>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Python 3.10 or higher</strong></li>
+<li><strong>Node.js 18 or higher</strong></li>
+<li><strong>Task</strong> (optional, for easier development)</li>
+<li>Install: <code>npm install -g @go-task/cli</code></li>
+<li>See: <a href="https://taskfile.dev/installation/">taskfile.dev/installation</a></li>
+</ul>
+<h2 id="option-1-docker-setup-recommended-for-production">Option 1: Docker Setup (Recommended for Production)<a class="headerlink" href="#option-1-docker-setup-recommended-for-production" title="Permanent link">&para;</a></h2>
+<p>The fastest way to get Estate Sentry running with production databases (PostgreSQL + Neo4j):</p>
+<pre class="highlight"><code class="language-bash"># 1. Copy and configure environment
+cp .env.example .env
+
+# 2. Build and start all services
+task docker:build
+task docker:up
+
+# 3. Run migrations
+task db:migrate:docker
+
+# 4. Create admin user
+docker-compose exec api python manage.py createsuperuser</code></pre>
+<p>Your services will be available at:</p>
+<ul>
+<li><strong>API</strong>: http://localhost:8000</li>
+<li><strong>Dashboard</strong>: http://localhost:8000/hq/</li>
+<li><strong>Neo4j Browser</strong>: http://localhost:7474</li>
+</ul>
+<p>See <a href="../docker-setup/">Docker Setup</a> for complete Docker documentation.</p>
+<h2 id="option-2-task-setup-recommended-for-development">Option 2: Task Setup (Recommended for Development)<a class="headerlink" href="#option-2-task-setup-recommended-for-development" title="Permanent link">&para;</a></h2>
+<p>Using Task provides the easiest development experience:</p>
+<pre class="highlight"><code class="language-bash"># Clone the repository
+git clone https://github.com/yourusername/estate-sentry.git
+cd estate-sentry
+
+# Complete setup (API + Frontend)
+task setup
+
+# Create admin user
+task api:superuser
+
+# Start both servers
+task dev</code></pre>
+<p>The API and the HQ dashboard are both served at <code>http://localhost:8000</code>, with the dashboard at <code>/hq/</code>.</p>
+<h2 id="option-3-manual-setup">Option 3: Manual Setup<a class="headerlink" href="#option-3-manual-setup" title="Permanent link">&para;</a></h2>
+<h3 id="backend-django-api">Backend (Django API)<a class="headerlink" href="#backend-django-api" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Navigate to API directory</strong>
+   <pre class="highlight"><code class="language-bash">cd estate-sentry-api</code></pre></p>
+</li>
+<li>
+<p><strong>Create and activate virtual environment</strong>
+   <pre class="highlight"><code class="language-bash">python -m venv .venv
+source .venv/Scripts/activate  # On Windows Git Bash
+# or: .venv\Scripts\activate  # On Windows CMD</code></pre></p>
+</li>
+<li>
+<p><strong>Install dependencies</strong>
+   <pre class="highlight"><code class="language-bash">pip install -r requirements.txt</code></pre></p>
+</li>
+<li>
+<p><strong>Run migrations</strong>
+   <pre class="highlight"><code class="language-bash">python manage.py migrate</code></pre></p>
+</li>
+<li>
+<p><strong>Create superuser</strong>
+   <pre class="highlight"><code class="language-bash">python manage.py createsuperuser</code></pre></p>
+</li>
+<li>
+<p><strong>Start development server</strong>
+   <pre class="highlight"><code class="language-bash">python manage.py runserver</code></pre></p>
+</li>
+</ol>
+<p>The API will be available at <code>http://localhost:8000</code>.</p>
+<h3 id="frontend-estate-sentry-hq">Frontend (Estate Sentry HQ)<a class="headerlink" href="#frontend-estate-sentry-hq" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Navigate to HQ directory</strong>
+   <pre class="highlight"><code class="language-bash"></code></pre></p>
+</li>
+<li>
+<p><strong>Install dependencies</strong>
+   <pre class="highlight"><code class="language-bash">npm install</code></pre></p>
+</li>
+<li>
+<p><strong>Start development server</strong>
+   <pre class="highlight"><code class="language-bash">npm run dev</code></pre></p>
+</li>
+</ol>
+<p>The dashboard will be available at <code>http://localhost:8000/hq/</code>.</p>
+<p>Note that it must be served by an ASGI server (<code>task hq:dev</code>), not <code>runserver</code>:
+the MJPEG and SSE endpoints hold a connection open per viewer, which under WSGI
+pins one worker each.</p>
+<h2 id="verify-installation">Verify Installation<a class="headerlink" href="#verify-installation" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Access the API</strong></li>
+<li>Visit http://localhost:8000/admin/</li>
+<li>
+<p>Login with your superuser credentials</p>
+</li>
+<li>
+<p><strong>Access the Dashboard</strong></p>
+</li>
+<li>Visit http://localhost:8000/hq/</li>
+<li>
+<p>The HQ dashboard should load</p>
+</li>
+<li>
+<p><strong>Run tests</strong>
+   <pre class="highlight"><code class="language-bash">task test
+# or manually:
+cd estate-sentry-api
+python manage.py test</code></pre></p>
+</li>
+</ol>
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Follow the <a href="../quickstart/">Quick Start Guide</a> to test the API</li>
+<li>Check the <a href="../../guides/task-reference/">Task Reference</a> for available commands</li>
+<li>Read the <a href="../../guides/api-usage/">API Usage Guide</a> for endpoint documentation</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../Todo/" class="btn btn-neutral float-left" title="Roadmap"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../quickstart/" class="btn btn-neutral float-right" title="Quick Start">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/QR-Madness/estate-sentry" class="fa fa-code-fork" style="color: #fcfcfc"> estate-sentry</a>
+        </span>
+    
+    
+      <span><a href="../../Todo/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../quickstart/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

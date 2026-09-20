@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Estate Sentry Contributors" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Monitoring - Estate Sentry</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Monitoring";
+        var mkdocs_page_input_path = "operations/monitoring.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/typescript.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Estate Sentry
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Specification/">Specification</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Todo/">Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/installation/">Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/quickstart/">Quick Start</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/docker-setup/">Docker Setup</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/task-reference/">Task Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/api-usage/">API Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/plugin-development/">Plugin Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/node-deployment/">Node Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/mcp-integration/">MCP Integration</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Architecture</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/database/">Database</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/decentralization/">Decentralization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/switchboard/">Switchboard</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/security/">Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/device-abstraction/">Device Abstraction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/sentry-intelligence/">Sentry Intelligence</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operations</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Monitoring</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#health-endpoints">Health Endpoints</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#api-health">API Health</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#detailed-health">Detailed Health</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#node-health-multi-node">Node Health (Multi-node)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#metrics-collection">Metrics Collection</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#prometheus-metrics">Prometheus Metrics</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#prometheus-configuration">Prometheus Configuration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#grafana-dashboard">Grafana Dashboard</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#log-monitoring">Log Monitoring</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#log-locations">Log Locations</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#log-aggregation">Log Aggregation</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#loki-configuration">Loki Configuration</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#promtail-for-docker">Promtail for Docker</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#log-queries">Log Queries</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#find-errors">Find Errors</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#authentication-failures">Authentication Failures</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#slow-queries">Slow Queries</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#alerting">Alerting</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#alert-rules">Alert Rules</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#notification-channels">Notification Channels</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#slack-integration">Slack Integration</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#email-integration">Email Integration</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#dashboard-metrics">Dashboard Metrics</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#key-dashboards">Key Dashboards</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#system-overview">System Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#security-dashboard">Security Dashboard</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#node-dashboard-multi-node">Node Dashboard (Multi-node)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example-dashboard-panels">Example Dashboard Panels</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#sensor-status-grafana">Sensor Status (Grafana)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#alert-rate-grafana">Alert Rate (Grafana)</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#performance-monitoring">Performance Monitoring</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#database-performance">Database Performance</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#api-performance">API Performance</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#switchboard-performance">Switchboard Performance</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#troubleshooting-runbook">Troubleshooting Runbook</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#high-cpu-usage">High CPU Usage</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#high-memory-usage">High Memory Usage</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#sync-lag">Sync Lag</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#backup-monitoring">Backup Monitoring</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#backup-status">Backup Status</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#backup-alerts">Backup Alerts</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#related-documentation">Related Documentation</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Contributing</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../contributing/development/">Development Guide</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Estate Sentry</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Operations</li>
+      <li class="breadcrumb-item active">Monitoring</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/QR-Madness/estate-sentry/edit/master/docs/operations/monitoring.md">Edit on estate-sentry</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="monitoring-guide">Monitoring Guide<a class="headerlink" href="#monitoring-guide" title="Permanent link">&para;</a></h1>
+<p>This guide covers monitoring Estate Sentry deployments for health, performance, and security.</p>
+<h2 id="health-endpoints">Health Endpoints<a class="headerlink" href="#health-endpoints" title="Permanent link">&para;</a></h2>
+<h3 id="api-health">API Health<a class="headerlink" href="#api-health" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Basic health check
+curl http://localhost:8000/api/health/
+
+# Response
+{
+  "status": "healthy",
+  "version": "2.0.0",
+  "timestamp": "2025-01-23T10:00:00Z"
+}</code></pre>
+<h3 id="detailed-health">Detailed Health<a class="headerlink" href="#detailed-health" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash">curl http://localhost:8000/api/health/detailed/
+
+# Response
+{
+  "status": "healthy",
+  "components": {
+    "database": {"status": "healthy", "latency_ms": 2},
+    "neo4j": {"status": "healthy", "latency_ms": 5},
+    "nats": {"status": "healthy", "connected": true},
+    "minio": {"status": "healthy", "buckets": 4}
+  },
+  "metrics": {
+    "sensors_active": 12,
+    "alerts_unacked": 3,
+    "readings_today": 15420
+  }
+}</code></pre>
+<h3 id="node-health-multi-node">Node Health (Multi-node)<a class="headerlink" href="#node-health-multi-node" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash">curl http://localhost:8000/api/nodes/health/
+
+# Response
+{
+  "cluster_healthy": true,
+  "quorum": true,
+  "nodes": {
+    "node-1": {
+      "status": "healthy",
+      "role": "primary",
+      "uptime_hours": 168,
+      "cpu_percent": 12.5,
+      "memory_percent": 45.2,
+      "disk_percent": 23.1
+    }
+  }
+}</code></pre>
+<h2 id="metrics-collection">Metrics Collection<a class="headerlink" href="#metrics-collection" title="Permanent link">&para;</a></h2>
+<h3 id="prometheus-metrics">Prometheus Metrics<a class="headerlink" href="#prometheus-metrics" title="Permanent link">&para;</a></h3>
+<p>Estate Sentry exposes Prometheus-compatible metrics:</p>
+<pre class="highlight"><code class="language-bash">curl http://localhost:8000/metrics/</code></pre>
+<p><strong>Available Metrics:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>estate_sentry_sensors_total</code></td>
+<td>Gauge</td>
+<td>Total registered sensors</td>
+</tr>
+<tr>
+<td><code>estate_sentry_sensors_active</code></td>
+<td>Gauge</td>
+<td>Currently active sensors</td>
+</tr>
+<tr>
+<td><code>estate_sentry_readings_total</code></td>
+<td>Counter</td>
+<td>Total sensor readings</td>
+</tr>
+<tr>
+<td><code>estate_sentry_readings_rate</code></td>
+<td>Gauge</td>
+<td>Readings per minute</td>
+</tr>
+<tr>
+<td><code>estate_sentry_alerts_total</code></td>
+<td>Counter</td>
+<td>Total alerts generated</td>
+</tr>
+<tr>
+<td><code>estate_sentry_alerts_unacked</code></td>
+<td>Gauge</td>
+<td>Unacknowledged alerts</td>
+</tr>
+<tr>
+<td><code>estate_sentry_api_requests_total</code></td>
+<td>Counter</td>
+<td>API requests by endpoint</td>
+</tr>
+<tr>
+<td><code>estate_sentry_api_latency_seconds</code></td>
+<td>Histogram</td>
+<td>API response latency</td>
+</tr>
+</tbody>
+</table>
+<h3 id="prometheus-configuration">Prometheus Configuration<a class="headerlink" href="#prometheus-configuration" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-yaml"># prometheus.yml
+scrape_configs:
+  - job_name: 'estate-sentry'
+    static_configs:
+      - targets: ['localhost:8000']
+    metrics_path: /metrics/
+    scrape_interval: 15s
+
+  # Multi-node
+  - job_name: 'estate-sentry-nodes'
+    static_configs:
+      - targets:
+        - 'node-1:8000'
+        - 'node-2:8000'
+        - 'node-3:8000'</code></pre>
+<h3 id="grafana-dashboard">Grafana Dashboard<a class="headerlink" href="#grafana-dashboard" title="Permanent link">&para;</a></h3>
+<p>Import the Estate Sentry dashboard:</p>
+<pre class="highlight"><code class="language-bash"># Download dashboard
+curl -o grafana-dashboard.json \
+  https://raw.githubusercontent.com/estate-sentry/dashboards/main/grafana.json
+
+# Import via Grafana API
+curl -X POST http://localhost:3000/api/dashboards/db \
+  -H "Content-Type: application/json" \
+  -d @grafana-dashboard.json</code></pre>
+<h2 id="log-monitoring">Log Monitoring<a class="headerlink" href="#log-monitoring" title="Permanent link">&para;</a></h2>
+<h3 id="log-locations">Log Locations<a class="headerlink" href="#log-locations" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Log Location</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>API</td>
+<td><code>docker logs estate-sentry-api</code></td>
+</tr>
+<tr>
+<td>PostgreSQL</td>
+<td><code>docker logs estate-sentry-postgres</code></td>
+</tr>
+<tr>
+<td>Neo4j</td>
+<td><code>docker logs estate-sentry-neo4j</code></td>
+</tr>
+<tr>
+<td>NATS</td>
+<td><code>docker logs estate-sentry-nats</code></td>
+</tr>
+<tr>
+<td>Switchboard</td>
+<td><code>docker logs estate-sentry-switchboard</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="log-aggregation">Log Aggregation<a class="headerlink" href="#log-aggregation" title="Permanent link">&para;</a></h3>
+<h4 id="loki-configuration">Loki Configuration<a class="headerlink" href="#loki-configuration" title="Permanent link">&para;</a></h4>
+<pre class="highlight"><code class="language-yaml"># loki-config.yml
+auth_enabled: false
+server:
+  http_listen_port: 3100
+
+ingester:
+  lifecycler:
+    ring:
+      kvstore:
+        store: inmemory
+      replication_factor: 1
+
+schema_config:
+  configs:
+    - from: 2025-01-01
+      store: boltdb-shipper
+      object_store: filesystem
+      schema: v11
+      index:
+        prefix: index_
+        period: 24h
+
+storage_config:
+  boltdb_shipper:
+    active_index_directory: /loki/index
+    cache_location: /loki/cache
+  filesystem:
+    directory: /loki/chunks</code></pre>
+<h4 id="promtail-for-docker">Promtail for Docker<a class="headerlink" href="#promtail-for-docker" title="Permanent link">&para;</a></h4>
+<pre class="highlight"><code class="language-yaml"># promtail-config.yml
+server:
+  http_listen_port: 9080
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: estate-sentry
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/estate-sentry-(.*)'
+        target_label: 'service'
+        replacement: '$1'</code></pre>
+<h3 id="log-queries">Log Queries<a class="headerlink" href="#log-queries" title="Permanent link">&para;</a></h3>
+<h4 id="find-errors">Find Errors<a class="headerlink" href="#find-errors" title="Permanent link">&para;</a></h4>
+<pre class="highlight"><code class="language-logql">{service="api"} |= "ERROR"</code></pre>
+<h4 id="authentication-failures">Authentication Failures<a class="headerlink" href="#authentication-failures" title="Permanent link">&para;</a></h4>
+<pre class="highlight"><code class="language-logql">{service="api"} |~ "AUTH_FAILED|Invalid credentials"</code></pre>
+<h4 id="slow-queries">Slow Queries<a class="headerlink" href="#slow-queries" title="Permanent link">&para;</a></h4>
+<pre class="highlight"><code class="language-logql">{service="api"} | json | latency_ms &gt; 1000</code></pre>
+<h2 id="alerting">Alerting<a class="headerlink" href="#alerting" title="Permanent link">&para;</a></h2>
+<h3 id="alert-rules">Alert Rules<a class="headerlink" href="#alert-rules" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-yaml"># alert-rules.yml
+groups:
+  - name: estate-sentry
+    rules:
+      # Service down
+      - alert: ServiceDown
+        expr: up{job="estate-sentry"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Estate Sentry service is down"
+
+      # High error rate
+      - alert: HighErrorRate
+        expr: |
+          rate(estate_sentry_api_errors_total[5m]) &gt; 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API error rate"
+
+      # Sensor offline
+      - alert: SensorOffline
+        expr: |
+          estate_sentry_sensor_last_seen_seconds &gt; 300
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Sensor {{ $labels.sensor_name }} offline"
+
+      # Unacknowledged critical alerts
+      - alert: CriticalAlertUnacked
+        expr: |
+          estate_sentry_alerts_unacked{severity="critical"} &gt; 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical security alert unacknowledged"
+
+      # Node unhealthy
+      - alert: NodeUnhealthy
+        expr: |
+          estate_sentry_node_healthy == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Node {{ $labels.node_name }} is unhealthy"
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: |
+          estate_sentry_node_memory_percent &gt; 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.node_name }}"</code></pre>
+<h3 id="notification-channels">Notification Channels<a class="headerlink" href="#notification-channels" title="Permanent link">&para;</a></h3>
+<h4 id="slack-integration">Slack Integration<a class="headerlink" href="#slack-integration" title="Permanent link">&para;</a></h4>
+<pre class="highlight"><code class="language-yaml"># alertmanager.yml
+route:
+  receiver: 'slack-notifications'
+  routes:
+    - match:
+        severity: critical
+      receiver: 'slack-critical'
+
+receivers:
+  - name: 'slack-notifications'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/xxx'
+        channel: '#estate-sentry-alerts'
+
+  - name: 'slack-critical'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/xxx'
+        channel: '#estate-sentry-critical'</code></pre>
+<h4 id="email-integration">Email Integration<a class="headerlink" href="#email-integration" title="Permanent link">&para;</a></h4>
+<pre class="highlight"><code class="language-yaml">receivers:
+  - name: 'email-alerts'
+    email_configs:
+      - to: 'security@example.com'
+        from: 'estate-sentry@example.com'
+        smarthost: 'smtp.example.com:587'
+        auth_username: 'estate-sentry'
+        auth_password: 'password'</code></pre>
+<h2 id="dashboard-metrics">Dashboard Metrics<a class="headerlink" href="#dashboard-metrics" title="Permanent link">&para;</a></h2>
+<h3 id="key-dashboards">Key Dashboards<a class="headerlink" href="#key-dashboards" title="Permanent link">&para;</a></h3>
+<h4 id="system-overview">System Overview<a class="headerlink" href="#system-overview" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Total sensors and status distribution</li>
+<li>Alert volume (24h, 7d trends)</li>
+<li>API request rate and latency</li>
+<li>Resource utilization</li>
+</ul>
+<h4 id="security-dashboard">Security Dashboard<a class="headerlink" href="#security-dashboard" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Real-time alert feed</li>
+<li>Threat score trends</li>
+<li>Sensor trigger heatmap</li>
+<li>Unacknowledged alert count</li>
+</ul>
+<h4 id="node-dashboard-multi-node">Node Dashboard (Multi-node)<a class="headerlink" href="#node-dashboard-multi-node" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Node status matrix</li>
+<li>Sync lag between nodes</li>
+<li>Leader/follower status</li>
+<li>Network health</li>
+</ul>
+<h3 id="example-dashboard-panels">Example Dashboard Panels<a class="headerlink" href="#example-dashboard-panels" title="Permanent link">&para;</a></h3>
+<h4 id="sensor-status-grafana">Sensor Status (Grafana)<a class="headerlink" href="#sensor-status-grafana" title="Permanent link">&para;</a></h4>
+<pre class="highlight"><code class="language-json">{
+  "title": "Sensor Status",
+  "type": "stat",
+  "targets": [
+    {
+      "expr": "estate_sentry_sensors_active",
+      "legendFormat": "Active"
+    },
+    {
+      "expr": "estate_sentry_sensors_total - estate_sentry_sensors_active",
+      "legendFormat": "Inactive"
+    }
+  ]
+}</code></pre>
+<h4 id="alert-rate-grafana">Alert Rate (Grafana)<a class="headerlink" href="#alert-rate-grafana" title="Permanent link">&para;</a></h4>
+<pre class="highlight"><code class="language-json">{
+  "title": "Alert Rate",
+  "type": "graph",
+  "targets": [
+    {
+      "expr": "rate(estate_sentry_alerts_total[5m]) * 60",
+      "legendFormat": "Alerts/min"
+    }
+  ]
+}</code></pre>
+<h2 id="performance-monitoring">Performance Monitoring<a class="headerlink" href="#performance-monitoring" title="Permanent link">&para;</a></h2>
+<h3 id="database-performance">Database Performance<a class="headerlink" href="#database-performance" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># PostgreSQL slow queries
+docker exec estate-sentry-postgres psql -U estate_sentry -c "
+SELECT query, calls, mean_time, total_time
+FROM pg_stat_statements
+ORDER BY total_time DESC
+LIMIT 10;
+"
+
+# Neo4j query stats
+curl -X POST http://localhost:7474/db/neo4j/tx/commit \
+  -H "Content-Type: application/json" \
+  -d '{"statements":[{"statement":"CALL db.stats.collect()"}]}'</code></pre>
+<h3 id="api-performance">API Performance<a class="headerlink" href="#api-performance" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># Enable slow query logging
+# settings.py
+LOGGING = {
+    'handlers': {
+        'slow_queries': {
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/estate-sentry/slow_queries.log',
+        },
+    },
+    'loggers': {
+        'django.db.backends': {
+            'handlers': ['slow_queries'],
+            'level': 'DEBUG',
+        },
+    },
+}
+
+SLOW_QUERY_THRESHOLD_MS = 100</code></pre>
+<h3 id="switchboard-performance">Switchboard Performance<a class="headerlink" href="#switchboard-performance" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># NATS metrics
+curl http://localhost:8222/varz
+
+# Message rates
+curl http://localhost:8222/jsz?streams=true</code></pre>
+<h2 id="troubleshooting-runbook">Troubleshooting Runbook<a class="headerlink" href="#troubleshooting-runbook" title="Permanent link">&para;</a></h2>
+<h3 id="high-cpu-usage">High CPU Usage<a class="headerlink" href="#high-cpu-usage" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p>Check which service:
+   <pre class="highlight"><code class="language-bash">docker stats</code></pre></p>
+</li>
+<li>
+<p>For API:
+   <pre class="highlight"><code class="language-bash"># Check active requests
+curl http://localhost:8000/api/debug/requests/</code></pre></p>
+</li>
+<li>
+<p>For Neo4j:
+   <pre class="highlight"><code class="language-bash"># Check running queries
+CALL dbms.listQueries()</code></pre></p>
+</li>
+</ol>
+<h3 id="high-memory-usage">High Memory Usage<a class="headerlink" href="#high-memory-usage" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p>Check memory by service:
+   <pre class="highlight"><code class="language-bash">docker stats --no-stream</code></pre></p>
+</li>
+<li>
+<p>For PostgreSQL:
+   <pre class="highlight"><code class="language-bash"># Check connections
+SELECT count(*) FROM pg_stat_activity;</code></pre></p>
+</li>
+<li>
+<p>Restart if needed:
+   <pre class="highlight"><code class="language-bash">task docker:restart:api</code></pre></p>
+</li>
+</ol>
+<h3 id="sync-lag">Sync Lag<a class="headerlink" href="#sync-lag" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p>Check sync status:
+   <pre class="highlight"><code class="language-bash">curl http://localhost:8000/api/nodes/sync/status/</code></pre></p>
+</li>
+<li>
+<p>Check pending events:
+   <pre class="highlight"><code class="language-bash">python manage.py show_event_log --pending</code></pre></p>
+</li>
+<li>
+<p>Force sync:
+   <pre class="highlight"><code class="language-bash">python manage.py force_sync --all</code></pre></p>
+</li>
+</ol>
+<h2 id="backup-monitoring">Backup Monitoring<a class="headerlink" href="#backup-monitoring" title="Permanent link">&para;</a></h2>
+<h3 id="backup-status">Backup Status<a class="headerlink" href="#backup-status" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Check last backup
+ls -la data/backups/
+
+# Verify backup integrity
+task backup:verify --latest</code></pre>
+<h3 id="backup-alerts">Backup Alerts<a class="headerlink" href="#backup-alerts" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-yaml"># Alert if backup is stale
+- alert: BackupStale
+  expr: |
+    time() - estate_sentry_backup_last_success_timestamp &gt; 86400
+  for: 1h
+  labels:
+    severity: warning
+  annotations:
+    summary: "Backup is more than 24 hours old"</code></pre>
+<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../../guides/node-deployment/">Node Deployment</a></li>
+<li><a href="../../architecture/security/">Security Architecture</a></li>
+<li><a href="../../architecture/switchboard/">Switchboard Architecture</a></li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../architecture/sentry-intelligence/" class="btn btn-neutral float-left" title="Sentry Intelligence"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../contributing/development/" class="btn btn-neutral float-right" title="Development Guide">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/QR-Madness/estate-sentry" class="fa fa-code-fork" style="color: #fcfcfc"> estate-sentry</a>
+        </span>
+    
+    
+      <span><a href="../../architecture/sentry-intelligence/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../contributing/development/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

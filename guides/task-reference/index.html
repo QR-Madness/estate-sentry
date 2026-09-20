@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Estate Sentry Contributors" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Task Reference - Estate Sentry</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Task Reference";
+        var mkdocs_page_input_path = "guides/task-reference.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/typescript.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Estate Sentry
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Specification/">Specification</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Todo/">Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/installation/">Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/quickstart/">Quick Start</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/docker-setup/">Docker Setup</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Task Reference</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#quick-start">Quick Start</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#setup-installation">Setup &amp; Installation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#development">Development</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#api-tasks">API Tasks</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#hq-frontend-tasks">HQ (Frontend) Tasks</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#docker-tasks">Docker Tasks</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#database-management">Database Management</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#utilities">Utilities</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cicd">CI/CD</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#common-workflows">Common Workflows</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#first-time-setup">First Time Setup</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#daily-development">Daily Development</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#before-committing">Before Committing</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#docker-development">Docker Development</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#tips">Tips</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#environment-setup">Environment Setup</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#customization">Customization</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#resources">Resources</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../api-usage/">API Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../plugin-development/">Plugin Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../node-deployment/">Node Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../mcp-integration/">MCP Integration</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Architecture</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/database/">Database</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/decentralization/">Decentralization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/switchboard/">Switchboard</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/security/">Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/device-abstraction/">Device Abstraction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/sentry-intelligence/">Sentry Intelligence</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operations</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../operations/monitoring/">Monitoring</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Contributing</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../contributing/development/">Development Guide</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Estate Sentry</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Guides</li>
+      <li class="breadcrumb-item active">Task Reference</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/QR-Madness/estate-sentry/edit/master/docs/guides/task-reference.md">Edit on estate-sentry</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="task-reference">Task Reference<a class="headerlink" href="#task-reference" title="Permanent link">&para;</a></h1>
+<p>Estate Sentry uses <a href="https://taskfile.dev/">Task</a> for development automation. All tasks are defined in <code>Taskfile.yaml</code>.</p>
+<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code class="language-bash"># Install Task globally
+npm install -g @go-task/cli
+
+# Or see: https://taskfile.dev/installation/</code></pre>
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code class="language-bash">task                # List all available tasks
+task setup         # Complete project setup (API + HQ)
+task dev           # Start both servers
+task info          # Show project information</code></pre>
+<h2 id="setup-installation">Setup &amp; Installation<a class="headerlink" href="#setup-installation" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code class="language-bash">task setup              # Complete project setup (API + HQ)
+task setup:venv         # Create Python virtual environment
+task install            # Install all dependencies</code></pre>
+<h2 id="development">Development<a class="headerlink" href="#development" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code class="language-bash">task dev                # Start both API and HQ servers
+task api:dev            # Start Django API server (port 8000)
+task hq:dev             # Serve API + HQ dashboard under ASGI (port 8000)</code></pre>
+<h2 id="api-tasks">API Tasks<a class="headerlink" href="#api-tasks" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code class="language-bash">task api:install        # Install API dependencies
+task api:migrate        # Run database migrations
+task api:makemigrations # Create new migrations
+task api:superuser      # Create Django superuser
+task api:shell          # Open Django shell
+task api:test           # Run API tests
+task api:test:verbose   # Run tests with verbose output
+task api:test:coverage  # Run tests with coverage report
+task api:lint           # Lint with flake8
+task api:check          # Run Django system checks
+task api:clean          # Remove build artifacts
+task api:reset-db       # Reset database (⚠️ deletes data)</code></pre>
+<h2 id="hq-frontend-tasks">HQ (Frontend) Tasks<a class="headerlink" href="#hq-frontend-tasks" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code class="language-bash">task hq:install         # Install HQ dependencies
+task hq:dev             # Start development server
+task hq:build           # Build for production
+task hq:start           # Start production server
+task hq:lint            # Lint TypeScript/React code
+task hq:test            # Run HQ tests
+task hq:clean           # Remove build artifacts</code></pre>
+<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code class="language-bash">task test               # Run all tests (API + HQ)
+task api:test           # Run API tests only
+task hq:test            # Run HQ tests only
+task api:test:verbose   # Verbose API tests
+task api:test:coverage  # API tests with coverage</code></pre>
+<h2 id="docker-tasks">Docker Tasks<a class="headerlink" href="#docker-tasks" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code class="language-bash">task docker:build       # Build all Docker images
+task docker:build:api   # Build API image only
+task docker:build:hq    # Build HQ image only
+task docker:up          # Start all services (detached)
+task docker:up:logs     # Start and follow logs
+task docker:down        # Stop and remove containers
+task docker:restart     # Restart all services
+task docker:logs        # View all logs
+task docker:logs:api    # View API logs
+task docker:shell:api   # Bash shell in API container
+task docker:ps          # Show running containers</code></pre>
+<h2 id="database-management">Database Management<a class="headerlink" href="#database-management" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code class="language-bash"># SQLite (Local Development)
+task db:backup          # Backup SQLite database
+task db:restore         # Restore latest backup
+
+# Docker (PostgreSQL)
+task db:migrate:docker  # Run migrations in Docker
+task db:postgres:backup # Backup PostgreSQL
+task db:postgres:restore # Restore PostgreSQL
+task db:reset:docker    # Reset database (⚠️ deletes data)
+
+# Neo4j
+task db:neo4j:export    # Export Neo4j database
+task db:neo4j:import    # Import Neo4j database
+task db:neo4j:sync      # Show sync status
+task db:neo4j:clear     # Clear all graph data (⚠️)</code></pre>
+<h2 id="utilities">Utilities<a class="headerlink" href="#utilities" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code class="language-bash">task clean              # Clean all build artifacts
+task check              # Run all checks (lint + test)
+task format             # Format code (black/prettier)
+task info               # Show project information
+task version            # Show tool versions</code></pre>
+<h2 id="cicd">CI/CD<a class="headerlink" href="#cicd" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code class="language-bash">task ci:test            # Run CI checks locally</code></pre>
+<h2 id="common-workflows">Common Workflows<a class="headerlink" href="#common-workflows" title="Permanent link">&para;</a></h2>
+<h3 id="first-time-setup">First Time Setup<a class="headerlink" href="#first-time-setup" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash">task setup
+task api:superuser
+task dev</code></pre>
+<h3 id="daily-development">Daily Development<a class="headerlink" href="#daily-development" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Start servers
+task dev
+
+# In another terminal, run tests
+task test
+
+# Make database changes
+task api:makemigrations
+task api:migrate</code></pre>
+<h3 id="before-committing">Before Committing<a class="headerlink" href="#before-committing" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash">task check              # Run linting
+task test               # Run tests
+task clean              # Clean artifacts</code></pre>
+<h3 id="docker-development">Docker Development<a class="headerlink" href="#docker-development" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Start Docker services
+task docker:build
+task docker:up
+
+# View logs
+task docker:logs:api
+
+# Access shell
+task docker:shell:api
+
+# Restart after changes
+task docker:restart:api</code></pre>
+<h2 id="tips">Tips<a class="headerlink" href="#tips" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Run <code>task</code> or <code>task --list</code> to see all available tasks</li>
+<li>Tasks use relative paths, so run from project root</li>
+<li>Most tasks provide helpful feedback with ✅ emoji</li>
+<li>Some tasks (like <code>api:reset-db</code>) have confirmation prompts</li>
+<li>Tasks marked with ⚠️ are destructive and should be used carefully</li>
+</ul>
+<h2 id="environment-setup">Environment Setup<a class="headerlink" href="#environment-setup" title="Permanent link">&para;</a></h2>
+<p>Tasks automatically use the correct environment:</p>
+<ul>
+<li>API tasks use <code>.venv</code> Python environment</li>
+<li>HQ tasks use local <code>node_modules</code></li>
+<li>No need to manually activate environments</li>
+</ul>
+<h2 id="customization">Customization<a class="headerlink" href="#customization" title="Permanent link">&para;</a></h2>
+<p>To add your own tasks, edit <code>Taskfile.yaml</code>. Task uses simple YAML syntax:</p>
+<pre class="highlight"><code class="language-yaml">tasks:
+  mytask:
+    desc: My custom task
+    dir: estate-sentry-api
+    cmds:
+      - echo "Running my task"
+      - python manage.py custom_command</code></pre>
+<h2 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://taskfile.dev/">Task Documentation</a></li>
+<li><a href="../../getting-started/installation/">Installation Guide</a></li>
+<li><a href="../../getting-started/quickstart/">Quick Start Guide</a></li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../getting-started/docker-setup/" class="btn btn-neutral float-left" title="Docker Setup"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../api-usage/" class="btn btn-neutral float-right" title="API Usage">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/QR-Madness/estate-sentry" class="fa fa-code-fork" style="color: #fcfcfc"> estate-sentry</a>
+        </span>
+    
+    
+      <span><a href="../../getting-started/docker-setup/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../api-usage/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

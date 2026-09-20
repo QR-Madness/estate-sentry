@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Estate Sentry Contributors" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Specification - Estate Sentry</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Specification";
+        var mkdocs_page_input_path = "Specification.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/typescript.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Estate Sentry
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Specification</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#design-principles">Design Principles</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#system-architecture">System Architecture</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#where-perception-fits">Where Perception Fits</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#service-inventory">Service Inventory</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#docker-compose-additions">Docker Compose Additions</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#first-run-consent-flow">First-Run Consent Flow</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#django-implementation">Django Implementation</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#zone-model">Zone Model</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#django-models-zones-app">Django Models (zones App)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#relationship-to-existing-models">Relationship to Existing Models</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#zone-context-document">Zone Context Document</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#zone-rules-engine">Zone Rules Engine</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#zone-adjacency-graph">Zone Adjacency Graph</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#perception-pipeline">Perception Pipeline</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#service-architecture">Service Architecture</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pipeline-overview">Pipeline Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#nats-topic-integration">NATS Topic Integration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#layer-details">Layer Details</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#l1-motion-gate">L1: Motion Gate</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#l2-object-detection">L2: Object Detection</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#l3-zone-intersection">L3: Zone Intersection</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#l4-identity-pipeline">L4: Identity Pipeline</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#l5-action-pose-estimation">L5: Action / Pose Estimation</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#l6-event-correlation">L6: Event Correlation</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#l7-threat-assessment">L7: Threat Assessment</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#identity-store">Identity Store</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#chromadb-collections">ChromaDB Collections</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#django-models-intelligence-app">Django Models (intelligence App)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#re-identification-strategy">Re-Identification Strategy</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#multi-camera-tracking">Multi-Camera Tracking</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#phase-1-topological-tracking-near-term">Phase 1: Topological Tracking (Near-term)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#phase-2-spatial-reconstruction-future">Phase 2: Spatial Reconstruction (Future)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#data-flow">Data Flow</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#end-to-end-frame-processing">End-to-End Frame Processing</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#storage-responsibilities">Storage Responsibilities</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#neo4j-graph-schema-extensions">Neo4j Graph Schema Extensions</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#api-surface">API Surface</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#zone-management-new-zones-app">Zone Management (new zones app)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#intelligence-new-intelligence-app">Intelligence (new intelligence app)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#perception-status-new-endpoints-on-api">Perception Status (new endpoints on api)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#existing-endpoints-unchanged">Existing Endpoints (unchanged)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#frontend-integration-estate-sentry-apihq">Frontend Integration (estate-sentry-api/hq)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#new-pages">New Pages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#new-components">New Components</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#real-time-updates">Real-Time Updates</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#sensor-handler-evolution">Sensor Handler Evolution</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#camerahandler-extension">CameraHandler Extension</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#implementation-phases">Implementation Phases</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#phase-1-zone-foundation">Phase 1: Zone Foundation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#phase-2-perception-core">Phase 2: Perception Core</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#phase-3-identity-tracking">Phase 3: Identity &amp; Tracking</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#phase-4-correlation-assessment">Phase 4: Correlation &amp; Assessment</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#phase-5-intelligence-integration">Phase 5: Intelligence Integration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#phase-6-advanced-capabilities-future">Phase 6: Advanced Capabilities (Future)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#related-documentation">Related Documentation</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../Todo/">Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../getting-started/installation/">Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../getting-started/quickstart/">Quick Start</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../getting-started/docker-setup/">Docker Setup</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../guides/task-reference/">Task Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../guides/api-usage/">API Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../guides/plugin-development/">Plugin Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../guides/node-deployment/">Node Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../guides/mcp-integration/">MCP Integration</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Architecture</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../architecture/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../architecture/database/">Database</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../architecture/decentralization/">Decentralization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../architecture/switchboard/">Switchboard</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../architecture/security/">Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../architecture/device-abstraction/">Device Abstraction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../architecture/sentry-intelligence/">Sentry Intelligence</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operations</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../operations/monitoring/">Monitoring</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Contributing</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../contributing/development/">Development Guide</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Estate Sentry</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Specification</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/QR-Madness/estate-sentry/edit/master/docs/Specification.md">Edit on estate-sentry</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="sentry-intelligence-specification">Sentry Intelligence Specification<a class="headerlink" href="#sentry-intelligence-specification" title="Permanent link">&para;</a></h1>
+<p>This document defines the perception and analysis architecture for Estate Sentry's intelligence layer, and specifies how it integrates with the existing stack: Django REST API, Switchboard (NATS + MinIO), PostgreSQL/TimescaleDB, Neo4j, ChromaDB, and the HQ dashboard.</p>
+<hr />
+<h2 id="design-principles">Design Principles<a class="headerlink" href="#design-principles" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Zone-First</strong>: Zones are the top-level organizing entity. Cameras and sensors are bound to zones, and all analysis is zone-scoped.</li>
+<li><strong>Layered Perception</strong>: Each processing layer filters and enriches data before passing it upward. Early exit at any layer avoids unnecessary compute.</li>
+<li><strong>Log Everything</strong>: Every detection in every zone is logged regardless of classification outcome.</li>
+<li><strong>Human-in-the-Loop</strong>: Low-confidence identity matches and high-severity threat assessments are routed to a human review queue.</li>
+<li><strong>Privacy by Consent</strong>: Face embeddings and biometric data are stored only after explicit user consent through a first-run disclaimer flow.</li>
+</ul>
+<hr />
+<h2 id="system-architecture">System Architecture<a class="headerlink" href="#system-architecture" title="Permanent link">&para;</a></h2>
+<h3 id="where-perception-fits">Where Perception Fits<a class="headerlink" href="#where-perception-fits" title="Permanent link">&para;</a></h3>
+<p>The perception pipeline is a new service (<code>estate-sentry-perception</code>) that sits between the Switchboard and the Django API. It consumes camera frames from NATS, runs inference, and writes results back to the API and databases.</p>
+<pre class="highlight"><code>+----------------------------------------------------------------------+
+|                          ESTATE SENTRY                                |
+|                                                                       |
+|  +------------------+    +------------------+    +------------------+ |
+|  |  estate-sentry-  |    |   Switchboard    |    | estate-sentry-   | |
+|  |  api (Django)    |&lt;--&gt;|   (NATS+MinIO)   |&lt;--&gt;| perception       | |
+|  +--------+---------+    +--------+---------+    +--------+---------+ |
+|           |                       |                       |           |
+|  +--------v---------+    +--------v---------+    +--------v---------+ |
+|  | PostgreSQL       |    |  MinIO           |    | ChromaDB         | |
+|  | (TimescaleDB)    |    |  (Frames/Media)  |    | (Embeddings)     | |
+|  +------------------+    +------------------+    +------------------+ |
+|           |                                               |           |
+|  +--------v---------+                            +--------v---------+ |
+|  | Neo4j            |&lt;--------------------------&gt;| Sentry Intel     | |
+|  | (Graph/Threats)  |                            | (MCP Server)     | |
+|  +------------------+                            +------------------+ |
++----------------------------------------------------------------------+
+         |                                                  |
++--------v---------+                              +---------v--------+
+|  estate-sentry-  |                              |  Claude / LLM    |
+|  hq (Django)     |                              |  (Analysis)      |
++------------------+                              +------------------+</code></pre>
+<h3 id="service-inventory">Service Inventory<a class="headerlink" href="#service-inventory" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Technology</th>
+<th>Role in Intelligence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>estate-sentry-api</code></td>
+<td>Django 5 + DRF</td>
+<td>Zone CRUD, identity profiles, alerts, review queue API</td>
+</tr>
+<tr>
+<td><code>estate-sentry-api/hq</code></td>
+<td>Django templates + htmx</td>
+<td>Zone editor, identity review UI, perception dashboard</td>
+</tr>
+<tr>
+<td><code>estate-sentry-perception</code></td>
+<td>Python (async)</td>
+<td>L1-L7 perception pipeline, frame processing</td>
+</tr>
+<tr>
+<td>Switchboard (NATS)</td>
+<td>NATS 2.10 JetStream</td>
+<td>Frame notifications, detection events, alert routing</td>
+</tr>
+<tr>
+<td>Switchboard (MinIO)</td>
+<td>MinIO</td>
+<td>Frame storage, evidence snapshots</td>
+</tr>
+<tr>
+<td>PostgreSQL</td>
+<td>TimescaleDB 16</td>
+<td>Zone events, tracks, identity metadata, alerts</td>
+</tr>
+<tr>
+<td>Neo4j</td>
+<td>Neo4j 5</td>
+<td>Zone adjacency graph, entity relationship graph, threat patterns</td>
+</tr>
+<tr>
+<td>ChromaDB</td>
+<td>ChromaDB</td>
+<td>Face embeddings, appearance embeddings, threat pattern vectors</td>
+</tr>
+<tr>
+<td>Sentry Intelligence</td>
+<td>Python MCP Server</td>
+<td>LLM-powered threat analysis, case reports</td>
+</tr>
+</tbody>
+</table>
+<h3 id="docker-compose-additions">Docker Compose Additions<a class="headerlink" href="#docker-compose-additions" title="Permanent link">&para;</a></h3>
+<p>The perception service extends the existing <code>docker-compose.yml</code>:</p>
+<pre class="highlight"><code class="language-yaml">services:
+  # ... existing services (api, hq, postgres, neo4j, nats, minio, chromadb)
+
+  perception:
+    build: ./estate-sentry-perception
+    environment:
+      NATS_URL: nats://nats:4222
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: estate-sentry
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      API_URL: http://api:8000
+      API_TOKEN: ${PERCEPTION_API_TOKEN}
+      CHROMADB_URL: http://chromadb:8001
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+      DEVICE: auto                    # cpu, cuda, auto
+    volumes:
+      - ./data/perception/models:/app/models  # ML model cache
+    depends_on:
+      - nats
+      - minio
+      - chromadb
+      - api
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]     # Optional GPU passthrough</code></pre>
+<hr />
+<h2 id="first-run-consent-flow">First-Run Consent Flow<a class="headerlink" href="#first-run-consent-flow" title="Permanent link">&para;</a></h2>
+<p>On first setup, the system presents a mandatory consent prompt:</p>
+<ul>
+<li>The system is a <strong>demonstrational prototype</strong> and is not licensed for public intelligence gathering.</li>
+<li>The user confirms they have legal permission to deploy camera-based monitoring at their location.</li>
+<li>Consent timestamp and terms version are stored in the database.</li>
+<li>The system will not process camera feeds or store biometric data until consent is recorded.</li>
+</ul>
+<h3 id="django-implementation">Django Implementation<a class="headerlink" href="#django-implementation" title="Permanent link">&para;</a></h3>
+<p>Consent is stored via the existing <code>authentication</code> app:</p>
+<pre class="highlight"><code class="language-python"># authentication/models.py (extension)
+class IntelligenceConsent(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    consented = models.BooleanField(default=False)
+    disclaimer_version = models.CharField(max_length=20)
+    consented_at = models.DateTimeField(null=True)
+    ip_address = models.GenericIPAddressField(null=True)</code></pre>
+<p>The perception service checks consent status via the API before processing any camera data.</p>
+<hr />
+<h2 id="zone-model">Zone Model<a class="headerlink" href="#zone-model" title="Permanent link">&para;</a></h2>
+<p>Zones are the primary organizational unit. All detection, analysis, and alerting is zone-scoped.</p>
+<h3 id="django-models-zones-app">Django Models (<code>zones</code> App)<a class="headerlink" href="#django-models-zones-app" title="Permanent link">&para;</a></h3>
+<p>A new <code>zones</code> Django app extends the existing <code>sensors</code> and <code>alerts</code> apps:</p>
+<pre class="highlight"><code class="language-python"># zones/models.py
+class Zone(models.Model):
+    class ZoneType(models.TextChoices):
+        ENTRY = 'ENTRY'
+        HALLWAY = 'HALLWAY'
+        PERIMETER = 'PERIMETER'
+        RESTRICTED = 'RESTRICTED'
+        COMMON = 'COMMON'
+
+    class TrafficLevel(models.TextChoices):
+        HIGH = 'HIGH'
+        MEDIUM = 'MEDIUM'
+        LOW = 'LOW'
+        NONE = 'NONE'
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    zone_type = models.CharField(max_length=20, choices=ZoneType.choices)
+    expected_traffic = models.CharField(max_length=10, choices=TrafficLevel.choices)
+    active_hours_start = models.TimeField(null=True)
+    active_hours_end = models.TimeField(null=True)
+    known_regulars = models.JSONField(default=list)       # ["household", "delivery"]
+    context = models.TextField(blank=True)                 # Free-text zone description
+    metadata = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class ZonePerimeter(models.Model):
+    """Pixel-space polygon defining zone boundaries within a camera view."""
+    zone = models.ForeignKey(Zone, on_delete=models.CASCADE, related_name='perimeters')
+    camera = models.ForeignKey('sensors.Sensor', on_delete=models.CASCADE,
+                               limit_choices_to={'sensor_type': 'CAMERA'})
+    polygon = models.JSONField()  # [[x1,y1], [x2,y2], ...] normalized 0-1
+
+
+class ZoneAdjacency(models.Model):
+    """Directed edge in the zone adjacency graph."""
+    from_zone = models.ForeignKey(Zone, on_delete=models.CASCADE, related_name='exits')
+    to_zone = models.ForeignKey(Zone, on_delete=models.CASCADE, related_name='entrances')
+    learned_transit_seconds = models.FloatField(null=True)
+    transit_sample_count = models.IntegerField(default=0)
+    manually_configured = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('from_zone', 'to_zone')
+
+
+class ZoneRule(models.Model):
+    """Alert policy for a zone."""
+    class RuleType(models.TextChoices):
+        ALERT_UNKNOWN_PERSON = 'ALERT_UNKNOWN_PERSON'
+        ALERT_AFTER_HOURS = 'ALERT_AFTER_HOURS'
+        ALERT_DWELL_TIME = 'ALERT_DWELL_TIME'
+        ALERT_ZONE_TRANSITION = 'ALERT_ZONE_TRANSITION'
+        SUPPRESS_WINDOW = 'SUPPRESS_WINDOW'
+        CUSTOM = 'CUSTOM'
+
+    zone = models.ForeignKey(Zone, on_delete=models.CASCADE, related_name='rules')
+    rule_type = models.CharField(max_length=30, choices=RuleType.choices)
+    enabled = models.BooleanField(default=True)
+    parameters = models.JSONField(default=dict)  # Rule-specific config
+    # e.g. {"dwell_threshold_seconds": 30} or {"target_zone_id": "uuid"}</code></pre>
+<h3 id="relationship-to-existing-models">Relationship to Existing Models<a class="headerlink" href="#relationship-to-existing-models" title="Permanent link">&para;</a></h3>
+<p>The <code>Sensor</code> model (existing) gains a zone foreign key:</p>
+<pre class="highlight"><code class="language-python"># sensors/models.py (extension)
+class Sensor(models.Model):
+    # ... existing fields ...
+    zone = models.ForeignKey('zones.Zone', null=True, blank=True,
+                             on_delete=models.SET_NULL, related_name='sensors')</code></pre>
+<p>The <code>Alert</code> model (existing) gains a zone foreign key:</p>
+<pre class="highlight"><code class="language-python"># alerts/models.py (extension)
+class Alert(models.Model):
+    # ... existing fields ...
+    zone = models.ForeignKey('zones.Zone', null=True, blank=True,
+                             on_delete=models.SET_NULL, related_name='alerts')</code></pre>
+<h3 id="zone-context-document">Zone Context Document<a class="headerlink" href="#zone-context-document" title="Permanent link">&para;</a></h3>
+<p>Each zone has both structured and free-text context:</p>
+<p><strong>Structured fields:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>zone_type</code></td>
+<td>enum</td>
+<td>entry, hallway, perimeter, restricted, common</td>
+</tr>
+<tr>
+<td><code>expected_traffic</code></td>
+<td>enum</td>
+<td>high, medium, low, none</td>
+</tr>
+<tr>
+<td><code>active_hours</code></td>
+<td>time range</td>
+<td>When the zone is normally occupied</td>
+</tr>
+<tr>
+<td><code>known_regulars</code></td>
+<td>list</td>
+<td>Categories of expected visitors</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Free-text context:</strong></p>
+<p>The <code>context</code> text field is where the user describes the zone in natural language. This context is fed to the AI analysis layer (via MCP), enabling the LLM to reason about detections with physical-world understanding.</p>
+<p>Example: <em>"Back patio. Neighbor's cat frequently triggers motion. The gate has no lock. Delivery packages are sometimes left here."</em></p>
+<h3 id="zone-rules-engine">Zone Rules Engine<a class="headerlink" href="#zone-rules-engine" title="Permanent link">&para;</a></h3>
+<p>Zone-level policies define alert behavior:</p>
+<ul>
+<li><strong>Log everything</strong> (baseline for all zones, always on)</li>
+<li><strong>Alert if unrecognized person detected</strong> (<code>ALERT_UNKNOWN_PERSON</code>)</li>
+<li><strong>Alert if motion detected outside active hours</strong> (<code>ALERT_AFTER_HOURS</code>)</li>
+<li><strong>Alert if person dwells in zone beyond threshold</strong> (<code>ALERT_DWELL_TIME</code>, params: <code>dwell_threshold_seconds</code>)</li>
+<li><strong>Alert if person transitions from zone A to zone B</strong> (<code>ALERT_ZONE_TRANSITION</code>, params: <code>target_zone_id</code>)</li>
+<li><strong>Suppress alerts during defined windows</strong> (<code>SUPPRESS_WINDOW</code>, params: <code>start_time</code>, <code>end_time</code>)</li>
+</ul>
+<h3 id="zone-adjacency-graph">Zone Adjacency Graph<a class="headerlink" href="#zone-adjacency-graph" title="Permanent link">&para;</a></h3>
+<p>Stored in both PostgreSQL (<code>ZoneAdjacency</code> model for configuration) and Neo4j (for graph queries):</p>
+<pre class="highlight"><code>Nodes = Zones (with camera coverage)
+Edges = Physical connectivity + learned transit times
+
+     [Front Porch] ──(5s)──&gt; [Entryway] ──(3s)──&gt; [Hallway]
+                                                      |
+                                              (4s)    (7s)
+                                                |       |
+                                           [Kitchen]  [Living Room]</code></pre>
+<p><strong>Neo4j Representation:</strong></p>
+<pre class="highlight"><code class="language-cypher">(:Zone {id: $uuid, name: "Front Porch", zone_type: "ENTRY"})
+  -[:ADJACENT_TO {transit_seconds: 5.0, sample_count: 142}]-&gt;
+(:Zone {id: $uuid, name: "Entryway", zone_type: "ENTRY"})</code></pre>
+<ul>
+<li><strong>Transit times</strong> are learned from observed person transitions by the perception service.</li>
+<li><strong>Adjacency</strong> can be manually configured via the API or inferred from correlated detections.</li>
+<li>The graph enables cross-zone entity tracking without full 3D reconstruction.</li>
+</ul>
+<hr />
+<h2 id="perception-pipeline">Perception Pipeline<a class="headerlink" href="#perception-pipeline" title="Permanent link">&para;</a></h2>
+<p>A hierarchical inference pipeline processes each camera frame. Each layer filters and enriches before passing data upward.</p>
+<h3 id="service-architecture">Service Architecture<a class="headerlink" href="#service-architecture" title="Permanent link">&para;</a></h3>
+<p>The <code>estate-sentry-perception</code> service is a standalone Python async service that:</p>
+<ol>
+<li>Subscribes to NATS topics (<code>frames.{camera_id}.raw</code>) for frame notifications</li>
+<li>Retrieves frames from MinIO</li>
+<li>Runs L1-L7 inference</li>
+<li>Publishes results to NATS topics (<code>detections.{zone_id}</code>, <code>alerts.{severity}</code>)</li>
+<li>Writes zone events to PostgreSQL via the Django API</li>
+<li>Writes/queries embeddings in ChromaDB</li>
+<li>Updates entity graphs in Neo4j</li>
+</ol>
+<h3 id="pipeline-overview">Pipeline Overview<a class="headerlink" href="#pipeline-overview" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code>Frame In (via NATS: frames.{camera_id}.raw)
+  |
+  v
+[L1] Motion Gate ──── no motion ──&gt; skip frame
+  |
+  v
+[L2] Object Detection (YOLO / RT-DETR)
+  |   -&gt; bounding boxes + class (person / vehicle / animal / unknown)
+  |
+  v
+[L3] Zone Intersection
+  |   -&gt; which zone(s) does this detection fall in?
+  |   -&gt; LOG event to PostgreSQL via API
+  |
+  v
+[L4] Identity Pipeline (persons only)
+  |   +-- Face embedding extraction (when face visible)
+  |   +-- Appearance embedding extraction (always)
+  |   +-- Match against ChromaDB identity store -&gt; confidence score
+  |      -&gt; Below threshold? Flag for human review via API
+  |
+  v
+[L5] Action / Pose Estimation
+  |   -&gt; standing, walking, running, crouching, carrying object
+  |   -&gt; single-frame initially, temporal window later
+  |
+  v
+[L6] Event Correlation
+  |   -&gt; Link detection to existing tracked entity
+  |   -&gt; Query Neo4j zone adjacency for cross-camera linking
+  |   -&gt; Update movement history across zones
+  |   -&gt; Compute behavioral features (dwell time, path, speed)
+  |
+  v
+[L7] Threat Assessment
+      -&gt; Zone rules (from PostgreSQL) + context + behavioral anomaly scoring
+      -&gt; Publish to NATS: alerts.{severity}
+      -&gt; Write Alert to PostgreSQL via API
+      -&gt; If score &gt;= threshold, trigger MCP/LLM analysis via Sentry Intelligence</code></pre>
+<h3 id="nats-topic-integration">NATS Topic Integration<a class="headerlink" href="#nats-topic-integration" title="Permanent link">&para;</a></h3>
+<p>New topics added to the existing Switchboard topic structure:</p>
+<table>
+<thead>
+<tr>
+<th>Topic Pattern</th>
+<th>Direction</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>frames.{camera_id}.raw</code></td>
+<td>Edge Agent -&gt; Perception</td>
+<td>Frame captured notification (includes MinIO path)</td>
+</tr>
+<tr>
+<td><code>detections.{zone_id}</code></td>
+<td>Perception -&gt; Consumers</td>
+<td>Detection event in a zone</td>
+</tr>
+<tr>
+<td><code>tracks.{track_id}.update</code></td>
+<td>Perception -&gt; Consumers</td>
+<td>Entity track update</td>
+</tr>
+<tr>
+<td><code>perception.status</code></td>
+<td>Perception -&gt; Monitoring</td>
+<td>Pipeline health and stats</td>
+</tr>
+<tr>
+<td><code>identity.review</code></td>
+<td>Perception -&gt; API/HQ</td>
+<td>New item in human review queue</td>
+</tr>
+</tbody>
+</table>
+<p>These extend the existing Switchboard topics (<code>sensors.*</code>, <code>alerts.*</code>, <code>nodes.*</code>, <code>system.*</code>).</p>
+<h3 id="layer-details">Layer Details<a class="headerlink" href="#layer-details" title="Permanent link">&para;</a></h3>
+<h4 id="l1-motion-gate">L1: Motion Gate<a class="headerlink" href="#l1-motion-gate" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Purpose</strong>: Avoid processing static frames.</li>
+<li><strong>Method</strong>: Frame differencing, background subtraction, or PIR sensor signal from existing <code>MOTION</code> sensor handler.</li>
+<li><strong>Early exit</strong>: If no motion detected, skip all downstream layers.</li>
+<li><strong>Integration</strong>: Can use existing <code>MotionHandler</code> sensor readings as a gate signal, or run frame differencing internally.</li>
+</ul>
+<h4 id="l2-object-detection">L2: Object Detection<a class="headerlink" href="#l2-object-detection" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Purpose</strong>: Locate and classify objects in the frame.</li>
+<li><strong>Models</strong>: YOLO (v8+), RT-DETR, or equivalent single-shot detector.</li>
+<li><strong>Output</strong>: List of bounding boxes with class labels and confidence scores.</li>
+<li><strong>Classes</strong>: person, vehicle, animal, unknown.</li>
+<li><strong>Hardware</strong>: Runs on CPU or GPU. Model variant configurable (<code>yolov8n</code> for edge, <code>yolov8x</code> for server).</li>
+</ul>
+<h4 id="l3-zone-intersection">L3: Zone Intersection<a class="headerlink" href="#l3-zone-intersection" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Purpose</strong>: Determine which zone(s) each detection falls within.</li>
+<li><strong>Method</strong>: Point-in-polygon test using detection centroid against <code>ZonePerimeter.polygon</code> definitions (fetched from API on startup, cached).</li>
+<li><strong>Key behavior</strong>: Every detection that intersects a zone is logged as a <code>ZoneEvent</code> in PostgreSQL, regardless of downstream classification results.</li>
+</ul>
+<h4 id="l4-identity-pipeline">L4: Identity Pipeline<a class="headerlink" href="#l4-identity-pipeline" title="Permanent link">&para;</a></h4>
+<p>Triggered only for person detections. Requires consent to be active.</p>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>When Used</th>
+<th>Storage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Face embedding</td>
+<td>Face visible in frame</td>
+<td>ChromaDB <code>face_embeddings</code> collection</td>
+</tr>
+<tr>
+<td>Appearance embedding</td>
+<td>Always (full-body crop)</td>
+<td>ChromaDB <code>appearance_embeddings</code> collection</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Matching logic:</strong></p>
+<ol>
+<li>Extract face embedding if face is visible (ArcFace/FaceNet).</li>
+<li>Always extract appearance embedding from full-body crop (OSNet/BoT).</li>
+<li>Query ChromaDB for nearest matches in <code>face_embeddings</code> and <code>appearance_embeddings</code>.</li>
+<li>If best match confidence &gt;= threshold (configurable, default 0.7): assign identity.</li>
+<li>If best match confidence &lt; threshold: flag for human review queue.</li>
+<li>If no match found: create new anonymous track, flag for review.</li>
+</ol>
+<p><strong>Human Review Queue:</strong></p>
+<ul>
+<li>Low-confidence matches are written to <code>IdentityReviewItem</code> in PostgreSQL via the API.</li>
+<li>HQ dashboard displays side-by-side comparisons.</li>
+<li>User can confirm, reject, or create a new identity profile.</li>
+<li>Confirmed matches update ChromaDB embeddings, improving future accuracy.</li>
+</ul>
+<h4 id="l5-action-pose-estimation">L5: Action / Pose Estimation<a class="headerlink" href="#l5-action-pose-estimation" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Purpose</strong>: Classify what the detected person is doing.</li>
+<li><strong>Phase 1</strong> (single-frame): Pose estimation models (YOLO-Pose, MediaPipe, OpenPose) to infer posture and basic action.</li>
+<li><strong>Phase 2</strong> (temporal): Video-based action recognition using sliding window of frames for improved accuracy on actions like loitering, approaching, trying door handles.</li>
+<li><strong>Output</strong>: Action label + confidence (e.g., <code>walking: 0.91</code>, <code>crouching: 0.73</code>).</li>
+</ul>
+<h4 id="l6-event-correlation">L6: Event Correlation<a class="headerlink" href="#l6-event-correlation" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Purpose</strong>: Link detections across frames and cameras into coherent entity tracks.</li>
+<li><strong>Within-camera</strong>: Standard object tracking (SORT, DeepSORT, ByteTrack).</li>
+<li><strong>Cross-camera</strong>: ReID embedding matching + Neo4j zone adjacency graph.</li>
+<li>If a person disappears from Zone A and appears in adjacent Zone B within the learned transit window (queried from <code>ZoneAdjacency</code> or Neo4j) with high appearance similarity, link the tracks.</li>
+<li><strong>Output per entity</strong> (written to <code>EntityTrack</code> in PostgreSQL):</li>
+<li>Movement history (zone sequence + timestamps)</li>
+<li>Dwell times per zone</li>
+<li>Speed / trajectory within camera view</li>
+<li>Behavioral features for threat scoring</li>
+</ul>
+<h4 id="l7-threat-assessment">L7: Threat Assessment<a class="headerlink" href="#l7-threat-assessment" title="Permanent link">&para;</a></h4>
+<p>Combines all upstream data into a threat determination.</p>
+<p><strong>Threat Score Formula:</strong></p>
+<pre class="highlight"><code>threat_score = (
+    zone_sensitivity * zone_weight +      # Zone type and rules
+    time_of_day_factor +                  # Nighttime activity
+    action_suspicion_score +              # Crouching vs walking
+    identity_unknown_penalty +            # Unknown person
+    behavioral_anomaly_score +            # Deviation from learned patterns
+    dwell_time_factor +                   # Lingering in restricted zone
+    zone_transition_anomaly               # Unusual path through zones
+)</code></pre>
+<p><strong>Threat levels:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Score</th>
+<th>Level</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>80-100</td>
+<td>CRITICAL</td>
+<td>Immediate alert, recommend contacting authorities</td>
+</tr>
+<tr>
+<td>60-79</td>
+<td>HIGH</td>
+<td>Alert with full analysis, review footage</td>
+</tr>
+<tr>
+<td>40-59</td>
+<td>MEDIUM</td>
+<td>Monitor for escalation, acknowledge after review</td>
+</tr>
+<tr>
+<td>20-39</td>
+<td>LOW</td>
+<td>Logged, available in dashboard</td>
+</tr>
+<tr>
+<td>0-19</td>
+<td>INFO</td>
+<td>Logged only</td>
+</tr>
+</tbody>
+</table>
+<p><strong>LLM Analysis (via Sentry Intelligence MCP server):</strong></p>
+<p>When a threat score exceeds the configured threshold (default 60), the perception service publishes to <code>sentry.analyze.threat</code> on NATS. The Sentry Intelligence service picks this up and:</p>
+<ol>
+<li>Calls <code>analyze_alert</code> MCP tool with full context</li>
+<li>Includes: zone context document, detection history, identity status, action classification, time of day, zone rules</li>
+<li>LLM produces natural-language threat assessment and recommendations</li>
+<li>Response is attached to the Alert as <code>metadata.llm_analysis</code></li>
+</ol>
+<hr />
+<h2 id="identity-store">Identity Store<a class="headerlink" href="#identity-store" title="Permanent link">&para;</a></h2>
+<h3 id="chromadb-collections">ChromaDB Collections<a class="headerlink" href="#chromadb-collections" title="Permanent link">&para;</a></h3>
+<p>Extends the existing ChromaDB collections (<code>alerts</code>, <code>patterns</code>, <code>incidents</code> from Sentry Intelligence) with perception-specific collections:</p>
+<table>
+<thead>
+<tr>
+<th>Collection</th>
+<th>Embedding Type</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>face_embeddings</code></td>
+<td>Face encoding (ArcFace, FaceNet)</td>
+<td>Stable identity matching</td>
+</tr>
+<tr>
+<td><code>appearance_embeddings</code></td>
+<td>Full-body ReID (OSNet, BoT)</td>
+<td>Clothing-based short-term matching</td>
+</tr>
+<tr>
+<td><code>alerts</code></td>
+<td>Alert text embedding (existing)</td>
+<td>Historical alert similarity</td>
+</tr>
+<tr>
+<td><code>patterns</code></td>
+<td>Threat pattern embedding (existing)</td>
+<td>Known threat pattern matching</td>
+</tr>
+<tr>
+<td><code>incidents</code></td>
+<td>Incident embedding (existing)</td>
+<td>Historical incident matching</td>
+</tr>
+</tbody>
+</table>
+<h3 id="django-models-intelligence-app">Django Models (<code>intelligence</code> App)<a class="headerlink" href="#django-models-intelligence-app" title="Permanent link">&para;</a></h3>
+<p>A new <code>intelligence</code> Django app manages identity profiles and review items:</p>
+<pre class="highlight"><code class="language-python"># intelligence/models.py
+class IdentityProfile(models.Model):
+    class Classification(models.TextChoices):
+        HOUSEHOLD = 'HOUSEHOLD'
+        KNOWN_VISITOR = 'KNOWN_VISITOR'
+        DELIVERY = 'DELIVERY'
+        UNKNOWN = 'UNKNOWN'
+        FLAGGED = 'FLAGGED'
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    label = models.CharField(max_length=255)           # Display name or description
+    classification = models.CharField(max_length=20, choices=Classification.choices,
+                                      default=Classification.UNKNOWN)
+    first_seen = models.DateTimeField()
+    last_seen = models.DateTimeField()
+    total_sightings = models.IntegerField(default=0)
+    known_zones = models.ManyToManyField('zones.Zone', blank=True)
+    human_verified = models.BooleanField(default=False)
+    notes = models.TextField(blank=True)
+    # ChromaDB reference IDs for face/appearance embeddings
+    face_embedding_ids = models.JSONField(default=list)
+    appearance_embedding_ids = models.JSONField(default=list)
+    metadata = models.JSONField(default=dict)
+
+
+class IdentityReviewItem(models.Model):
+    """Queue item for human review of identity matches."""
+    class Status(models.TextChoices):
+        PENDING = 'PENDING'
+        CONFIRMED = 'CONFIRMED'
+        REJECTED = 'REJECTED'
+        NEW_IDENTITY = 'NEW_IDENTITY'
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=Status.choices,
+                              default=Status.PENDING)
+    # The detection that triggered review
+    detection_frame_path = models.CharField(max_length=500)  # MinIO path
+    detection_timestamp = models.DateTimeField()
+    detection_zone = models.ForeignKey('zones.Zone', on_delete=models.SET_NULL, null=True)
+    # Candidate match (if any)
+    candidate_identity = models.ForeignKey(IdentityProfile, null=True, blank=True,
+                                           on_delete=models.SET_NULL)
+    match_confidence = models.FloatField(null=True)
+    # Resolution
+    resolved_at = models.DateTimeField(null=True)
+    resolved_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL,
+                                    related_name='resolved_reviews')
+    resolved_identity = models.ForeignKey(IdentityProfile, null=True, blank=True,
+                                          on_delete=models.SET_NULL,
+                                          related_name='confirmed_reviews')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class ZoneEvent(models.Model):
+    """Every detection in every zone, regardless of classification outcome."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    zone = models.ForeignKey('zones.Zone', on_delete=models.CASCADE)
+    camera = models.ForeignKey('sensors.Sensor', on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(db_index=True)
+    # Detection data
+    object_class = models.CharField(max_length=30)        # person, vehicle, animal, unknown
+    confidence = models.FloatField()
+    bounding_box = models.JSONField()                      # [x1, y1, x2, y2] normalized
+    # Identity (if resolved)
+    identity = models.ForeignKey(IdentityProfile, null=True, blank=True,
+                                 on_delete=models.SET_NULL)
+    identity_confidence = models.FloatField(null=True)
+    # Action (if detected)
+    action = models.CharField(max_length=50, blank=True)   # walking, running, crouching
+    action_confidence = models.FloatField(null=True)
+    # Track linkage
+    track_id = models.UUIDField(null=True, db_index=True)
+    # Frame reference
+    frame_path = models.CharField(max_length=500)          # MinIO path
+    metadata = models.JSONField(default=dict)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['zone', '-timestamp']),
+            models.Index(fields=['track_id', 'timestamp']),
+            models.Index(fields=['identity', '-timestamp']),
+            models.Index(fields=['object_class', '-timestamp']),
+        ]
+
+
+class EntityTrack(models.Model):
+    """A tracked entity across frames and zones."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    identity = models.ForeignKey(IdentityProfile, null=True, blank=True,
+                                 on_delete=models.SET_NULL)
+    started_at = models.DateTimeField()
+    ended_at = models.DateTimeField(null=True)
+    is_active = models.BooleanField(default=True)
+    # Computed behavioral features
+    zone_sequence = models.JSONField(default=list)         # [{"zone_id": .., "enter": .., "exit": ..}]
+    total_dwell_seconds = models.FloatField(default=0)
+    zones_visited = models.IntegerField(default=0)
+    threat_score = models.FloatField(null=True)
+    metadata = models.JSONField(default=dict)</code></pre>
+<h3 id="re-identification-strategy">Re-Identification Strategy<a class="headerlink" href="#re-identification-strategy" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Strengths</th>
+<th>Limitations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Face embedding</td>
+<td>Stable across clothing changes</td>
+<td>Requires frontal/semi-frontal view</td>
+</tr>
+<tr>
+<td>Appearance embedding</td>
+<td>Works at any angle, no face needed</td>
+<td>Breaks with clothing changes</td>
+</tr>
+<tr>
+<td>Hybrid (face + appearance)</td>
+<td>Best overall accuracy</td>
+<td>Higher compute cost</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Primary</strong>: Hybrid approach. Use face when available, always compute appearance.</li>
+<li><strong>Long-term identity</strong>: Face embeddings (persistent across days).</li>
+<li><strong>Short-term tracking</strong>: Appearance embeddings (within a session/day).</li>
+</ul>
+<hr />
+<h2 id="multi-camera-tracking">Multi-Camera Tracking<a class="headerlink" href="#multi-camera-tracking" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-topological-tracking-near-term">Phase 1: Topological Tracking (Near-term)<a class="headerlink" href="#phase-1-topological-tracking-near-term" title="Permanent link">&para;</a></h3>
+<p>Uses the zone adjacency graph (stored in both PostgreSQL <code>ZoneAdjacency</code> and Neo4j) to correlate entities across cameras without 3D reconstruction.</p>
+<pre class="highlight"><code>Camera A (front door)          Camera B (hallway)
+  +------------+                 +------------+
+  |  *-&gt;       |                 |       -&gt;*  |
+  | person     |                 |    person  |
+  | exits      |                 |    enters  |
+  | t=0:00     |                 |    t=0:08  |
+  +------------+                 +------------+
+                    |
+                    v
+         Event Correlation:
+         "Person exited Zone A at t=0:00,
+          appeared in Zone B at t=0:08.
+          Transit time ~8s. Likely same person
+          (appearance similarity: 0.82)"</code></pre>
+<p><strong>Implementation:</strong></p>
+<ol>
+<li>Perception service maintains in-memory track state per camera.</li>
+<li>When a track ends in one camera, it publishes <code>tracks.{track_id}.exit</code> to NATS with the last appearance embedding.</li>
+<li>When a new track begins in another camera, it queries ChromaDB for recent exit embeddings.</li>
+<li>If similarity exceeds threshold AND zones are adjacent (Neo4j query) AND transit time is plausible, tracks are linked.</li>
+<li>Linked tracks share an <code>EntityTrack</code> record in PostgreSQL.</li>
+</ol>
+<h3 id="phase-2-spatial-reconstruction-future">Phase 2: Spatial Reconstruction (Future)<a class="headerlink" href="#phase-2-spatial-reconstruction-future" title="Permanent link">&para;</a></h3>
+<p>Full spatial model reconstructing movement paths in physical space.</p>
+<p><strong>Requirements (deferred):</strong></p>
+<ul>
+<li>Camera calibration (position, angle, lens parameters).</li>
+<li>Homography estimation for floor-plane projection.</li>
+<li>Multi-view fusion for overlapping camera fields.</li>
+<li>Bird's-eye-view occupancy map reconstruction.</li>
+<li>Probabilistic position estimation in unobserved areas using transit models.</li>
+</ul>
+<hr />
+<h2 id="data-flow">Data Flow<a class="headerlink" href="#data-flow" title="Permanent link">&para;</a></h2>
+<h3 id="end-to-end-frame-processing">End-to-End Frame Processing<a class="headerlink" href="#end-to-end-frame-processing" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code>IP Camera / Edge Agent
+    |
+    | RTSP / frame capture
+    v
+[Edge Agent] -- stores frame --&gt; [MinIO: frames/{camera_id}/{date}/{ts}.jpg]
+    |
+    | publishes notification
+    v
+[NATS: frames.{camera_id}.raw]
+    |
+    | perception service subscribes
+    v
+[estate-sentry-perception]
+    |
+    +-- L1: Motion gate (skip if no motion)
+    +-- L2: Object detection (YOLO)
+    +-- L3: Zone intersection (query ZonePerimeter from cache)
+    |       |
+    |       +-- writes --&gt; [Django API: POST /api/intelligence/zone-events/]
+    |                           |
+    |                           v
+    |                      [PostgreSQL: intelligence_zoneevent]
+    |
+    +-- L4: Identity pipeline
+    |       |
+    |       +-- queries/writes --&gt; [ChromaDB: face_embeddings, appearance_embeddings]
+    |       +-- writes review --&gt; [Django API: POST /api/intelligence/identity-reviews/]
+    |
+    +-- L5: Pose estimation
+    +-- L6: Event correlation
+    |       |
+    |       +-- queries --&gt; [Neo4j: Zone adjacency, entity graphs]
+    |       +-- writes --&gt; [Django API: PATCH /api/intelligence/tracks/{id}/]
+    |
+    +-- L7: Threat assessment
+            |
+            +-- publishes --&gt; [NATS: alerts.{severity}]
+            +-- writes --&gt; [Django API: POST /api/alerts/]
+            +-- if high score --&gt; [NATS: sentry.analyze.threat]
+                                      |
+                                      v
+                               [Sentry Intelligence MCP]
+                                      |
+                                      v
+                               [Claude / LLM analysis]</code></pre>
+<h3 id="storage-responsibilities">Storage Responsibilities<a class="headerlink" href="#storage-responsibilities" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Store</th>
+<th>Data</th>
+<th>Retention</th>
+<th>Access Pattern</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PostgreSQL (TimescaleDB)</td>
+<td>Zone events, entity tracks, identity profiles (metadata), alerts, zone config, review queue</td>
+<td>Configurable (default 1 year for events, indefinite for config)</td>
+<td>CRUD via Django ORM</td>
+</tr>
+<tr>
+<td>ChromaDB</td>
+<td>Face embeddings, appearance embeddings, alert/threat pattern vectors</td>
+<td>Indefinite (identity store)</td>
+<td>Vector similarity queries from perception service</td>
+</tr>
+<tr>
+<td>Neo4j</td>
+<td>Zone adjacency graph, entity relationship graph, threat correlation patterns</td>
+<td>Indefinite (intelligence graph)</td>
+<td>Graph traversals from perception service and Sentry Intelligence</td>
+</tr>
+<tr>
+<td>MinIO</td>
+<td>Camera frames, evidence snapshots, video clips</td>
+<td>Configurable (default 30 days, extended for flagged events)</td>
+<td>Object storage from edge agents, read by perception + HQ</td>
+</tr>
+</tbody>
+</table>
+<h3 id="neo4j-graph-schema-extensions">Neo4j Graph Schema Extensions<a class="headerlink" href="#neo4j-graph-schema-extensions" title="Permanent link">&para;</a></h3>
+<p>New node and relationship types for the perception system, extending the existing Neo4j schema (<code>:Sensor</code>, <code>:Alert</code>, <code>:Location</code>, <code>:ThreatPattern</code>):</p>
+<pre class="highlight"><code class="language-cypher">// Zone nodes
+(:Zone {id: $uuid, name: "Front Porch", zone_type: "ENTRY"})
+
+// Zone adjacency
+(:Zone)-[:ADJACENT_TO {transit_seconds: 5.0, sample_count: 142}]-&gt;(:Zone)
+
+// Camera-zone binding
+(:Sensor {sensor_type: "CAMERA"})-[:COVERS]-&gt;(:Zone)
+
+// Identity nodes
+(:Identity {id: $uuid, label: "John", classification: "HOUSEHOLD"})
+
+// Track nodes (ephemeral, for correlation queries)
+(:Track {id: $uuid, started_at: datetime(), active: true})
+
+// Relationships
+(:Track)-[:ENTERED]-&gt;(:Zone)
+(:Track)-[:IDENTIFIED_AS {confidence: 0.85}]-&gt;(:Identity)
+(:Identity)-[:SEEN_IN]-&gt;(:Zone)
+(:Track)-[:TRIGGERED]-&gt;(:Alert)</code></pre>
+<hr />
+<h2 id="api-surface">API Surface<a class="headerlink" href="#api-surface" title="Permanent link">&para;</a></h2>
+<h3 id="zone-management-new-zones-app">Zone Management (new <code>zones</code> app)<a class="headerlink" href="#zone-management-new-zones-app" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Method</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/api/zones/</code></td>
+<td>GET, POST</td>
+<td>List / create zones</td>
+</tr>
+<tr>
+<td><code>/api/zones/{id}/</code></td>
+<td>GET, PUT, DELETE</td>
+<td>Zone CRUD</td>
+</tr>
+<tr>
+<td><code>/api/zones/{id}/perimeters/</code></td>
+<td>GET, POST</td>
+<td>Zone perimeter polygons per camera</td>
+</tr>
+<tr>
+<td><code>/api/zones/{id}/rules/</code></td>
+<td>GET, POST, DELETE</td>
+<td>Zone rule management</td>
+</tr>
+<tr>
+<td><code>/api/zones/{id}/adjacency/</code></td>
+<td>GET, PUT</td>
+<td>Zone adjacency configuration</td>
+</tr>
+<tr>
+<td><code>/api/zones/graph/</code></td>
+<td>GET</td>
+<td>Full zone adjacency graph (from Neo4j)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="intelligence-new-intelligence-app">Intelligence (new <code>intelligence</code> app)<a class="headerlink" href="#intelligence-new-intelligence-app" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Method</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/api/intelligence/zone-events/</code></td>
+<td>GET, POST</td>
+<td>Zone event log (paginated, filterable)</td>
+</tr>
+<tr>
+<td><code>/api/intelligence/tracks/</code></td>
+<td>GET</td>
+<td>Entity tracks (active + recent)</td>
+</tr>
+<tr>
+<td><code>/api/intelligence/tracks/{id}/</code></td>
+<td>GET, PATCH</td>
+<td>Single track with full history</td>
+</tr>
+<tr>
+<td><code>/api/intelligence/identities/</code></td>
+<td>GET, POST</td>
+<td>Identity profile CRUD</td>
+</tr>
+<tr>
+<td><code>/api/intelligence/identities/{id}/</code></td>
+<td>GET, PUT, DELETE</td>
+<td>Single identity profile</td>
+</tr>
+<tr>
+<td><code>/api/intelligence/identity-reviews/</code></td>
+<td>GET, POST</td>
+<td>Human review queue</td>
+</tr>
+<tr>
+<td><code>/api/intelligence/identity-reviews/{id}/resolve/</code></td>
+<td>POST</td>
+<td>Confirm / reject / create identity</td>
+</tr>
+</tbody>
+</table>
+<h3 id="perception-status-new-endpoints-on-api">Perception Status (new endpoints on <code>api</code>)<a class="headerlink" href="#perception-status-new-endpoints-on-api" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Method</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/api/perception/status/</code></td>
+<td>GET</td>
+<td>Pipeline health, processing stats, model info</td>
+</tr>
+<tr>
+<td><code>/api/perception/config/</code></td>
+<td>GET, PUT</td>
+<td>Runtime perception configuration</td>
+</tr>
+</tbody>
+</table>
+<h3 id="existing-endpoints-unchanged">Existing Endpoints (unchanged)<a class="headerlink" href="#existing-endpoints-unchanged" title="Permanent link">&para;</a></h3>
+<p>The existing <code>sensors</code>, <code>alerts</code>, and <code>authentication</code> endpoints remain unchanged. New fields (<code>zone</code> FK on Sensor and Alert) are additive and backward-compatible.</p>
+<hr />
+<h2 id="frontend-integration-estate-sentry-apihq">Frontend Integration (estate-sentry-api/hq)<a class="headerlink" href="#frontend-integration-estate-sentry-apihq" title="Permanent link">&para;</a></h2>
+<h3 id="new-pages">New Pages<a class="headerlink" href="#new-pages" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/zones</code></td>
+<td>Zone list with map/grid view</td>
+</tr>
+<tr>
+<td><code>/zones/[id]</code></td>
+<td>Zone detail: cameras, sensors, perimeter editor, rules, event feed</td>
+</tr>
+<tr>
+<td><code>/zones/[id]/draw</code></td>
+<td>Perimeter polygon drawing tool (canvas overlay on camera feed)</td>
+</tr>
+<tr>
+<td><code>/identity</code></td>
+<td>Identity profile list with search/filter</td>
+</tr>
+<tr>
+<td><code>/identity/[id]</code></td>
+<td>Identity detail: sightings, zones, review history</td>
+</tr>
+<tr>
+<td><code>/identity/review</code></td>
+<td>Human review queue: side-by-side comparison UI</td>
+</tr>
+<tr>
+<td><code>/perception</code></td>
+<td>Perception pipeline status dashboard</td>
+</tr>
+</tbody>
+</table>
+<h3 id="new-components">New Components<a class="headerlink" href="#new-components" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ZoneGrid</code></td>
+<td>Grid/card view of all zones with status indicators</td>
+</tr>
+<tr>
+<td><code>ZoneDetail</code></td>
+<td>Zone info, context editor, rule manager</td>
+</tr>
+<tr>
+<td><code>PerimeterEditor</code></td>
+<td>Canvas-based polygon drawing over camera snapshot</td>
+</tr>
+<tr>
+<td><code>ZoneEventFeed</code></td>
+<td>Real-time event log for a zone (via EventSource/NATS)</td>
+</tr>
+<tr>
+<td><code>IdentityCard</code></td>
+<td>Identity profile summary card</td>
+</tr>
+<tr>
+<td><code>ReviewComparison</code></td>
+<td>Side-by-side detection vs. candidate identity for review</td>
+</tr>
+<tr>
+<td><code>TrackTimeline</code></td>
+<td>Visual timeline of an entity's movement across zones</td>
+</tr>
+<tr>
+<td><code>PerceptionStatus</code></td>
+<td>Pipeline health, FPS, model stats, queue depth</td>
+</tr>
+</tbody>
+</table>
+<h3 id="real-time-updates">Real-Time Updates<a class="headerlink" href="#real-time-updates" title="Permanent link">&para;</a></h3>
+<p>The existing EventSource infrastructure (<code>lib/streamHandler.ts</code>, <code>lib/sensorRelay.ts</code>) extends to support:</p>
+<ul>
+<li>Zone events: <code>/api/intelligence/zone-events/stream</code> (SSE)</li>
+<li>Identity review notifications: <code>/api/intelligence/identity-reviews/stream</code> (SSE)</li>
+<li>Perception pipeline status: <code>/api/perception/status/stream</code> (SSE)</li>
+</ul>
+<hr />
+<h2 id="sensor-handler-evolution">Sensor Handler Evolution<a class="headerlink" href="#sensor-handler-evolution" title="Permanent link">&para;</a></h2>
+<h3 id="camerahandler-extension">CameraHandler Extension<a class="headerlink" href="#camerahandler-extension" title="Permanent link">&para;</a></h3>
+<p>The existing <code>CameraHandler</code> in <code>sensors/handlers/camera.py</code> evolves to publish frame notifications to NATS instead of only processing locally:</p>
+<pre class="highlight"><code class="language-python"># sensors/handlers/camera.py (evolved)
+class CameraHandler(BaseSensorHandler):
+    SENSOR_TYPES = ['CAMERA']
+    PROTOCOLS = ['rtsp', 'rest', 'websocket']
+    VERSION = '2.0.0'
+
+    def process_reading(self, data: dict) -&gt; dict:
+        processed = {
+            'frame_path': data.get('frame_path'),
+            'motion_detected': data.get('motion_detected', False),
+            'timestamp': data.get('timestamp'),
+            'resolution': data.get('resolution'),
+        }
+
+        # Publish frame notification to NATS for perception pipeline
+        if processed['frame_path']:
+            self._publish_frame_notification(processed)
+
+        return processed
+
+    def detect_threats(self, reading: dict) -&gt; list:
+        # Basic motion alerts remain for backward compatibility
+        # Full perception pipeline handles advanced threat detection
+        alerts = []
+        if reading.get('motion_detected'):
+            alerts.append({
+                'alert_type': 'MOTION',
+                'severity': 'LOW',
+                'title': f"Motion detected on {self.sensor.name}",
+                'description': f"Camera {self.sensor.name} detected motion",
+            })
+        return alerts</code></pre>
+<p>The camera handler continues to provide basic motion alerts. The perception service provides the advanced analysis layer on top.</p>
+<hr />
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
+<pre class="highlight"><code class="language-yaml">sentry_intelligence:
+  # Consent
+  consent:
+    required: true
+    disclaimer_version: "1.0"
+
+  # Perception Pipeline
+  perception:
+    motion_gate:
+      enabled: true
+      sensitivity: medium            # low, medium, high
+    object_detection:
+      model: yolov8n                 # yolov8n (edge), yolov8m, yolov8x (server)
+      confidence_threshold: 0.5
+      device: auto                   # cpu, cuda, auto
+    identity:
+      face_model: arcface            # Face embedding model
+      appearance_model: osnet        # ReID appearance model
+      match_threshold: 0.7           # Confidence threshold for identity match
+      review_queue_enabled: true
+    pose_estimation:
+      model: yolov8n-pose
+      temporal_window: null          # null = single-frame, int = frame count
+
+  # Zone Defaults
+  zones:
+    default_log_all: true
+    default_alert_unknown_person: true
+    transit_time_learning: true
+    transit_time_window_multiplier: 2.0  # Allow 2x learned transit time
+
+  # Threat Assessment
+  threat:
+    weights:
+      zone_sensitivity: 1.0
+      time_of_day: 1.0
+      action_suspicion: 1.0
+      identity_unknown: 1.5
+      behavioral_anomaly: 1.0
+      dwell_time: 1.0
+    nighttime_hours: [0, 6]          # 00:00 - 06:00
+    llm_analysis_threshold: 60       # Minimum score to trigger LLM analysis
+
+  # Storage
+  storage:
+    frame_retention_days: 30
+    flagged_event_retention_days: 365
+    embedding_collection_prefix: "estate_sentry"</code></pre>
+<hr />
+<h2 id="implementation-phases">Implementation Phases<a class="headerlink" href="#implementation-phases" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-zone-foundation">Phase 1: Zone Foundation<a class="headerlink" href="#phase-1-zone-foundation" title="Permanent link">&para;</a></h3>
+<p><strong>Django changes:</strong></p>
+<ul>
+<li>New <code>zones</code> app with <code>Zone</code>, <code>ZonePerimeter</code>, <code>ZoneAdjacency</code>, <code>ZoneRule</code> models</li>
+<li>Add <code>zone</code> FK to existing <code>Sensor</code> and <code>Alert</code> models</li>
+<li>Zone CRUD API endpoints</li>
+<li><code>IntelligenceConsent</code> model in <code>authentication</code> app</li>
+</ul>
+<p><strong>Neo4j changes:</strong></p>
+<ul>
+<li><code>:Zone</code> nodes and <code>:ADJACENT_TO</code> relationships</li>
+<li><code>:Sensor</code>-<code>:COVERS</code>-&gt;<code>:Zone</code> relationships</li>
+</ul>
+<p><strong>HQ changes:</strong></p>
+<ul>
+<li><code>/zones</code> page with zone list/grid</li>
+<li><code>/zones/[id]</code> detail page with context editor and rule manager</li>
+</ul>
+<h3 id="phase-2-perception-core">Phase 2: Perception Core<a class="headerlink" href="#phase-2-perception-core" title="Permanent link">&para;</a></h3>
+<p><strong>New service:</strong></p>
+<ul>
+<li><code>estate-sentry-perception/</code> directory and Dockerfile</li>
+<li>L1 motion gate</li>
+<li>L2 object detection (YOLO)</li>
+<li>L3 zone intersection (with perimeter polygon checking)</li>
+<li>NATS subscription to <code>frames.{camera_id}.raw</code></li>
+<li>Zone event writing to API</li>
+</ul>
+<p><strong>Django changes:</strong></p>
+<ul>
+<li>New <code>intelligence</code> app with <code>ZoneEvent</code> model</li>
+<li>Zone event API endpoints</li>
+</ul>
+<p><strong>HQ changes:</strong></p>
+<ul>
+<li><code>ZoneEventFeed</code> component</li>
+<li><code>/perception</code> status page</li>
+<li>Perimeter polygon drawing tool</li>
+</ul>
+<h3 id="phase-3-identity-tracking">Phase 3: Identity &amp; Tracking<a class="headerlink" href="#phase-3-identity-tracking" title="Permanent link">&para;</a></h3>
+<p><strong>Perception service:</strong></p>
+<ul>
+<li>L4 identity pipeline (face + appearance embeddings)</li>
+<li>ChromaDB integration for embedding storage/query</li>
+<li>Within-camera object tracking (DeepSORT/ByteTrack)</li>
+</ul>
+<p><strong>Django changes:</strong></p>
+<ul>
+<li><code>IdentityProfile</code>, <code>IdentityReviewItem</code> models</li>
+<li>Identity CRUD and review queue API endpoints</li>
+</ul>
+<p><strong>HQ changes:</strong></p>
+<ul>
+<li><code>/identity</code> pages (list, detail)</li>
+<li><code>/identity/review</code> human review queue UI</li>
+<li><code>ReviewComparison</code> component</li>
+</ul>
+<h3 id="phase-4-correlation-assessment">Phase 4: Correlation &amp; Assessment<a class="headerlink" href="#phase-4-correlation-assessment" title="Permanent link">&para;</a></h3>
+<p><strong>Perception service:</strong></p>
+<ul>
+<li>L5 action/pose estimation (single-frame)</li>
+<li>L6 cross-camera event correlation (Neo4j adjacency queries)</li>
+<li>L7 threat assessment with scoring</li>
+<li>Alert generation via API</li>
+</ul>
+<p><strong>Django changes:</strong></p>
+<ul>
+<li><code>EntityTrack</code> model</li>
+<li>Track API endpoints</li>
+</ul>
+<p><strong>Neo4j changes:</strong></p>
+<ul>
+<li><code>:Track</code>, <code>:Identity</code> nodes</li>
+<li><code>:ENTERED</code>, <code>:IDENTIFIED_AS</code>, <code>:SEEN_IN</code> relationships</li>
+</ul>
+<p><strong>HQ changes:</strong></p>
+<ul>
+<li><code>TrackTimeline</code> component</li>
+<li>Enhanced alert detail with perception context</li>
+</ul>
+<h3 id="phase-5-intelligence-integration">Phase 5: Intelligence Integration<a class="headerlink" href="#phase-5-intelligence-integration" title="Permanent link">&para;</a></h3>
+<p><strong>Sentry Intelligence (MCP server):</strong></p>
+<ul>
+<li>New MCP tools: <code>analyze_zone_event</code>, <code>correlate_tracks</code>, <code>assess_identity</code></li>
+<li>LLM analysis triggered by threat score threshold</li>
+<li>Case report generation with perception data</li>
+</ul>
+<p><strong>Camera handler evolution:</strong></p>
+<ul>
+<li>CameraHandler v2 publishes to NATS</li>
+<li>Basic motion alerts preserved for backward compatibility</li>
+</ul>
+<h3 id="phase-6-advanced-capabilities-future">Phase 6: Advanced Capabilities (Future)<a class="headerlink" href="#phase-6-advanced-capabilities-future" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Temporal action recognition (video-based)</li>
+<li>Multi-view spatial reconstruction</li>
+<li>Gait-based identification</li>
+<li>Bird's-eye-view occupancy mapping</li>
+<li>Zone adjacency auto-inference from detection correlations</li>
+</ul>
+<hr />
+<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../architecture/overview/">Architecture Overview</a> - System-level architecture</li>
+<li><a href="../architecture/switchboard/">Switchboard Architecture</a> - NATS + MinIO data routing</li>
+<li><a href="../architecture/sentry-intelligence/">Sentry Intelligence</a> - MCP server and AI engine</li>
+<li><a href="../architecture/database/">Database Architecture</a> - Storage layer schemas</li>
+<li><a href="../architecture/device-abstraction/">Device Abstraction</a> - Sensor handler framework</li>
+<li><a href="../architecture/security/">Security Architecture</a> - Authentication and data protection</li>
+<li><a href="../Todo/">Development Roadmap</a> - Implementation task tracking</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../Todo/" class="btn btn-neutral float-right" title="Roadmap">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/QR-Madness/estate-sentry" class="fa fa-code-fork" style="color: #fcfcfc"> estate-sentry</a>
+        </span>
+    
+    
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../Todo/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
