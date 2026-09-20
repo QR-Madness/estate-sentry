@@ -25,6 +25,7 @@ The dashboard shows live camera tiles and a detection feed.
 - Redis as the Django cache, so DRF's rate limits hold across worker processes
 - JSON Schema validation and size ceilings on every JSONField (`core/`)
 - Append-only security audit log, captured by allowlisted async-capable middleware
+- Ed25519 signatures on sensor readings, with timestamp and nonce replay defence
 
 **Known gap**
 
@@ -40,8 +41,7 @@ so the behaviour is visible rather than surprising. JSON Schema validation
 
 - L4 identity, L5 action/pose, L6 correlation, L7 threat scoring
 - Neo4j and ChromaDB integration
-- Remaining Milestone 1 items: certificate binding for trusted devices, and
-  sensor reading signatures
+- Remaining Milestone 1 item: certificate binding for trusted devices
 
 **Intelligence model split**
 
@@ -87,12 +87,11 @@ This is L7 / Sentry Intelligence territory and nothing depends on it yet.
       would stop a copied token working from somewhere else
 - [x] Add rate limiting to authentication endpoints, plus a per-account lockout
 - [x] Add rate limiting to sensor reading endpoints (60/minute per sensor)
-- [ ] Add `public_key` to `Sensor` and verify reading signatures — rescued from
-      issue #4, which predates the Django rewrite. Every other field it asked
-      for exists; this one does not, and nothing else records it. Today any
-      account holder can post any reading as any of their sensors, so a reading
-      is only as trustworthy as the account token. Signing makes a reading
-      attributable to the device that produced it
+- [x] Add `public_key` to `Sensor` and verify reading signatures — rescued from
+      issue #4, which predates the Django rewrite. Ed25519, so only public keys
+      are stored and a leaked database cannot forge a reading. Enrolled out of
+      band with `manage.py enroll_sensor_key`; `signed_at` and a burned nonce
+      stop a captured reading being replayed
 - [x] Create `core/validators.py` with JSON Schema validators
 - [x] Add JSON Schema validation to `connection_config` and `metadata` fields
 - [x] Implement `audit` Django app with `AuditLog` model

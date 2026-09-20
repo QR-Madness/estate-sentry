@@ -130,6 +130,25 @@ Handler-to-type mapping is in `SensorReadingCreateSerializer.validate()` and `Se
       protects a leaked database, not a live endpoint.
 - **sensors** — `Sensor` and `SensorReading` models. `SensorViewSet` with custom `readings` (POST) and `reading_history` (GET) actions. Handler framework dispatches to type-specific processors.
     - Ingest is throttled at **60/min per sensor** by `sensors.throttling.SensorReadingRateThrottle`, keyed on the sensor *and* its caller. Per-account keying would have made every sensor on an estate share one budget; sensor-only keying would have let any authenticated account drain a stranger's budget, since throttles run before `get_object()` establishes ownership. Only the write path is bounded — `reading_history` is a read and is left alone.
+    - Readings can be **signed** (`sensors/signing.py`). Ed25519, not an HMAC
+      shared secret: only the public key is stored, so a leaked database cannot
+      forge. The device sends `nonce` and `signed_at` in the body and the
+      signature base64 in an `X-Sensor-Signature` header. What is signed is
+      `json.dumps({"nonce", "sensor_id", "signed_at", "value"}, sort_keys=True,
+      separators=(",", ":"), ensure_ascii=True)` over the **raw** value — the
+      device signs what it said, not what the handler normalises it into — and
+      `sensor_id` is inside the payload so a signature cannot be replayed at
+      another sensor. Freshness is a ±5 minute window; the nonce is burned in
+      the cache for twice that, and only *after* the signature verifies, since
+      burning first would let anyone deny a sensor by spending the nonces it was
+      about to use.
+    - Rollout is staged rather than a flag day: no key means unsigned is
+      accepted; a key with `require_signature` off verifies signatures when
+      present; turning it on makes them mandatory. `require_signature` with no
+      key fails closed.
+    - Keys are enrolled **out of band** with `manage.py enroll_sensor_key`, and
+      `public_key`/`require_signature` are read-only over the API. A key the
+      account token could rotate is a key it could forge around.
 - **alerts** — `Alert` model with severity levels (INFO→CRITICAL) and acknowledgment flow. Read-only viewset with `acknowledge` (PATCH) and `statistics` (GET) actions.
 - **zones** — `Zone`, `ZonePerimeter`, `ZoneAdjacency`, `ZoneRule`. Perimeters are polygons in **normalised 0-1** coordinates, not pixels, so a resolution change does not invalidate them. `Sensor` and `Alert` both carry a nullable `zone` FK.
 - **intelligence** — `ZoneEvent`, the append-only detection log. No update or delete route: it is evidence, written once by the pipeline. The identity, action and track columns in the specification belong to L4-L6 and are deliberately absent.

@@ -46,6 +46,10 @@ dependencies = [
     "minio>=7.2.0",
     # ChromaDB client
     "chromadb>=0.4.0",
+    # Ed25519 for sensor reading signatures (sensors/signing.py). Only public
+    # keys are stored, so a leaked database cannot forge a reading — which an
+    # HMAC shared secret would not give us.
+    "cryptography>=42.0.0",
     # JSON Schema validation for the JSONFields (core/schemas.py). Declared
     # explicitly: it resolves today only as a transitive dependency of chromadb,
     # and code that imports it directly should not depend on that continuing.

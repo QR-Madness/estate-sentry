@@ -4,6 +4,7 @@ from rest_framework import serializers
 from core.validators import for_field
 
 from .models import Sensor, SensorReading
+from .signing import SIGNATURE_HEADER, SignatureError, enforce_policy
 
 
 class SensorSerializer(serializers.ModelSerializer):
@@ -18,9 +19,18 @@ class SensorSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'sensor_type', 'sensor_type_display', 'location',
             'status', 'status_display', 'handler_class', 'connection_config',
-            'metadata', 'owner', 'owner_username', 'created_at', 'updated_at'
+            'metadata', 'public_key', 'require_signature', 'owner',
+            'owner_username', 'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'owner', 'created_at', 'updated_at']
+        # `public_key` and `require_signature` are visible but not settable.
+        # Enrolling a key is an out-of-band act, like enrolling a trusted
+        # device: if the account token could rotate the key, an attacker holding
+        # that token could simply install their own and sign whatever they
+        # liked. Use `manage.py enroll_sensor_key`.
+        read_only_fields = [
+            'id', 'owner', 'created_at', 'updated_at',
+            'public_key', 'require_signature',
+        ]
 
     def create(self, validated_data):
         """Set the owner to the current user."""
@@ -52,12 +62,36 @@ class SensorReadingCreateSerializer(serializers.Serializer):
     value = serializers.JSONField()
     reading_type = serializers.CharField(required=False, allow_blank=True)
 
+    # Signature material. Write-only and popped before the row is built: these
+    # authenticate the reading, they are not part of it.
+    nonce = serializers.CharField(
+        required=False, allow_blank=True, max_length=128, write_only=True
+    )
+    signed_at = serializers.CharField(
+        required=False, allow_blank=True, max_length=64, write_only=True
+    )
+
     def validate(self, data):
         """Validate the reading data using the sensor's handler."""
         sensor = self.context.get('sensor')
 
         if not sensor:
             raise serializers.ValidationError("Sensor context is required")
+
+        # Authenticity first, and against the *raw* value: the device signed
+        # what it sent, not the shape the handler will normalise it into. This
+        # also means a forged reading is refused before any handler runs on it.
+        nonce = data.pop('nonce', '')
+        signed_at = data.pop('signed_at', '')
+        request = self.context.get('request')
+        signature = (
+            request.META.get(SIGNATURE_HEADER, '') if request is not None else ''
+        )
+
+        try:
+            enforce_policy(sensor, signature, nonce, signed_at, data['value'])
+        except SignatureError as exc:
+            raise serializers.ValidationError({'signature': str(exc)}) from exc
 
         # Get the appropriate handler for this sensor type
         from .handlers.camera import CameraHandler

@@ -43,6 +43,23 @@ class Sensor(models.Model):
         help_text='Python path to the sensor handler class'
     )
 
+    # Device attestation. Set out of band with `manage.py enroll_sensor_key`,
+    # never over the API: a key that the account token can rotate is a key the
+    # account token can forge around, which would undo the point of having one.
+    public_key = models.CharField(
+        max_length=64,
+        blank=True,
+        default='',
+        help_text='Base64 Ed25519 public key (32 raw bytes) used to verify '
+                  'this sensor\'s readings. Empty means readings are unsigned.'
+    )
+
+    require_signature = models.BooleanField(
+        default=False,
+        help_text='Refuse readings that are not signed by this sensor\'s key. '
+                  'Leave off while rolling signing out, then turn on to enforce.'
+    )
+
     # Connection and configuration stored as JSON
     connection_config = models.JSONField(
         default=dict,
