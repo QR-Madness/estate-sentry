@@ -510,9 +510,14 @@ tasks:
   # ============================================================================
   ci:test:
     desc: Run CI tests (mimics CI environment)
+    # Mirrors the two test workflows. Perception belongs here as much as the
+    # API does: its suite runs without the `detect` extra, so it costs a
+    # fraction of a second and there is no reason for CI to skip it.
     cmds:
       - task: api:lint
       - task: api:test
+      - task: perception:lint
+      - task: perception:test
       - echo "CI checks complete"
 
   ci:build:

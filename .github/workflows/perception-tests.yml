@@ -1,0 +1,40 @@
+name: Perception Tests
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: estate-sentry-perception
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        # No `--extra detect`. The base dependency set is deliberately light and
+        # the ML stack is optional, so the suite installs and runs without torch
+        # — the detect module imports it lazily, inside the functions that need
+        # it. Pulling several gigabytes of tensors here would buy nothing: no
+        # test exercises inference.
+        run: uv sync --frozen
+
+      - name: Lint with ruff
+        run: uv run ruff check .
+
+      - name: Run tests
+        run: uv run pytest

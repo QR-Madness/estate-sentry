@@ -271,4 +271,8 @@ Key docs:
 
 **`.github/workflows/api-tests.yml`** — Runs on push/PR to master. Uses `uv sync`, then `ruff check`, `manage.py check` and `manage.py test` against `estate-sentry-api/` — the same tooling as local dev.
 
+**`.github/workflows/perception-tests.yml`** — Runs on push/PR to master. Uses `uv sync`, then `ruff check` and `pytest` against `estate-sentry-perception/`. Installs **without** the `detect` extra: the tests do not exercise inference, and `detect.py` imports torch and transformers lazily, so the suite runs in well under a second with no ML stack.
+
 **`.github/workflows/docs.yml`** — Deploys mkdocs to GitHub Pages on push to master.
+
+`task ci:test` runs the lint and test halves of both test workflows locally.
