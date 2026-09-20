@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.db import models
 
+from core.validators import for_field
+
 
 class Alert(models.Model):
     """
@@ -76,6 +78,7 @@ class Alert(models.Model):
     # Additional metadata
     metadata = models.JSONField(
         default=dict,
+        validators=for_field('alert.metadata'),
         help_text='Additional alert context and data'
     )
 

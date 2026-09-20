@@ -135,6 +135,25 @@ Handler-to-type mapping is in `SensorReadingCreateSerializer.validate()` and `Se
 - **intelligence** — `ZoneEvent`, the append-only detection log. No update or delete route: it is evidence, written once by the pipeline. The identity, action and track columns in the specification belong to L4-L6 and are deliberately absent.
 - **hq** — the dashboard. Async streaming views only; the rest is one template.
 
+**`core/`** is a plain Python package, not an app — it has no models, so no
+migrations and no `INSTALLED_APPS` entry. It holds the JSONField validators.
+Every `JSONField` carries a JSON Schema and a size ceiling, registered by name in
+`core/schemas.py` and attached with `core.validators.for_field('<name>')`.
+
+- Validators hold the schema **name**, not the schema, so tightening one does not
+  generate a migration. They are `@deconstructible` with `__eq__`, without which
+  `makemigrations` either fails or writes a no-op migration on every run.
+- Schemas compile once at import; `check_schema` makes a malformed one a startup
+  failure rather than a surprise on the first request. Ingest runs 60/min per
+  sensor, so recompiling per request would be waste.
+- They are permissive — `additionalProperties` stays open — because the per-type
+  schemas that would close it belong on the handler (`get_connection_schema()`,
+  Milestone 2). What they bound today is shape and size.
+- `SensorReadingCreateSerializer` validates `value` **explicitly**: it is a plain
+  `Serializer`, so DRF has no model field to copy validators from, and
+  `objects.create()` never calls `full_clean()`. `SensorSerializer` is a
+  `ModelSerializer` and inherits them without wiring.
+
 ### Dashboard overlay
 
 Detection brackets and zone perimeters are drawn **in the browser**, over the

@@ -23,6 +23,7 @@ The dashboard shows live camera tiles and a detection feed.
 - Development producer in `../mock-estate/` on the real frame contract
 - Ingest rate limiting: 60/min per sensor on the readings endpoint
 - Redis as the Django cache, so DRF's rate limits hold across worker processes
+- JSON Schema validation and size ceilings on every JSONField (`core/`)
 
 **Known gap**
 
@@ -38,8 +39,8 @@ so the behaviour is visible rather than surprising. JSON Schema validation
 
 - L4 identity, L5 action/pose, L6 correlation, L7 threat scoring
 - Neo4j and ChromaDB integration
-- Remaining Milestone 1 items: JSON Schema validation on the JSONFields, the
-  audit log, and certificate binding for trusted devices
+- Remaining Milestone 1 items: the audit log, certificate binding for trusted
+  devices, and sensor reading signatures
 
 **Intelligence model split**
 
@@ -91,11 +92,11 @@ This is L7 / Sentry Intelligence territory and nothing depends on it yet.
       account holder can post any reading as any of their sensors, so a reading
       is only as trustworthy as the account token. Signing makes a reading
       attributable to the device that produced it
-- [ ] Create `core/validators.py` with JSON Schema validators
-- [ ] Add JSON Schema validation to `connection_config` and `metadata` fields
+- [x] Create `core/validators.py` with JSON Schema validators
+- [x] Add JSON Schema validation to `connection_config` and `metadata` fields
 - [ ] Implement `audit` Django app with `AuditLog` model
 - [ ] Add audit middleware for automatic security event capture
-- [ ] Configure maximum payload sizes for JSONFields
+- [x] Configure maximum payload sizes for JSONFields
 
 ---
 

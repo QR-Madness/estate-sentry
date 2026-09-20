@@ -46,6 +46,10 @@ dependencies = [
     "minio>=7.2.0",
     # ChromaDB client
     "chromadb>=0.4.0",
+    # JSON Schema validation for the JSONFields (core/schemas.py). Declared
+    # explicitly: it resolves today only as a transitive dependency of chromadb,
+    # and code that imports it directly should not depend on that continuing.
+    "jsonschema>=4.20.0",
     # Cache backend. Django's RedisCache is built in; this is the client it
     # drives. Not optional in any deployment that runs more than one worker:
     # DRF counts rate limits in the cache, and a per-process cache silently

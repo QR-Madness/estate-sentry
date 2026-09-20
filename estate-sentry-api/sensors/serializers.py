@@ -1,4 +1,7 @@
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
+
+from core.validators import for_field
 
 from .models import Sensor, SensorReading
 
@@ -39,6 +42,10 @@ class SensorReadingSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'timestamp', 'processed']
 
 
+#: Built once at import. Ingest is a hot path and these are reused per request.
+_VALUE_VALIDATORS = for_field('sensor_reading.value')
+
+
 class SensorReadingCreateSerializer(serializers.Serializer):
     """Serializer for creating sensor readings with validation."""
 
@@ -73,6 +80,22 @@ class SensorReadingCreateSerializer(serializers.Serializer):
 
             # Process the reading data
             data['value'] = handler.process_reading(data['value'])
+
+        # Schema and size, checked on the *processed* value, because that is
+        # what gets stored. This has to be explicit: the model field carries the
+        # same validators, but this is a plain Serializer, not a
+        # ModelSerializer, so DRF has no field to copy them onto — and
+        # `objects.create()` never calls `full_clean()`. Without this the
+        # model-level validators would be decorative on the ingest path.
+        #
+        # It matters most for the seven sensor types that have no handler: the
+        # block above does not run for them, so this is the only thing standing
+        # between the wire and the database.
+        for validator in _VALUE_VALIDATORS:
+            try:
+                validator(data['value'])
+            except DjangoValidationError as exc:
+                raise serializers.ValidationError({'value': exc.messages}) from exc
 
         return data
 

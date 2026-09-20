@@ -412,12 +412,15 @@ class UnhandledSensorTypeTests(SensorTestCase):
 
     `GLASS_BREAK`, `MOTION`, `SMOKE`, `CO`, `WATER_LEAK`, `TEMPERATURE` and
     `CUSTOM` are absent from the handler map in `sensors/serializers.py`, so
-    `validate()` falls through and stores whatever arrives, unchecked and
-    unnormalised.
+    `validate()` falls through: the payload is stored unnormalised and no threat
+    detection runs for them.
 
-    These tests pin the behaviour as it is today rather than endorse it. It is
-    the gap JSON Schema validation closes — `docs/Todo.md`, Milestone 1 — and
-    the handler registry after that. Expect them to change then.
+    JSON Schema validation has since bounded the *shape* — it must be an object,
+    within a size ceiling (see `JSONSchemaEnforcementTests`) — but shape is all
+    it can bound without knowing what a glass-break reading is supposed to
+    contain. That knowledge belongs on a handler, so these tests pin current
+    behaviour rather than endorse it, and should change when the handler
+    registry lands (Milestone 2).
     """
 
     UNHANDLED = [
@@ -473,3 +476,93 @@ class UnhandledSensorTypeTests(SensorTestCase):
         )
 
         self.assertEqual(Alert.objects.count(), 0)
+
+
+class JSONSchemaEnforcementTests(SensorTestCase):
+    """Schema and size limits at the API boundary.
+
+    The ingest path needed these wired explicitly: `SensorReadingCreateSerializer`
+    is a plain `Serializer`, so DRF has no model field to copy validators from,
+    and `objects.create()` never calls `full_clean()`.
+    """
+
+    def test_a_scalar_reading_value_is_refused(self):
+        """The real tightening. `value` was a bare `JSONField`, so a sensor
+        type without a handler could store `42` or `"open"` where every
+        consumer expects an object."""
+        sensor = Sensor.objects.create(
+            name='Hall PIR', sensor_type='MOTION', location='Hall', owner=self.owner,
+        )
+
+        response = self.client.post(
+            f'/api/sensors/{sensor.pk}/readings/',
+            {'value': 42, 'reading_type': 'x'}, format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('value', response.data)
+        self.assertEqual(SensorReading.objects.count(), 0)
+
+    def test_an_oversize_reading_value_is_refused(self):
+        sensor = Sensor.objects.create(
+            name='Hall PIR', sensor_type='MOTION', location='Hall', owner=self.owner,
+        )
+
+        response = self.client.post(
+            f'/api/sensors/{sensor.pk}/readings/',
+            {'value': {'blob': 'x' * 70_000}, 'reading_type': 'x'}, format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(SensorReading.objects.count(), 0)
+
+    def test_a_handled_reading_is_validated_after_processing(self):
+        """The processed shape is what gets stored, so that is what is
+        checked. A contact reading survives the round trip."""
+        sensor = self.make_sensor()
+
+        response = self.post_reading(sensor)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_a_bad_connection_config_is_refused_on_sensor_creation(self):
+        """Pins the assumption the model-level validators rest on: DRF copies
+        model field validators onto ModelSerializer fields. `SensorSerializer`
+        is a ModelSerializer, so it inherits them without further wiring."""
+        response = self.client.post('/api/sensors/', {
+            'name': 'Bad Cam', 'sensor_type': 'CAMERA', 'location': 'Gate',
+            'connection_config': {'port': 99999, 'protocol': 'carrier-pigeon'},
+        }, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('connection_config', response.data)
+        self.assertEqual(Sensor.objects.count(), 0)
+
+    def test_the_error_names_every_problem_at_once(self):
+        response = self.client.post('/api/sensors/', {
+            'name': 'Bad Cam', 'sensor_type': 'CAMERA', 'location': 'Gate',
+            'connection_config': {'port': 99999, 'protocol': 'carrier-pigeon'},
+        }, format='json')
+
+        self.assertEqual(
+            len(response.data['connection_config']), 2,
+            'a caller should not have to fix these one retry at a time',
+        )
+
+    def test_a_valid_connection_config_is_accepted(self):
+        response = self.client.post('/api/sensors/', {
+            'name': 'Good Cam', 'sensor_type': 'CAMERA', 'location': 'Gate',
+            'connection_config': {'host': 'cam.local', 'port': 554, 'protocol': 'https'},
+        }, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_unknown_config_keys_still_pass(self):
+        """Permissive by design: per-type schemas belong on the handler
+        (Milestone 2) and do not exist yet."""
+        response = self.client.post('/api/sensors/', {
+            'name': 'Odd Cam', 'sensor_type': 'CAMERA', 'location': 'Gate',
+            'connection_config': {'vendor_specific_thing': {'a': [1, 2, 3]}},
+        }, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)

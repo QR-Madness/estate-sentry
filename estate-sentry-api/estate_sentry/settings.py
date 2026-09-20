@@ -158,6 +158,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Custom User Model
 AUTH_USER_MODEL = 'authentication.User'
 
+# Cap the request body Django will buffer. The JSONField validators bound
+# individual fields; this is the outer bound, before any of them run, and keeps
+# a large body from being parsed at all. Generous for this API: a reading is
+# tens of bytes and a zone polygon a few kilobytes.
+DATA_UPLOAD_MAX_MEMORY_SIZE = 1 * 1024 * 1024  # 1 MiB
+
+
 # Cache
 #
 # This is load-bearing for security, not just performance. DRF keeps rate-limit

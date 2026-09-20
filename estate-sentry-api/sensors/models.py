@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.db import models
 
+from core.validators import for_field
+
 
 class Sensor(models.Model):
     """
@@ -44,11 +46,13 @@ class Sensor(models.Model):
     # Connection and configuration stored as JSON
     connection_config = models.JSONField(
         default=dict,
+        validators=for_field('sensor.connection_config'),
         help_text='Connection details (IP, port, credentials, etc.)'
     )
 
     metadata = models.JSONField(
         default=dict,
+        validators=for_field('sensor.metadata'),
         help_text='Additional sensor metadata'
     )
 
@@ -99,6 +103,7 @@ class SensorReading(models.Model):
 
     # Flexible value storage for different sensor types
     value = models.JSONField(
+        validators=for_field('sensor_reading.value'),
         help_text='Sensor reading value (format depends on sensor type)'
     )
 
