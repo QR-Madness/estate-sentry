@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Estate Sentry Contributors" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Node Deployment - Estate Sentry</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Node Deployment";
+        var mkdocs_page_input_path = "guides/node-deployment.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/typescript.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Estate Sentry
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Specification/">Specification</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Todo/">Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/installation/">Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/quickstart/">Quick Start</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/docker-setup/">Docker Setup</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../task-reference/">Task Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../api-usage/">API Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../plugin-development/">Plugin Development</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Node Deployment</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#single-node-deployment">Single-Node Deployment</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#quick-start">Quick Start</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verify-installation">Verify Installation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#access-points">Access Points</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#multi-node-deployment">Multi-Node Deployment</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#network-planning">Network Planning</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#node-configuration">Node Configuration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#primary-node-setup">Primary Node Setup</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#secondary-node-setup">Secondary Node Setup</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#manual-node-registration">Manual Node Registration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verify-multi-node-setup">Verify Multi-Node Setup</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#certificate-management">Certificate Management</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#view-certificates">View Certificates</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#rotate-certificates">Rotate Certificates</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#revoke-node">Revoke Node</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#zone-configuration">Zone Configuration</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#create-zone-file">Create Zone File</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#apply-zone-configuration">Apply Zone Configuration</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#firewall-configuration">Firewall Configuration</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#required-ports">Required Ports</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#ufw-rules">UFW Rules</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#backup-and-recovery">Backup and Recovery</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#backup-primary-node">Backup Primary Node</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#restore-to-new-hardware">Restore to New Hardware</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#promote-secondary-to-primary">Promote Secondary to Primary</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#monitoring-nodes">Monitoring Nodes</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#health-checks">Health Checks</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#view-sync-status">View Sync Status</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#node-not-discovering-peers">Node Not Discovering Peers</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#certificate-errors">Certificate Errors</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#sync-issues">Sync Issues</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#node-offline">Node Offline</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#production-checklist">Production Checklist</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#related-documentation">Related Documentation</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../mcp-integration/">MCP Integration</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Architecture</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/database/">Database</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/decentralization/">Decentralization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/switchboard/">Switchboard</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/security/">Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/device-abstraction/">Device Abstraction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../architecture/sentry-intelligence/">Sentry Intelligence</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operations</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../operations/monitoring/">Monitoring</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Contributing</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../contributing/development/">Development Guide</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Estate Sentry</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Guides</li>
+      <li class="breadcrumb-item active">Node Deployment</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/QR-Madness/estate-sentry/edit/master/docs/guides/node-deployment.md">Edit on estate-sentry</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="node-deployment-guide">Node Deployment Guide<a class="headerlink" href="#node-deployment-guide" title="Permanent link">&para;</a></h1>
+<p>This guide covers deploying Estate Sentry in single-node and multi-node configurations.</p>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Linux-based system (Ubuntu 22.04+ recommended)</li>
+<li>Docker and Docker Compose</li>
+<li>2GB RAM minimum (4GB recommended)</li>
+<li>Network connectivity between nodes (for multi-node)</li>
+</ul>
+<h2 id="single-node-deployment">Single-Node Deployment<a class="headerlink" href="#single-node-deployment" title="Permanent link">&para;</a></h2>
+<h3 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Clone the repository
+git clone https://github.com/yourusername/estate-sentry.git
+cd estate-sentry
+
+# Copy environment template
+cp .env.example .env
+
+# Edit configuration
+nano .env
+
+# Build and start services
+task docker:build
+task docker:up
+
+# Run database migrations
+task db:migrate:docker
+
+# Create admin user
+task api:superuser</code></pre>
+<h3 id="verify-installation">Verify Installation<a class="headerlink" href="#verify-installation" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Check running services
+task docker:ps
+
+# View logs
+task docker:logs
+
+# Test API
+curl http://localhost:8000/api/sensors/</code></pre>
+<h3 id="access-points">Access Points<a class="headerlink" href="#access-points" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>URL</th>
+<th>Credentials</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>API</td>
+<td>http://localhost:8000</td>
+<td>Token auth</td>
+</tr>
+<tr>
+<td>Dashboard</td>
+<td>http://localhost:8000/hq/</td>
+<td>Login required</td>
+</tr>
+<tr>
+<td>Neo4j Browser</td>
+<td>http://localhost:7474</td>
+<td>neo4j / changeme</td>
+</tr>
+<tr>
+<td>MinIO Console</td>
+<td>http://localhost:9001</td>
+<td>estate-sentry / changeme</td>
+</tr>
+</tbody>
+</table>
+<h2 id="multi-node-deployment">Multi-Node Deployment<a class="headerlink" href="#multi-node-deployment" title="Permanent link">&para;</a></h2>
+<h3 id="network-planning">Network Planning<a class="headerlink" href="#network-planning" title="Permanent link">&para;</a></h3>
+<p>Before deploying multiple nodes, plan your network:</p>
+<pre class="highlight"><code>Zone: Main House
+├── Node: living-room (Primary)
+│   ├── IP: 192.168.1.10
+│   └── Sensors: front_door, motion_lr, camera_front
+│
+├── Node: kitchen (Secondary)
+│   ├── IP: 192.168.1.11
+│   └── Sensors: back_door, smoke_kitchen
+
+Zone: Guest House
+└── Node: guest (Primary)
+    ├── IP: 192.168.2.10
+    └── Sensors: guest_door, guest_motion</code></pre>
+<h3 id="node-configuration">Node Configuration<a class="headerlink" href="#node-configuration" title="Permanent link">&para;</a></h3>
+<p>Each node needs a unique configuration:</p>
+<pre class="highlight"><code class="language-bash"># .env on each node
+NODE_ID=unique-uuid-here
+NODE_NAME=living-room
+NODE_ZONE=main-house
+NODE_ROLE=primary  # or 'secondary'
+
+# Network
+NODE_HOST=192.168.1.10
+NODE_API_PORT=8000
+NODE_GRPC_PORT=8443
+
+# Cluster
+CLUSTER_DISCOVERY=mdns  # or 'manual'
+CLUSTER_PEERS=192.168.1.11:8443,192.168.2.10:8443  # for manual</code></pre>
+<h3 id="primary-node-setup">Primary Node Setup<a class="headerlink" href="#primary-node-setup" title="Permanent link">&para;</a></h3>
+<p>The first node becomes the zone primary:</p>
+<pre class="highlight"><code class="language-bash"># On primary node (e.g., living-room)
+cd estate-sentry
+
+# Generate node identity
+python manage.py generate_node_identity
+
+# Start services
+task docker:up
+
+# Initialize as primary
+python manage.py init_primary --zone main-house</code></pre>
+<p>This generates:</p>
+<ul>
+<li>Node UUID</li>
+<li>Certificate signing request</li>
+<li>Self-signed CA (for zone)</li>
+</ul>
+<h3 id="secondary-node-setup">Secondary Node Setup<a class="headerlink" href="#secondary-node-setup" title="Permanent link">&para;</a></h3>
+<p>Additional nodes join via discovery or manual registration:</p>
+<pre class="highlight"><code class="language-bash"># On secondary node (e.g., kitchen)
+cd estate-sentry
+
+# Generate node identity
+python manage.py generate_node_identity
+
+# Join existing zone
+python manage.py join_zone --primary 192.168.1.10</code></pre>
+<p>The join process:</p>
+<ol>
+<li>Connects to primary node</li>
+<li>Submits certificate signing request</li>
+<li>Receives signed certificate</li>
+<li>Starts data synchronization</li>
+</ol>
+<h3 id="manual-node-registration">Manual Node Registration<a class="headerlink" href="#manual-node-registration" title="Permanent link">&para;</a></h3>
+<p>For nodes on different networks:</p>
+<pre class="highlight"><code class="language-bash"># On the primary node
+curl -X POST http://localhost:8000/api/nodes/register/ \
+  -H "Authorization: Token &lt;admin-token&gt;" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "guest-house",
+    "address": "192.168.2.10:8443",
+    "zone": "guest",
+    "public_key": "&lt;base64-encoded-key&gt;"
+  }'</code></pre>
+<h3 id="verify-multi-node-setup">Verify Multi-Node Setup<a class="headerlink" href="#verify-multi-node-setup" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Check node status on any node
+curl http://localhost:8000/api/nodes/
+
+# Expected response
+{
+  "nodes": [
+    {
+      "id": "uuid-1",
+      "name": "living-room",
+      "zone": "main-house",
+      "role": "primary",
+      "status": "online",
+      "last_heartbeat": "2025-01-23T10:00:00Z"
+    },
+    {
+      "id": "uuid-2",
+      "name": "kitchen",
+      "zone": "main-house",
+      "role": "secondary",
+      "status": "online",
+      "last_heartbeat": "2025-01-23T10:00:01Z"
+    }
+  ]
+}</code></pre>
+<h2 id="certificate-management">Certificate Management<a class="headerlink" href="#certificate-management" title="Permanent link">&para;</a></h2>
+<h3 id="view-certificates">View Certificates<a class="headerlink" href="#view-certificates" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># List node certificates
+python manage.py list_certificates
+
+# Output
+NODE                ZONE        EXPIRES         STATUS
+living-room         main-house  2025-04-23      valid
+kitchen             main-house  2025-04-23      valid
+guest-house         guest       2025-04-20      expiring_soon</code></pre>
+<h3 id="rotate-certificates">Rotate Certificates<a class="headerlink" href="#rotate-certificates" title="Permanent link">&para;</a></h3>
+<p>Certificates auto-rotate 14 days before expiry. To manually rotate:</p>
+<pre class="highlight"><code class="language-bash"># Rotate specific node
+python manage.py rotate_certificate --node guest-house
+
+# Rotate all expiring
+python manage.py rotate_certificates --expiring</code></pre>
+<h3 id="revoke-node">Revoke Node<a class="headerlink" href="#revoke-node" title="Permanent link">&para;</a></h3>
+<p>Remove a compromised or decommissioned node:</p>
+<pre class="highlight"><code class="language-bash"># Revoke node certificate
+python manage.py revoke_node --node kitchen --reason decommissioned
+
+# This will:
+# 1. Revoke the certificate
+# 2. Remove from cluster
+# 3. Prevent reconnection</code></pre>
+<h2 id="zone-configuration">Zone Configuration<a class="headerlink" href="#zone-configuration" title="Permanent link">&para;</a></h2>
+<h3 id="create-zone-file">Create Zone File<a class="headerlink" href="#create-zone-file" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-yaml"># zones.yaml
+zones:
+  main-house:
+    description: "Primary residence"
+    primary_node: living-room
+    failover_priority:
+      - kitchen
+      - bedroom
+    settings:
+      replication_factor: 2
+      sync_interval_seconds: 5
+
+  guest-house:
+    description: "Guest cottage"
+    primary_node: guest
+    standalone: true  # No failover
+    settings:
+      replication_factor: 1</code></pre>
+<h3 id="apply-zone-configuration">Apply Zone Configuration<a class="headerlink" href="#apply-zone-configuration" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Apply zone config
+python manage.py apply_zones --config zones.yaml
+
+# Verify
+python manage.py show_zones</code></pre>
+<h2 id="firewall-configuration">Firewall Configuration<a class="headerlink" href="#firewall-configuration" title="Permanent link">&para;</a></h2>
+<h3 id="required-ports">Required Ports<a class="headerlink" href="#required-ports" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Port</th>
+<th>Protocol</th>
+<th>Purpose</th>
+<th>Open To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8000</td>
+<td>TCP</td>
+<td>REST API</td>
+<td>Clients, other nodes</td>
+</tr>
+<tr>
+<td>8443</td>
+<td>TCP</td>
+<td>gRPC</td>
+<td>Other nodes only</td>
+</tr>
+<tr>
+<td>5353</td>
+<td>UDP</td>
+<td>mDNS</td>
+<td>LAN only</td>
+</tr>
+<tr>
+<td>4222</td>
+<td>TCP</td>
+<td>NATS</td>
+<td>Other nodes only</td>
+</tr>
+<tr>
+<td>7474</td>
+<td>TCP</td>
+<td>Neo4j HTTP</td>
+<td>Admin only</td>
+</tr>
+<tr>
+<td>7687</td>
+<td>TCP</td>
+<td>Neo4j Bolt</td>
+<td>Local only</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ufw-rules">UFW Rules<a class="headerlink" href="#ufw-rules" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># API access (from anywhere)
+ufw allow 8000/tcp comment "Estate Sentry API"
+
+# gRPC (from cluster only)
+ufw allow from 192.168.1.0/24 to any port 8443 comment "ES gRPC cluster"
+ufw allow from 192.168.2.0/24 to any port 8443 comment "ES gRPC guest zone"
+
+# mDNS (LAN only)
+ufw allow 5353/udp comment "mDNS discovery"
+
+# NATS (cluster only)
+ufw allow from 192.168.1.0/24 to any port 4222 comment "NATS cluster"</code></pre>
+<h2 id="backup-and-recovery">Backup and Recovery<a class="headerlink" href="#backup-and-recovery" title="Permanent link">&para;</a></h2>
+<h3 id="backup-primary-node">Backup Primary Node<a class="headerlink" href="#backup-primary-node" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Full backup (database + certificates + config)
+task backup:full
+
+# Backup location: ./data/backups/backup_TIMESTAMP.tar.gz</code></pre>
+<h3 id="restore-to-new-hardware">Restore to New Hardware<a class="headerlink" href="#restore-to-new-hardware" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># On new hardware
+git clone https://github.com/yourusername/estate-sentry.git
+cd estate-sentry
+
+# Restore backup
+task backup:restore --file backup_2025-01-23.tar.gz
+
+# Reconfigure network (if IP changed)
+python manage.py update_node_address --address 192.168.1.10
+
+# Restart services
+task docker:restart</code></pre>
+<h3 id="promote-secondary-to-primary">Promote Secondary to Primary<a class="headerlink" href="#promote-secondary-to-primary" title="Permanent link">&para;</a></h3>
+<p>If primary fails permanently:</p>
+<pre class="highlight"><code class="language-bash"># On secondary node
+python manage.py promote_to_primary
+
+# This will:
+# 1. Assume primary role
+# 2. Update cluster configuration
+# 3. Notify other nodes</code></pre>
+<h2 id="monitoring-nodes">Monitoring Nodes<a class="headerlink" href="#monitoring-nodes" title="Permanent link">&para;</a></h2>
+<h3 id="health-checks">Health Checks<a class="headerlink" href="#health-checks" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Check all nodes
+curl http://localhost:8000/api/nodes/health/
+
+# Response
+{
+  "cluster_healthy": true,
+  "nodes": {
+    "living-room": {
+      "status": "healthy",
+      "cpu": 15.2,
+      "memory": 42.1,
+      "disk": 23.5,
+      "sensors": 5,
+      "pending_sync": 0
+    },
+    "kitchen": {
+      "status": "healthy",
+      "cpu": 8.1,
+      "memory": 38.4,
+      "disk": 21.2,
+      "sensors": 2,
+      "pending_sync": 3
+    }
+  }
+}</code></pre>
+<h3 id="view-sync-status">View Sync Status<a class="headerlink" href="#view-sync-status" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Check synchronization status
+curl http://localhost:8000/api/nodes/sync/status/
+
+# Response
+{
+  "last_sync": "2025-01-23T10:00:00Z",
+  "pending_events": 0,
+  "sync_lag_seconds": 0,
+  "peers": {
+    "kitchen": {"synced": true, "lag": 0},
+    "guest": {"synced": true, "lag": 2}
+  }
+}</code></pre>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="node-not-discovering-peers">Node Not Discovering Peers<a class="headerlink" href="#node-not-discovering-peers" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Check mDNS
+avahi-browse -a | grep estate-sentry
+
+# If no results, check avahi-daemon
+systemctl status avahi-daemon
+
+# Verify multicast is enabled
+ip link show | grep MULTICAST</code></pre>
+<h3 id="certificate-errors">Certificate Errors<a class="headerlink" href="#certificate-errors" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Verify certificate chain
+openssl verify -CAfile ca.pem node.pem
+
+# Check certificate details
+openssl x509 -in node.pem -text -noout
+
+# Common issues:
+# - Clock skew between nodes
+# - Expired certificates
+# - Wrong CA certificate</code></pre>
+<h3 id="sync-issues">Sync Issues<a class="headerlink" href="#sync-issues" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Force full sync
+python manage.py force_sync --node kitchen
+
+# Check event log
+python manage.py show_event_log --limit 100
+
+# Clear stuck events
+python manage.py clear_sync_queue --node kitchen</code></pre>
+<h3 id="node-offline">Node Offline<a class="headerlink" href="#node-offline" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Check node status
+curl http://localhost:8000/api/nodes/living-room/
+
+# If node is unreachable:
+# 1. Check network connectivity
+ping 192.168.1.10
+
+# 2. Check services on remote node
+ssh user@192.168.1.10 "task docker:ps"
+
+# 3. View remote logs
+ssh user@192.168.1.10 "task docker:logs"</code></pre>
+<h2 id="production-checklist">Production Checklist<a class="headerlink" href="#production-checklist" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Change all default passwords</li>
+<li>[ ] Generate unique NODE_ID for each node</li>
+<li>[ ] Configure firewall rules</li>
+<li>[ ] Set up SSL/TLS certificates</li>
+<li>[ ] Configure backup schedule</li>
+<li>[ ] Set up monitoring alerts</li>
+<li>[ ] Document network topology</li>
+<li>[ ] Test failover procedure</li>
+<li>[ ] Configure log rotation</li>
+<li>[ ] Set up remote access (VPN)</li>
+</ul>
+<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../../architecture/decentralization/">Decentralization Architecture</a></li>
+<li><a href="../../architecture/security/">Security Architecture</a></li>
+<li><a href="../../operations/monitoring/">Monitoring Guide</a></li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../plugin-development/" class="btn btn-neutral float-left" title="Plugin Development"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../mcp-integration/" class="btn btn-neutral float-right" title="MCP Integration">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/QR-Madness/estate-sentry" class="fa fa-code-fork" style="color: #fcfcfc"> estate-sentry</a>
+        </span>
+    
+    
+      <span><a href="../plugin-development/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../mcp-integration/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

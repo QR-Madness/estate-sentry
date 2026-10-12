@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Estate Sentry Contributors" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Decentralization - Estate Sentry</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Decentralization";
+        var mkdocs_page_input_path = "architecture/decentralization.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/typescript.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Estate Sentry
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Specification/">Specification</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Todo/">Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/installation/">Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/quickstart/">Quick Start</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/docker-setup/">Docker Setup</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/task-reference/">Task Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/api-usage/">API Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/plugin-development/">Plugin Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/node-deployment/">Node Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/mcp-integration/">MCP Integration</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Architecture</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../database/">Database</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Decentralization</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#node-types">Node Types</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#zone-node">Zone Node</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#federation-hub-optional">Federation Hub (Optional)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#node-discovery">Node Discovery</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#mdns-discovery-automatic">mDNS Discovery (Automatic)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#manual-registration-wanremote">Manual Registration (WAN/Remote)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#inter-node-communication">Inter-Node Communication</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#protocol-grpc-with-mtls">Protocol: gRPC with mTLS</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#mtls-certificate-management">mTLS Certificate Management</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#data-synchronization">Data Synchronization</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#event-sourcing-model">Event Sourcing Model</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#vector-clocks">Vector Clocks</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#sync-priority-tiers">Sync Priority Tiers</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#sync-protocol">Sync Protocol</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#failover-and-redundancy">Failover and Redundancy</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#node-failure-detection">Node Failure Detection</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#leader-election">Leader Election</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#data-replication">Data Replication</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#graceful-degradation">Graceful Degradation</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#zone-configuration">Zone Configuration</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#defining-zones">Defining Zones</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#cross-zone-communication">Cross-Zone Communication</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#network-requirements">Network Requirements</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#minimum-bandwidth">Minimum Bandwidth</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#port-requirements">Port Requirements</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#firewall-configuration">Firewall Configuration</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#deployment-patterns">Deployment Patterns</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#single-node-developmentsmall-home">Single Node (Development/Small Home)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#multi-node-estate">Multi-Node Estate</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#enterprise-with-hub">Enterprise with Hub</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#future-enhancements">Future Enhancements</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#related-documentation">Related Documentation</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../switchboard/">Switchboard</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../security/">Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../device-abstraction/">Device Abstraction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../sentry-intelligence/">Sentry Intelligence</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operations</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../operations/monitoring/">Monitoring</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Contributing</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../contributing/development/">Development Guide</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Estate Sentry</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Architecture</li>
+      <li class="breadcrumb-item active">Decentralization</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/QR-Madness/estate-sentry/edit/master/docs/architecture/decentralization.md">Edit on estate-sentry</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="decentralized-node-architecture">Decentralized Node Architecture<a class="headerlink" href="#decentralized-node-architecture" title="Permanent link">&para;</a></h1>
+<p>Estate Sentry is designed from the ground up for decentralized deployment across multiple nodes within an estate. This architecture provides redundancy, fault tolerance, and scalability for installations ranging from small homes to large estates with hundreds of sensors.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>The decentralized architecture follows a <strong>Hybrid Mesh-Federation</strong> pattern, combining the benefits of peer-to-peer mesh networking with optional centralized intelligence coordination.</p>
+<pre class="highlight"><code>                    +-------------------+
+                    |  Federation Hub   |  (Optional Cloud/Central)
+                    |  (Sentry Brain)   |
+                    +--------+----------+
+                             |
+            +----------------+----------------+
+            |                |                |
+    +-------v------+  +------v-------+  +-----v--------+
+    |  Zone Node   |  |  Zone Node   |  |  Zone Node   |
+    |  (Primary)   |--|  (Secondary) |--|  (Guest)     |
+    +-------+------+  +------+-------+  +-----+--------+
+            |                |                |
+    +-------v------+  +------v-------+  +-----v--------+
+    | Local Sensors|  | Local Sensors|  | Local Sensors|
+    +-------------+   +--------------+  +--------------+</code></pre>
+<h2 id="node-types">Node Types<a class="headerlink" href="#node-types" title="Permanent link">&para;</a></h2>
+<h3 id="zone-node">Zone Node<a class="headerlink" href="#zone-node" title="Permanent link">&para;</a></h3>
+<p>A Zone Node is a compute unit responsible for a logical area of the estate. Each zone operates autonomously and can continue functioning even when disconnected from other nodes.</p>
+<p><strong>Responsibilities:</strong>
+- Collect data from local sensors
+- Run the Switchboard for local sensor routing
+- Process sensor readings through handlers
+- Generate alerts for local events
+- Synchronize with other nodes</p>
+<p><strong>Hardware Examples:</strong>
+- Raspberry Pi 4/5
+- Intel NUC
+- Any Linux-capable device</p>
+<h3 id="federation-hub-optional">Federation Hub (Optional)<a class="headerlink" href="#federation-hub-optional" title="Permanent link">&para;</a></h3>
+<p>The Federation Hub provides centralized intelligence and coordination. It's optional - the system works without it, but adds advanced capabilities when present.</p>
+<p><strong>Responsibilities:</strong>
+- Run the Sentry Intelligence service
+- Aggregate data from all zones
+- Perform cross-zone threat correlation
+- Generate estate-wide reports
+- Coordinate leader election</p>
+<p><strong>Deployment Options:</strong>
+- Local server (recommended for privacy)
+- Cloud instance (for remote access)
+- High-powered Zone Node (dual-purpose)</p>
+<h2 id="node-discovery">Node Discovery<a class="headerlink" href="#node-discovery" title="Permanent link">&para;</a></h2>
+<p>Nodes discover each other through a combination of automatic and manual methods.</p>
+<h3 id="mdns-discovery-automatic">mDNS Discovery (Automatic)<a class="headerlink" href="#mdns-discovery-automatic" title="Permanent link">&para;</a></h3>
+<p>On the local network, nodes automatically discover each other using mDNS (Multicast DNS), also known as Bonjour or Avahi.</p>
+<pre class="highlight"><code class="language-python"># Example mDNS service advertisement
+service_type = "_estate-sentry._tcp.local."
+service_name = "zone-primary._estate-sentry._tcp.local."
+properties = {
+    "node_id": "uuid-here",
+    "role": "zone_primary",
+    "zone": "main_house",
+    "version": "2.0.0"
+}</code></pre>
+<p><strong>Discovery Process:</strong>
+1. Node starts and advertises its service via mDNS
+2. Other nodes on the LAN detect the advertisement
+3. Nodes exchange credentials and establish trust
+4. Mesh topology is formed automatically</p>
+<h3 id="manual-registration-wanremote">Manual Registration (WAN/Remote)<a class="headerlink" href="#manual-registration-wanremote" title="Permanent link">&para;</a></h3>
+<p>For nodes not on the same LAN (guest houses, remote locations), manual registration is required.</p>
+<pre class="highlight"><code class="language-bash"># Register a remote node
+curl -X POST https://primary-node:8000/api/nodes/register/ \
+  -H "Authorization: Token &lt;admin-token&gt;" \
+  -d '{
+    "name": "guest-house",
+    "address": "192.168.2.100:8000",
+    "zone": "guest",
+    "certificate": "&lt;base64-cert&gt;"
+  }'</code></pre>
+<h2 id="inter-node-communication">Inter-Node Communication<a class="headerlink" href="#inter-node-communication" title="Permanent link">&para;</a></h2>
+<h3 id="protocol-grpc-with-mtls">Protocol: gRPC with mTLS<a class="headerlink" href="#protocol-grpc-with-mtls" title="Permanent link">&para;</a></h3>
+<p>All inter-node communication uses gRPC (Google Remote Procedure Call) secured with mutual TLS (mTLS).</p>
+<p><strong>Why gRPC:</strong>
+- Efficient binary protocol (Protocol Buffers)
+- Bi-directional streaming support
+- Built-in load balancing
+- Strong typing and code generation</p>
+<p><strong>Protocol Buffer Definitions:</strong></p>
+<pre class="highlight"><code class="language-protobuf">// node.proto
+syntax = "proto3";
+
+package estate_sentry.nodes;
+
+service NodeService {
+  // Health and status
+  rpc Heartbeat(HeartbeatRequest) returns (HeartbeatResponse);
+  rpc GetStatus(StatusRequest) returns (StatusResponse);
+
+  // Data synchronization
+  rpc SyncEvents(stream EventBatch) returns (stream SyncAck);
+  rpc RequestSync(SyncRequest) returns (stream EventBatch);
+
+  // Alert propagation
+  rpc PropagateAlert(Alert) returns (AlertAck);
+
+  // Leader election
+  rpc RequestVote(VoteRequest) returns (VoteResponse);
+  rpc AppendEntries(EntriesRequest) returns (EntriesResponse);
+}
+
+message HeartbeatRequest {
+  string node_id = 1;
+  int64 timestamp = 2;
+  NodeMetrics metrics = 3;
+}
+
+message EventBatch {
+  repeated Event events = 1;
+  VectorClock clock = 2;
+}
+
+message VectorClock {
+  map&lt;string, int64&gt; clocks = 1;
+}</code></pre>
+<h3 id="mtls-certificate-management">mTLS Certificate Management<a class="headerlink" href="#mtls-certificate-management" title="Permanent link">&para;</a></h3>
+<p>Each node has a unique certificate signed by an internal Certificate Authority (CA).</p>
+<p><strong>Certificate Hierarchy:</strong>
+<pre class="highlight"><code>Estate Sentry Root CA
+├── Zone Primary Certificate
+│   ├── Zone Secondary Certificate
+│   └── Zone Sensor Certificate
+├── Guest Zone Certificate
+└── Federation Hub Certificate</code></pre></p>
+<p><strong>Certificate Lifecycle:</strong>
+1. Node generates key pair on first boot
+2. Node requests certificate from CA (primary node or hub)
+3. CA validates node identity and signs certificate
+4. Certificate is rotated every 90 days automatically</p>
+<h2 id="data-synchronization">Data Synchronization<a class="headerlink" href="#data-synchronization" title="Permanent link">&para;</a></h2>
+<h3 id="event-sourcing-model">Event Sourcing Model<a class="headerlink" href="#event-sourcing-model" title="Permanent link">&para;</a></h3>
+<p>All changes are captured as events in an append-only log, enabling reliable synchronization and replay.</p>
+<pre class="highlight"><code class="language-python">class EventLog(models.Model):
+    """Append-only event log for synchronization."""
+    node_id = models.UUIDField(index=True)
+    event_type = models.CharField(max_length=100)
+    entity_type = models.CharField(max_length=100)  # sensor, alert, reading
+    entity_id = models.UUIDField()
+    payload = models.JSONField()
+    vector_clock = models.JSONField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    synced_to = models.JSONField(default=list)</code></pre>
+<h3 id="vector-clocks">Vector Clocks<a class="headerlink" href="#vector-clocks" title="Permanent link">&para;</a></h3>
+<p>Vector clocks track causality across distributed nodes, enabling conflict detection.</p>
+<pre class="highlight"><code class="language-python"># Example vector clock
+{
+    "node-primary": 42,
+    "node-secondary": 38,
+    "node-guest": 15
+}</code></pre>
+<p><strong>Conflict Resolution:</strong>
+- Concurrent events are detected via vector clock comparison
+- CRDT (Conflict-free Replicated Data Types) used for automatic resolution
+- Manual resolution required for true conflicts (rare)</p>
+<h3 id="sync-priority-tiers">Sync Priority Tiers<a class="headerlink" href="#sync-priority-tiers" title="Permanent link">&para;</a></h3>
+<p>Events are synchronized based on priority:</p>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Examples</th>
+<th>Sync Window</th>
+<th>Delivery</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Critical</td>
+<td>Alerts, intrusion, node failures</td>
+<td>Immediate</td>
+<td>At-least-once</td>
+</tr>
+<tr>
+<td>Important</td>
+<td>Sensor readings, state changes</td>
+<td>5 seconds</td>
+<td>Best-effort</td>
+</tr>
+<tr>
+<td>Background</td>
+<td>Config, metadata, analytics</td>
+<td>1 minute</td>
+<td>Eventually</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sync-protocol">Sync Protocol<a class="headerlink" href="#sync-protocol" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code>Node A                          Node B
+   |                               |
+   |--- SyncRequest (since: t) ---&gt;|
+   |                               |
+   |&lt;-- EventBatch [e1, e2, e3] ---|
+   |                               |
+   |--- SyncAck [e1, e2, e3] -----&gt;|
+   |                               |
+   |&lt;-- EventBatch [e4] -----------|
+   |                               |
+   |--- SyncAck [e4] -------------&gt;|
+   |                               |</code></pre>
+<h2 id="failover-and-redundancy">Failover and Redundancy<a class="headerlink" href="#failover-and-redundancy" title="Permanent link">&para;</a></h2>
+<h3 id="node-failure-detection">Node Failure Detection<a class="headerlink" href="#node-failure-detection" title="Permanent link">&para;</a></h3>
+<p><strong>Heartbeat Protocol:</strong>
+- Interval: 5 seconds
+- Timeout: 3 missed heartbeats (15 seconds)
+- Escalation: Alert generated after confirmed failure</p>
+<pre class="highlight"><code class="language-python">class NodeHeartbeat(models.Model):
+    node = models.ForeignKey(Node, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    cpu_usage = models.FloatField()
+    memory_usage = models.FloatField()
+    disk_usage = models.FloatField()
+    sensor_count = models.IntegerField()
+    pending_sync = models.IntegerField()</code></pre>
+<h3 id="leader-election">Leader Election<a class="headerlink" href="#leader-election" title="Permanent link">&para;</a></h3>
+<p>Zone primaries are elected using a simplified Raft consensus algorithm.</p>
+<p><strong>Election Process:</strong>
+1. Leader sends heartbeats to followers
+2. If followers miss heartbeats, election timeout triggers
+3. Candidate requests votes from other nodes
+4. Majority vote wins election
+5. New leader begins accepting requests</p>
+<p><strong>Leader Responsibilities:</strong>
+- Coordinate data writes within zone
+- Manage certificate signing for zone
+- Route external requests
+- Initiate data backups</p>
+<h3 id="data-replication">Data Replication<a class="headerlink" href="#data-replication" title="Permanent link">&para;</a></h3>
+<p><strong>Replication Factor:</strong> Configurable (default: 2)</p>
+<pre class="highlight"><code class="language-python"># settings.py
+ESTATE_SENTRY = {
+    'REPLICATION_FACTOR': 2,  # Minimum nodes storing each piece of data
+    'ALERT_REPLICATION': 'all',  # Alerts replicated to ALL nodes
+    'READING_REPLICATION': 2,  # Readings replicated to N nodes
+}</code></pre>
+<p><strong>Replication Strategy:</strong>
+- Alerts: Replicated to ALL nodes (critical data)
+- Sensor readings: Replicated to N nearest nodes
+- Configuration: Replicated to ALL nodes
+- Media files: Stored on originating node + 1 backup</p>
+<h3 id="graceful-degradation">Graceful Degradation<a class="headerlink" href="#graceful-degradation" title="Permanent link">&para;</a></h3>
+<p>When nodes fail or disconnect, the system degrades gracefully:</p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Single node failure</td>
+<td>Other nodes take over, data syncs on recovery</td>
+</tr>
+<tr>
+<td>Network partition</td>
+<td>Zones operate independently, sync on reconnect</td>
+</tr>
+<tr>
+<td>Hub failure</td>
+<td>Zones continue autonomously, no central intelligence</td>
+</tr>
+<tr>
+<td>All nodes except one</td>
+<td>Single node operates fully, awaits reconnection</td>
+</tr>
+</tbody>
+</table>
+<h2 id="zone-configuration">Zone Configuration<a class="headerlink" href="#zone-configuration" title="Permanent link">&para;</a></h2>
+<h3 id="defining-zones">Defining Zones<a class="headerlink" href="#defining-zones" title="Permanent link">&para;</a></h3>
+<p>Zones are logical groupings of nodes and sensors:</p>
+<pre class="highlight"><code class="language-yaml"># zones.yaml
+zones:
+  main_house:
+    description: "Primary residence"
+    primary_node: node-living-room
+    nodes:
+      - node-living-room
+      - node-kitchen
+      - node-bedroom
+    sensors:
+      - front_door_contact
+      - living_room_motion
+      - kitchen_smoke
+
+  guest_house:
+    description: "Guest residence"
+    primary_node: node-guest
+    nodes:
+      - node-guest
+    sensors:
+      - guest_door_contact
+      - guest_motion</code></pre>
+<h3 id="cross-zone-communication">Cross-Zone Communication<a class="headerlink" href="#cross-zone-communication" title="Permanent link">&para;</a></h3>
+<p>Zones communicate for:
+- Alert propagation (all zones receive critical alerts)
+- User authentication (centralized or replicated)
+- Analytics aggregation (to hub if present)</p>
+<h2 id="network-requirements">Network Requirements<a class="headerlink" href="#network-requirements" title="Permanent link">&para;</a></h2>
+<h3 id="minimum-bandwidth">Minimum Bandwidth<a class="headerlink" href="#minimum-bandwidth" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Traffic Type</th>
+<th>Bandwidth</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Heartbeats</td>
+<td>&lt; 1 Kbps</td>
+<td>Per node pair</td>
+</tr>
+<tr>
+<td>Sensor sync</td>
+<td>~10 Kbps</td>
+<td>Average, bursty</td>
+</tr>
+<tr>
+<td>Media sync</td>
+<td>Variable</td>
+<td>Depends on cameras</td>
+</tr>
+<tr>
+<td>Alerts</td>
+<td>&lt; 1 Kbps</td>
+<td>Rare, bursty</td>
+</tr>
+</tbody>
+</table>
+<h3 id="port-requirements">Port Requirements<a class="headerlink" href="#port-requirements" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Port</th>
+<th>Protocol</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8000</td>
+<td>HTTPS</td>
+<td>REST API</td>
+</tr>
+<tr>
+<td>8443</td>
+<td>gRPC</td>
+<td>Inter-node RPC</td>
+</tr>
+<tr>
+<td>5353</td>
+<td>UDP</td>
+<td>mDNS discovery</td>
+</tr>
+<tr>
+<td>4222</td>
+<td>TCP</td>
+<td>NATS (Switchboard)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="firewall-configuration">Firewall Configuration<a class="headerlink" href="#firewall-configuration" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Allow Estate Sentry traffic
+ufw allow 8000/tcp comment "Estate Sentry API"
+ufw allow 8443/tcp comment "Estate Sentry gRPC"
+ufw allow 5353/udp comment "mDNS Discovery"
+ufw allow 4222/tcp comment "NATS Switchboard"</code></pre>
+<h2 id="deployment-patterns">Deployment Patterns<a class="headerlink" href="#deployment-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="single-node-developmentsmall-home">Single Node (Development/Small Home)<a class="headerlink" href="#single-node-developmentsmall-home" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code>+-------------------+
+|   Single Node     |
+|  +-----------+    |
+|  | API       |    |
+|  | Switchboard|   |
+|  | Sentry    |    |
+|  +-----------+    |
+|        |          |
+|   [Sensors]       |
++-------------------+</code></pre>
+<h3 id="multi-node-estate">Multi-Node Estate<a class="headerlink" href="#multi-node-estate" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code>+-------------+     +-------------+     +-------------+
+| Zone: Main  |     | Zone: Guest |     | Zone: Pool  |
+|   (Primary) |&lt;---&gt;|  (Primary)  |&lt;---&gt;|  (Primary)  |
++------+------+     +------+------+     +------+------+
+       |                   |                   |
++------+------+     +------+------+     +------+------+
+|   Backup    |     |   Sensors   |     |   Sensors   |
+|   (Standby) |     +-------------+     +-------------+
++-------------+</code></pre>
+<h3 id="enterprise-with-hub">Enterprise with Hub<a class="headerlink" href="#enterprise-with-hub" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code>                +------------------+
+                | Federation Hub   |
+                | (Cloud/On-Prem)  |
+                +--------+---------+
+                         |
+        +----------------+----------------+
+        |                |                |
++-------+------+  +------+-------+  +-----+--------+
+|   Building A |  |  Building B  |  |  Building C  |
+|   (Zone)     |  |   (Zone)     |  |   (Zone)     |
++--------------+  +--------------+  +--------------+</code></pre>
+<h2 id="future-enhancements">Future Enhancements<a class="headerlink" href="#future-enhancements" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Kubernetes Operator</strong>: Deploy nodes via K8s</li>
+<li><strong>Mesh VPN</strong>: Automatic WireGuard mesh between nodes</li>
+<li><strong>Edge ML</strong>: Distributed inference across nodes</li>
+<li><strong>Geo-Redundancy</strong>: Multi-site disaster recovery</li>
+</ul>
+<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../switchboard/">Switchboard Architecture</a> - Data routing between nodes</li>
+<li><a href="../security/">Security Architecture</a> - mTLS and certificate management</li>
+<li><a href="../../guides/node-deployment/">Node Deployment Guide</a> - Step-by-step setup</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../database/" class="btn btn-neutral float-left" title="Database"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../switchboard/" class="btn btn-neutral float-right" title="Switchboard">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/QR-Madness/estate-sentry" class="fa fa-code-fork" style="color: #fcfcfc"> estate-sentry</a>
+        </span>
+    
+    
+      <span><a href="../database/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../switchboard/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

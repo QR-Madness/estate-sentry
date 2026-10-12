@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Estate Sentry Contributors" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Database - Estate Sentry</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Database";
+        var mkdocs_page_input_path = "architecture/database.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/typescript.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Estate Sentry
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Specification/">Specification</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../Todo/">Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/installation/">Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/quickstart/">Quick Start</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/docker-setup/">Docker Setup</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/task-reference/">Task Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/api-usage/">API Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/plugin-development/">Plugin Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/node-deployment/">Node Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/mcp-integration/">MCP Integration</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Architecture</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Database</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#postgresql-relational-database">PostgreSQL (Relational Database)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#configuration">Configuration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#data-models">Data Models</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#user-model">User Model</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#sensor-model">Sensor Model</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#sensorreading-model">SensorReading Model</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#alert-model">Alert Model</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#indexing-strategy">Indexing Strategy</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#migrations">Migrations</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#backup-restore">Backup &amp; Restore</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#neo4j-graph-database">Neo4j (Graph Database)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#overview_1">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#configuration_1">Configuration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#data-model">Data Model</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example-queries">Example Queries</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#data-synchronization">Data Synchronization</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#backup-restore_1">Backup &amp; Restore</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#graph-data-science">Graph Data Science</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#database-strategy">Database Strategy</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#when-to-use-postgresql">When to Use PostgreSQL</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#when-to-use-neo4j">When to Use Neo4j</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#data-consistency">Data Consistency</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#performance-optimization">Performance Optimization</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#postgresql">PostgreSQL</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#neo4j">Neo4j</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#monitoring">Monitoring</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#postgresql_1">PostgreSQL</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#neo4j_1">Neo4j</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#timescaledb-time-series-extension">TimescaleDB (Time-Series Extension)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#configuration_2">Configuration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#hypertable-for-sensor-readings">Hypertable for Sensor Readings</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#optimized-queries">Optimized Queries</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#chromadb-vector-database">ChromaDB (Vector Database)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#collections">Collections</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#configuration_3">Configuration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example-queries_1">Example Queries</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#event-log-synchronization">Event Log (Synchronization)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#event-log-model">Event Log Model</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#sync-queries">Sync Queries</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#audit-log">Audit Log</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#audit-log-model">Audit Log Model</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#retention">Retention</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#minio-object-storage">MinIO (Object Storage)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#bucket-structure">Bucket Structure</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#configuration_4">Configuration</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#future-enhancements">Future Enhancements</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#resources">Resources</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../decentralization/">Decentralization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../switchboard/">Switchboard</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../security/">Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../device-abstraction/">Device Abstraction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../sentry-intelligence/">Sentry Intelligence</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operations</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../operations/monitoring/">Monitoring</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Contributing</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../contributing/development/">Development Guide</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Estate Sentry</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Architecture</li>
+      <li class="breadcrumb-item active">Database</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/QR-Madness/estate-sentry/edit/master/docs/architecture/database.md">Edit on estate-sentry</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="database-architecture">Database Architecture<a class="headerlink" href="#database-architecture" title="Permanent link">&para;</a></h1>
+<p>Estate Sentry uses a multi-database architecture optimized for different workloads:</p>
+<ul>
+<li><strong>PostgreSQL</strong> - Relational data and time-series (via TimescaleDB)</li>
+<li><strong>Neo4j</strong> - Graph relationships for threat intelligence</li>
+<li><strong>ChromaDB</strong> - Vector embeddings for AI analysis</li>
+<li><strong>MinIO</strong> - Object storage for media files</li>
+</ul>
+<h2 id="postgresql-relational-database">PostgreSQL (Relational Database)<a class="headerlink" href="#postgresql-relational-database" title="Permanent link">&para;</a></h2>
+<h3 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h3>
+<p>PostgreSQL handles all relational data including users, sensors, readings, and alerts.</p>
+<p><strong>Production Setup:</strong>
+- PostgreSQL 16 (Docker)
+- Automatic backups
+- Connection pooling</p>
+<p><strong>Development Setup:</strong>
+- SQLite (default)
+- Automatic migrations
+- Easy to reset</p>
+<h3 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h3>
+<p>Set via environment variable:</p>
+<pre class="highlight"><code class="language-python"># SQLite (local development)
+DATABASE_ENGINE=sqlite
+
+# PostgreSQL (Docker/production)
+DATABASE_ENGINE=postgresql
+POSTGRES_DB=estate_sentry
+POSTGRES_USER=estate_sentry
+POSTGRES_PASSWORD=your-password
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432</code></pre>
+<h3 id="data-models">Data Models<a class="headerlink" href="#data-models" title="Permanent link">&para;</a></h3>
+<h4 id="user-model">User Model<a class="headerlink" href="#user-model" title="Permanent link">&para;</a></h4>
+<p>Extends Django's <code>AbstractUser</code>:</p>
+<pre class="highlight"><code class="language-python">class User(AbstractUser):
+    auth_method = CharField(max_length=20)  # password/pin/username
+    pin = CharField(max_length=4, null=True)
+    # Inherits: username, email, password, etc.</code></pre>
+<h4 id="sensor-model">Sensor Model<a class="headerlink" href="#sensor-model" title="Permanent link">&para;</a></h4>
+<pre class="highlight"><code class="language-python">class Sensor(Model):
+    owner = ForeignKey(User)
+    name = CharField(max_length=255)
+    sensor_type = CharField(max_length=50)  # CAMERA, DOOR_CONTACT, etc.
+    location = CharField(max_length=255)
+    status = CharField(max_length=20)  # ACTIVE, INACTIVE, ERROR, MAINTENANCE
+    handler_class = CharField(max_length=100)
+    connection_config = JSONField()
+    metadata = JSONField()
+    created_at = DateTimeField(auto_now_add=True)
+    updated_at = DateTimeField(auto_now=True)</code></pre>
+<p><strong>Sensor Types:</strong>
+- <code>CAMERA</code>
+- <code>DOOR_CONTACT</code>
+- <code>WINDOW_CONTACT</code>
+- <code>GLASS_BREAK</code>
+- <code>MOTION</code>
+- <code>SMOKE</code>
+- <code>CO</code>
+- <code>WATER_LEAK</code>
+- <code>CUSTOM</code></p>
+<h4 id="sensorreading-model">SensorReading Model<a class="headerlink" href="#sensorreading-model" title="Permanent link">&para;</a></h4>
+<p>Time-series data storage:</p>
+<pre class="highlight"><code class="language-python">class SensorReading(Model):
+    sensor = ForeignKey(Sensor)
+    timestamp = DateTimeField(auto_now_add=True)
+    value = JSONField()  # Flexible sensor data
+    reading_type = CharField(max_length=50)
+    processed = BooleanField(default=False)</code></pre>
+<p><strong>Example Values:</strong>
+<pre class="highlight"><code class="language-json">// Door contact
+{"state": "open"}
+
+// Camera
+{"image_url": "/media/cameras/front.jpg", "motion_detected": true}
+
+// Temperature
+{"temperature": 72.5, "unit": "F"}</code></pre></p>
+<h4 id="alert-model">Alert Model<a class="headerlink" href="#alert-model" title="Permanent link">&para;</a></h4>
+<pre class="highlight"><code class="language-python">class Alert(Model):
+    owner = ForeignKey(User)
+    alert_type = CharField(max_length=50)
+    severity = CharField(max_length=20)  # INFO, LOW, MEDIUM, HIGH, CRITICAL
+    sensor = ForeignKey(Sensor)
+    timestamp = DateTimeField(auto_now_add=True)
+    description = TextField()
+    acknowledged = BooleanField(default=False)
+    acknowledged_at = DateTimeField(null=True)
+    metadata = JSONField()</code></pre>
+<p><strong>Alert Types:</strong>
+- <code>INTRUSION</code> - Unauthorized entry
+- <code>ENVIRONMENTAL</code> - Smoke, CO, water
+- <code>MALFUNCTION</code> - Sensor errors
+- <code>SYSTEM</code> - System issues
+- <code>CUSTOM</code> - User-defined</p>
+<h3 id="indexing-strategy">Indexing Strategy<a class="headerlink" href="#indexing-strategy" title="Permanent link">&para;</a></h3>
+<p>Key indexes for performance:</p>
+<pre class="highlight"><code class="language-python"># Sensors
+indexes = [
+    Index(fields=['owner', 'status']),
+    Index(fields=['sensor_type']),
+]
+
+# SensorReadings
+indexes = [
+    Index(fields=['sensor', '-timestamp']),
+    Index(fields=['processed']),
+]
+
+# Alerts
+indexes = [
+    Index(fields=['owner', '-timestamp']),
+    Index(fields=['acknowledged', 'severity']),
+]</code></pre>
+<h3 id="migrations">Migrations<a class="headerlink" href="#migrations" title="Permanent link">&para;</a></h3>
+<p>Django handles schema migrations:</p>
+<pre class="highlight"><code class="language-bash"># Create migrations
+python manage.py makemigrations
+
+# Apply migrations
+python manage.py migrate
+
+# Show migration status
+python manage.py showmigrations</code></pre>
+<h3 id="backup-restore">Backup &amp; Restore<a class="headerlink" href="#backup-restore" title="Permanent link">&para;</a></h3>
+<p><strong>SQLite (Development):</strong>
+<pre class="highlight"><code class="language-bash">task db:backup    # Backup to timestamped file
+task db:restore   # Restore from latest backup</code></pre></p>
+<p><strong>PostgreSQL (Docker):</strong>
+<pre class="highlight"><code class="language-bash">task db:postgres:backup    # pg_dump to data/backups/
+task db:postgres:restore   # Restore from latest
+task db:reset:docker       # Reset database (⚠️)</code></pre></p>
+<h2 id="neo4j-graph-database">Neo4j (Graph Database)<a class="headerlink" href="#neo4j-graph-database" title="Permanent link">&para;</a></h2>
+<h3 id="overview_1">Overview<a class="headerlink" href="#overview_1" title="Permanent link">&para;</a></h3>
+<p>Neo4j stores relationship data and powers advanced threat intelligence.</p>
+<p><strong>Features:</strong>
+- APOC plugins
+- Graph Data Science
+- Real-time sync to <code>./data/neo4j/</code></p>
+<p><strong>Access:</strong>
+- Browser: http://localhost:7474
+- Bolt: bolt://localhost:7687
+- User: neo4j / changeme</p>
+<h3 id="configuration_1">Configuration<a class="headerlink" href="#configuration_1" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python">NEO4J_URI=bolt://localhost:7687
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=changeme</code></pre>
+<h3 id="data-model">Data Model<a class="headerlink" href="#data-model" title="Permanent link">&para;</a></h3>
+<p>Neo4j stores relationships:</p>
+<p><strong>Nodes:</strong>
+- <code>(:User)</code> - User accounts
+- <code>(:Sensor)</code> - Sensors
+- <code>(:Alert)</code> - Security alerts
+- <code>(:Location)</code> - Physical locations
+- <code>(:ThreatPattern)</code> - Known threat patterns</p>
+<p><strong>Relationships:</strong>
+<pre class="highlight"><code class="language-cypher">(:User)-[:OWNS]-&gt;(:Sensor)
+(:Sensor)-[:LOCATED_IN]-&gt;(:Location)
+(:Sensor)-[:GENERATED]-&gt;(:Alert)
+(:Alert)-[:SIMILAR_TO]-&gt;(:ThreatPattern)
+(:Sensor)-[:CONNECTED_TO]-&gt;(:Sensor)</code></pre></p>
+<h3 id="example-queries">Example Queries<a class="headerlink" href="#example-queries" title="Permanent link">&para;</a></h3>
+<p><strong>Find all sensors in a location:</strong>
+<pre class="highlight"><code class="language-cypher">MATCH (u:User {username: 'john'})-[:OWNS]-&gt;(s:Sensor)-[:LOCATED_IN]-&gt;(l:Location {name: 'Living Room'})
+RETURN s</code></pre></p>
+<p><strong>Find related alerts:</strong>
+<pre class="highlight"><code class="language-cypher">MATCH (a:Alert)-[:SIMILAR_TO]-&gt;(pattern:ThreatPattern)
+WHERE a.timestamp &gt; datetime() - duration('P7D')
+RETURN pattern.name, count(a) as occurrences
+ORDER BY occurrences DESC</code></pre></p>
+<p><strong>Analyze sensor network:</strong>
+<pre class="highlight"><code class="language-cypher">MATCH path = (s1:Sensor)-[:CONNECTED_TO*]-(s2:Sensor)
+WHERE s1.status = 'ACTIVE' AND s2.status = 'ACTIVE'
+RETURN path</code></pre></p>
+<h3 id="data-synchronization">Data Synchronization<a class="headerlink" href="#data-synchronization" title="Permanent link">&para;</a></h3>
+<p>Neo4j data is automatically synchronized:</p>
+<pre class="highlight"><code>data/neo4j/
+├── data/       # Database files (auto-generated)
+├── logs/       # Server logs
+├── import/     # Files for LOAD CSV
+├── export/     # Exported backups
+└── plugins/    # APOC, GDS plugins</code></pre>
+<p><strong>Commands:</strong>
+<pre class="highlight"><code class="language-bash">task db:neo4j:sync      # Show sync status
+task db:neo4j:export    # Export to Cypher script
+task db:neo4j:import    # Import from latest export
+task db:neo4j:clear     # Clear all data (⚠️)</code></pre></p>
+<h3 id="backup-restore_1">Backup &amp; Restore<a class="headerlink" href="#backup-restore_1" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Export database
+task db:neo4j:export
+
+# Files saved to: data/neo4j/export/backup_TIMESTAMP.cypher
+
+# Import from latest
+task db:neo4j:import</code></pre>
+<h3 id="graph-data-science">Graph Data Science<a class="headerlink" href="#graph-data-science" title="Permanent link">&para;</a></h3>
+<p>Neo4j includes Graph Data Science (GDS) for analytics:</p>
+<p><strong>Community Detection:</strong>
+<pre class="highlight"><code class="language-cypher">// Find sensor clusters
+CALL gds.louvain.stream('sensor-graph')
+YIELD nodeId, communityId
+RETURN gds.util.asNode(nodeId).name, communityId</code></pre></p>
+<p><strong>Pathfinding:</strong>
+<pre class="highlight"><code class="language-cypher">// Find shortest path between sensors
+MATCH (s1:Sensor {name: 'Front Door'}), (s2:Sensor {name: 'Back Door'})
+CALL gds.shortestPath.dijkstra.stream('sensor-graph', {
+    sourceNode: s1,
+    targetNode: s2
+})
+YIELD path
+RETURN path</code></pre></p>
+<p><strong>Centrality Analysis:</strong>
+<pre class="highlight"><code class="language-cypher">// Find most connected sensors
+CALL gds.degree.stream('sensor-graph')
+YIELD nodeId, score
+RETURN gds.util.asNode(nodeId).name, score
+ORDER BY score DESC
+LIMIT 10</code></pre></p>
+<h2 id="database-strategy">Database Strategy<a class="headerlink" href="#database-strategy" title="Permanent link">&para;</a></h2>
+<h3 id="when-to-use-postgresql">When to Use PostgreSQL<a class="headerlink" href="#when-to-use-postgresql" title="Permanent link">&para;</a></h3>
+<ul>
+<li>User authentication</li>
+<li>Sensor configurations</li>
+<li>Time-series sensor readings</li>
+<li>Alert records</li>
+<li>Any tabular data</li>
+</ul>
+<h3 id="when-to-use-neo4j">When to Use Neo4j<a class="headerlink" href="#when-to-use-neo4j" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Sensor relationships</li>
+<li>Location hierarchies</li>
+<li>Threat pattern matching</li>
+<li>Behavioral analysis</li>
+<li>Network topology</li>
+</ul>
+<h3 id="data-consistency">Data Consistency<a class="headerlink" href="#data-consistency" title="Permanent link">&para;</a></h3>
+<p>Both databases stay synchronized:</p>
+<ol>
+<li>Django ORM updates PostgreSQL</li>
+<li>Signals trigger Neo4j updates</li>
+<li>Neo4j stores relationships only</li>
+<li>PostgreSQL is source of truth</li>
+</ol>
+<h2 id="performance-optimization">Performance Optimization<a class="headerlink" href="#performance-optimization" title="Permanent link">&para;</a></h2>
+<h3 id="postgresql">PostgreSQL<a class="headerlink" href="#postgresql" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Indexes on foreign keys</li>
+<li>Indexes on timestamp fields</li>
+<li>Connection pooling (production)</li>
+<li>Query optimization with <code>select_related()</code></li>
+</ul>
+<h3 id="neo4j">Neo4j<a class="headerlink" href="#neo4j" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Property indexes on IDs</li>
+<li>Composite indexes for common queries</li>
+<li>Memory configuration (1GB page cache, 2GB heap)</li>
+<li>APOC for batch operations</li>
+</ul>
+<h2 id="monitoring">Monitoring<a class="headerlink" href="#monitoring" title="Permanent link">&para;</a></h2>
+<h3 id="postgresql_1">PostgreSQL<a class="headerlink" href="#postgresql_1" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Docker logs
+task docker:logs:postgres
+
+# Database size
+docker-compose exec postgres psql -U estate_sentry -d estate_sentry -c "\l+"
+
+# Table sizes
+docker-compose exec postgres psql -U estate_sentry -d estate_sentry -c "\dt+"</code></pre>
+<h3 id="neo4j_1">Neo4j<a class="headerlink" href="#neo4j_1" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-bash"># Docker logs
+task docker:logs:neo4j
+
+# Database info
+task docker:shell:neo4j
+CALL dbms.components() YIELD name, versions, edition</code></pre>
+<h2 id="timescaledb-time-series-extension">TimescaleDB (Time-Series Extension)<a class="headerlink" href="#timescaledb-time-series-extension" title="Permanent link">&para;</a></h2>
+<p>TimescaleDB extends PostgreSQL for efficient time-series data storage.</p>
+<h3 id="configuration_2">Configuration<a class="headerlink" href="#configuration_2" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-yaml"># docker-compose.yml
+services:
+  postgres:
+    image: timescale/timescaledb:latest-pg16
+    environment:
+      POSTGRES_DB: estate_sentry</code></pre>
+<h3 id="hypertable-for-sensor-readings">Hypertable for Sensor Readings<a class="headerlink" href="#hypertable-for-sensor-readings" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-sql">-- Enable TimescaleDB
+CREATE EXTENSION IF NOT EXISTS timescaledb;
+
+-- Convert sensor_readings to hypertable
+SELECT create_hypertable('sensor_readings', 'timestamp',
+    chunk_time_interval =&gt; INTERVAL '1 day',
+    if_not_exists =&gt; TRUE
+);
+
+-- Add compression (after 7 days)
+SELECT add_compression_policy('sensor_readings',
+    compress_after =&gt; INTERVAL '7 days'
+);
+
+-- Add retention (optional)
+SELECT add_retention_policy('sensor_readings',
+    drop_after =&gt; INTERVAL '1 year'
+);</code></pre>
+<h3 id="optimized-queries">Optimized Queries<a class="headerlink" href="#optimized-queries" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-sql">-- Last hour of readings for a sensor (uses chunk exclusion)
+SELECT * FROM sensor_readings
+WHERE sensor_id = 'uuid'
+  AND timestamp &gt; NOW() - INTERVAL '1 hour';
+
+-- Aggregated readings by minute
+SELECT time_bucket('1 minute', timestamp) as bucket,
+       sensor_id,
+       avg((value-&gt;&gt;'temperature')::float) as avg_temp
+FROM sensor_readings
+WHERE timestamp &gt; NOW() - INTERVAL '24 hours'
+GROUP BY bucket, sensor_id;</code></pre>
+<h2 id="chromadb-vector-database">ChromaDB (Vector Database)<a class="headerlink" href="#chromadb-vector-database" title="Permanent link">&para;</a></h2>
+<p>ChromaDB stores embeddings for the Sentry Intelligence system.</p>
+<h3 id="collections">Collections<a class="headerlink" href="#collections" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Collection</th>
+<th>Purpose</th>
+<th>Data</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>alerts</code></td>
+<td>Alert similarity search</td>
+<td>Alert embeddings + metadata</td>
+</tr>
+<tr>
+<td><code>patterns</code></td>
+<td>Known threat patterns</td>
+<td>Pattern embeddings</td>
+</tr>
+<tr>
+<td><code>incidents</code></td>
+<td>Historical incidents</td>
+<td>Incident embeddings</td>
+</tr>
+</tbody>
+</table>
+<h3 id="configuration_3">Configuration<a class="headerlink" href="#configuration_3" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># sentry/intelligence/vector_store.py
+import chromadb
+from chromadb.config import Settings
+
+client = chromadb.Client(Settings(
+    chroma_db_impl="duckdb+parquet",
+    persist_directory="./data/chromadb"
+))</code></pre>
+<h3 id="example-queries_1">Example Queries<a class="headerlink" href="#example-queries_1" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># Search for similar alerts
+results = alerts_collection.query(
+    query_embeddings=[alert_embedding],
+    n_results=5,
+    where={"severity": {"$in": ["HIGH", "CRITICAL"]}}
+)
+
+# Search threat patterns
+results = patterns_collection.query(
+    query_texts=["multiple door sensors triggering in sequence"],
+    n_results=10
+)</code></pre>
+<h2 id="event-log-synchronization">Event Log (Synchronization)<a class="headerlink" href="#event-log-synchronization" title="Permanent link">&para;</a></h2>
+<p>For multi-node deployments, an event log tracks all changes for synchronization.</p>
+<h3 id="event-log-model">Event Log Model<a class="headerlink" href="#event-log-model" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python">class EventLog(models.Model):
+    """Append-only event log for node synchronization."""
+    node_id = models.UUIDField(db_index=True)
+    event_type = models.CharField(max_length=100)
+    entity_type = models.CharField(max_length=100)
+    entity_id = models.UUIDField()
+    payload = models.JSONField()
+    vector_clock = models.JSONField()
+    timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
+    synced_to = models.JSONField(default=list)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['timestamp', 'node_id']),
+            models.Index(fields=['entity_type', 'entity_id']),
+        ]</code></pre>
+<h3 id="sync-queries">Sync Queries<a class="headerlink" href="#sync-queries" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># Get events not yet synced to a node
+EventLog.objects.exclude(
+    synced_to__contains=[target_node_id]
+).filter(
+    timestamp__gt=last_sync_time
+).order_by('timestamp')</code></pre>
+<h2 id="audit-log">Audit Log<a class="headerlink" href="#audit-log" title="Permanent link">&para;</a></h2>
+<p>Immutable audit trail for security compliance.</p>
+<h3 id="audit-log-model">Audit Log Model<a class="headerlink" href="#audit-log-model" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python">class AuditLog(models.Model):
+    timestamp = models.DateTimeField(auto_now_add=True)
+    event_type = models.CharField(max_length=50)
+    user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+    ip_address = models.GenericIPAddressField(null=True)
+    resource_type = models.CharField(max_length=100)
+    resource_id = models.CharField(max_length=100, null=True)
+    old_value = models.JSONField(null=True)
+    new_value = models.JSONField(null=True)
+    metadata = models.JSONField(default=dict)</code></pre>
+<h3 id="retention">Retention<a class="headerlink" href="#retention" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># Audit logs retained for 7 years (compliance)
+AUDIT_RETENTION_DAYS = 365 * 7</code></pre>
+<h2 id="minio-object-storage">MinIO (Object Storage)<a class="headerlink" href="#minio-object-storage" title="Permanent link">&para;</a></h2>
+<p>S3-compatible storage for media files.</p>
+<h3 id="bucket-structure">Bucket Structure<a class="headerlink" href="#bucket-structure" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code>estate-sentry/
+├── frames/              # Camera frames
+│   └── {camera_id}/{date}/{timestamp}.jpg
+├── recordings/          # Video recordings
+│   └── {camera_id}/{date}/{start}_{end}.mp4
+├── snapshots/           # Alert snapshots
+│   └── {alert_id}/frame.jpg
+└── exports/             # Report exports
+    └── {report_id}/report.pdf</code></pre>
+<h3 id="configuration_4">Configuration<a class="headerlink" href="#configuration_4" title="Permanent link">&para;</a></h3>
+<pre class="highlight"><code class="language-python"># settings.py
+MINIO_ENDPOINT = os.environ.get('MINIO_ENDPOINT', 'localhost:9000')
+MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY')
+MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY')
+MINIO_BUCKET = 'estate-sentry'</code></pre>
+<h2 id="future-enhancements">Future Enhancements<a class="headerlink" href="#future-enhancements" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Redis</strong> - Caching layer for frequent queries</li>
+<li><strong>Elasticsearch</strong> - Full-text search for alerts and logs</li>
+<li><strong>ClickHouse</strong> - Alternative for high-volume analytics</li>
+</ul>
+<h2 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://www.postgresql.org/docs/">PostgreSQL Documentation</a></li>
+<li><a href="https://docs.timescale.com/">TimescaleDB Documentation</a></li>
+<li><a href="https://neo4j.com/docs/">Neo4j Documentation</a></li>
+<li><a href="https://docs.trychroma.com/">ChromaDB Documentation</a></li>
+<li><a href="https://min.io/docs/">MinIO Documentation</a></li>
+<li><a href="https://docs.djangoproject.com/en/stable/topics/db/">Django ORM</a></li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../overview/" class="btn btn-neutral float-left" title="Overview"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../decentralization/" class="btn btn-neutral float-right" title="Decentralization">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/QR-Madness/estate-sentry" class="fa fa-code-fork" style="color: #fcfcfc"> estate-sentry</a>
+        </span>
+    
+    
+      <span><a href="../overview/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../decentralization/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
