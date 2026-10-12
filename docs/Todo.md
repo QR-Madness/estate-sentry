@@ -121,17 +121,17 @@ they would likely be the wrong abstraction. `CameraStreamHandler` belongs with
 the Switchboard: a camera's frames reach the system over the frame contract, not
 as readings.
 
-- [ ] Create `sensors/registry.py` with `HandlerRegistry` class
-- [ ] Implement entry point-based plugin discovery
-- [ ] Add class-level metadata to `BaseSensorHandler` (`SENSOR_TYPES`, `PROTOCOLS`, `VERSION`)
-- [ ] Add `get_schema()` method for reading JSON Schema
-- [ ] Add `get_connection_schema()` method for config validation
+- [x] Create `sensors/registry.py` with `HandlerRegistry` class
+- [x] Implement entry point-based plugin discovery
+- [x] Add class-level metadata to `BaseSensorHandler` (`SENSOR_TYPES`, `PROTOCOLS`, `VERSION`)
+- [x] Add `get_schema()` method for reading JSON Schema — named `get_reading_schema()`, as the plugin guide already published it
+- [x] Add `get_connection_schema()` method for config validation
 - [ ] Implement `GlassBreakHandler`
 - [ ] Implement `MotionHandler`
 - [ ] Implement `EnvironmentalHandler` (smoke, CO, water, temperature)
 - [ ] Implement `CameraStreamHandler` for Switchboard integration — *deferred to Milestone 3*
-- [ ] Refactor `sensors/views.py` to use `HandlerRegistry` instead of hardcoded map
-- [ ] Refactor `sensors/serializers.py` to use `HandlerRegistry`
+- [x] Refactor `sensors/views.py` to use `HandlerRegistry` instead of hardcoded map
+- [x] Refactor `sensors/serializers.py` to use `HandlerRegistry`
 - [ ] Create `devices/protocols/base.py` with `BaseProtocolAdapter` — *deferred to the sensor kit*
 - [ ] Implement `MQTTProtocolAdapter` — *deferred to the sensor kit*
 - [ ] Implement `RESTProtocolAdapter` — *deferred to the sensor kit*

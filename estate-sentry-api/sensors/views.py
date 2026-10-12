@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Sensor, SensorReading
+from .registry import HandlerRegistry
 from .serializers import (
     SensorReadingCreateSerializer,
     SensorReadingSerializer,
@@ -74,19 +75,9 @@ class SensorViewSet(viewsets.ModelViewSet):
         """
         from alerts.models import Alert
 
-        from .handlers.camera import CameraHandler
-        from .handlers.contact import ContactHandler
+        handler = HandlerRegistry.get_handler_for(reading.sensor)
 
-        handler_map = {
-            'DOOR_CONTACT': ContactHandler,
-            'WINDOW_CONTACT': ContactHandler,
-            'CAMERA': CameraHandler,
-        }
-
-        handler_class = handler_map.get(reading.sensor.sensor_type)
-
-        if handler_class:
-            handler = handler_class(reading.sensor)
+        if handler is not None:
             alerts_data = handler.detect_threats(reading)
 
             # Create alerts if any threats detected

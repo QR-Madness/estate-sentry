@@ -11,6 +11,8 @@ class CameraHandler(BaseSensorHandler):
     Currently a skeleton for future ML-based threat detection.
     """
 
+    SENSOR_TYPES = ['CAMERA']
+
     def validate_reading(self, data):
         """Validate camera sensor reading data."""
         if not isinstance(data, dict):

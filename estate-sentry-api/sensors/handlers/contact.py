@@ -10,6 +10,8 @@ class ContactHandler(BaseSensorHandler):
     Processes open/close states and detects intrusion threats.
     """
 
+    SENSOR_TYPES = ['DOOR_CONTACT', 'WINDOW_CONTACT']
+
     def validate_reading(self, data):
         """Validate contact sensor reading data."""
         if not isinstance(data, dict):

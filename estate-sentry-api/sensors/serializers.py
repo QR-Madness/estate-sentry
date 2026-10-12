@@ -3,7 +3,9 @@ from rest_framework import serializers
 
 from core.validators import for_field
 
+from .handlers.base import schema_errors
 from .models import Sensor, SensorReading
+from .registry import HandlerRegistry
 from .signing import SIGNATURE_HEADER, SignatureError, enforce_policy
 
 
@@ -31,6 +33,34 @@ class SensorSerializer(serializers.ModelSerializer):
             'id', 'owner', 'created_at', 'updated_at',
             'public_key', 'require_signature',
         ]
+
+    def validate(self, attrs):
+        """Check `connection_config` against its handler's own schema, if any.
+
+        This is on top of the generic schema every config already passes, and
+        is the seam `core/schemas.py` left for per-type schemas.
+
+        Only when the config or the type is being written. A PATCH that renames
+        a sensor must not start failing because its stored config predates a
+        schema — field validators do not re-validate existing rows, and neither
+        should this.
+        """
+        attrs = super().validate(attrs)
+        if 'connection_config' not in attrs and 'sensor_type' not in attrs:
+            return attrs
+
+        sensor_type = attrs.get('sensor_type', getattr(self.instance, 'sensor_type', None))
+        handler_cls = HandlerRegistry.get_handler(sensor_type)
+        if handler_cls is None:
+            return attrs
+
+        config = attrs.get(
+            'connection_config', getattr(self.instance, 'connection_config', {})
+        )
+        errors = schema_errors(handler_cls, 'connection', config)
+        if errors:
+            raise serializers.ValidationError({'connection_config': errors})
+        return attrs
 
     def create(self, validated_data):
         """Set the owner to the current user."""
@@ -93,20 +123,11 @@ class SensorReadingCreateSerializer(serializers.Serializer):
         except SignatureError as exc:
             raise serializers.ValidationError({'signature': str(exc)}) from exc
 
-        # Get the appropriate handler for this sensor type
-        from .handlers.camera import CameraHandler
-        from .handlers.contact import ContactHandler
+        # The handler for this sensor's type, from the registry. None for a type
+        # with no handler.
+        handler = HandlerRegistry.get_handler_for(sensor)
 
-        handler_map = {
-            'DOOR_CONTACT': ContactHandler,
-            'WINDOW_CONTACT': ContactHandler,
-            'CAMERA': CameraHandler,
-        }
-
-        handler_class = handler_map.get(sensor.sensor_type)
-
-        if handler_class:
-            handler = handler_class(sensor)
+        if handler is not None:
             is_valid, error_message = handler.validate_reading(data['value'])
 
             if not is_valid:

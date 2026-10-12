@@ -94,13 +94,27 @@ Handlers in `estate-sentry-api/sensors/handlers/` process sensor-specific data:
 
 ```python
 class BaseSensorHandler(ABC):
+    SENSOR_TYPES = []                                                  # Required to register
     def __init__(self, sensor): ...
-    def validate_reading(self, data) -> tuple[bool, str | None]: ...  # Required
+    @classmethod
+    def get_reading_schema(cls) -> dict | None: ...                    # Optional
+    @classmethod
+    def get_connection_schema(cls) -> dict | None: ...                 # Optional
+    def validate_reading(self, data) -> tuple[bool, str | None]: ...  # Default: the reading schema
     def process_reading(self, data) -> dict: ...                       # Required
-    def detect_threats(self, reading) -> list[dict]: ...               # Optional
+    def detect_threats(self, reading) -> list[dict]: ...               # Optional; reading is the model
 ```
 
-Handler-to-type mapping is in `SensorReadingCreateSerializer.validate()` and `SensorViewSet._process_reading_for_threats()`. Both contain a dict mapping sensor type strings to handler classes.
+Handlers are registered by type in `sensors.registry.HandlerRegistry`, the API
+`docs/guides/plugin-development.md` documents. Any handler *defined* in
+`sensors/handlers/` with a non-empty `SENSOR_TYPES` is discovered at startup;
+plugins call `HandlerRegistry.register_handler()` or advertise an
+`estate_sentry.handlers` entry point. Registration **fails loud**
+(`ImproperlyConfigured`) on an abstract handler, an unknown or doubly-claimed
+type, a malformed schema, or a handler that validates nothing — the quiet
+alternative is the unvalidated, alert-less state seven types used to be in.
+`get_connection_schema()` is checked by `SensorSerializer` only when the config or
+type is written. `CUSTOM` has no handler by design.
 
 **Implemented handlers:**
 
