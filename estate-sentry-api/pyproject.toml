@@ -25,6 +25,12 @@ classifiers = [
 
 dependencies = [
     "django>=5.0.0,<5.2.0",
+    # Timezone data, so the API does not depend on the host to provide it. With
+    # USE_TZ on, every datetime goes through zoneinfo, which reads the system tz
+    # database and falls back to this package only when there is none. A minimal
+    # container has none: the full suite on bare ubuntu:26.04 was 69 errors, every
+    # one "No module named 'tzdata'". Where the host has tz data, nothing changes.
+    "tzdata>=2024.1",
     "djangorestframework>=3.14.0,<4.0.0",
     "djangorestframework-simplejwt>=5.3.0,<6.0.0",
     "django-cors-headers>=4.3.0,<5.0.0",
