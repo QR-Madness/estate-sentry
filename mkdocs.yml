@@ -52,3 +52,8 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.details
+  # For ~~strikethrough~~ only. Subscript stays off: the docs write approximate
+  # figures as "~1.0s" and "~10ms", and a line with two of them would otherwise
+  # risk being read as ~subscript~.
+  - pymdownx.tilde:
+      subscript: false

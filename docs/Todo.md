@@ -26,6 +26,8 @@ The dashboard shows live camera tiles and a detection feed.
 - JSON Schema validation and size ceilings on every JSONField (`core/`)
 - Append-only security audit log, captured by allowlisted async-capable middleware
 - Ed25519 signatures on sensor readings, with timestamp and nonce replay defence
+- The API container: builds from the repository root, serves ASGI on three
+  workers, and ships its own static files
 
 **Known gap**
 
@@ -84,7 +86,13 @@ This is L7 / Sentry Intelligence territory and nothing depends on it yet.
 - [x] Implement `TrustedDevice` model for username-only authentication
 - [ ] Add device fingerprint and certificate binding for trusted devices —
       the token is the credential today; binding it to a client certificate
-      would stop a copied token working from somewhere else
+      would stop a copied token working from somewhere else.
+      *Overlaps Milestone 5, which builds an internal CA for node certificates.
+      Client-certificate binding done now would need a CA of its own plus TLS
+      termination that passes the certificate through — then be built again. A
+      route with no CA at all is proof of possession: the device holds an
+      Ed25519 key and signs its requests, the pattern sensor readings already
+      use. Choose between them before building either.*
 - [x] Add rate limiting to authentication endpoints, plus a per-account lockout
 - [x] Add rate limiting to sensor reading endpoints (60/minute per sensor)
 - [x] Add `public_key` to `Sensor` and verify reading signatures — rescued from
@@ -104,6 +112,15 @@ This is L7 / Sentry Intelligence territory and nothing depends on it yet.
 
 **Priority:** HIGH - Foundation for extensibility
 
+**Scoped 2026-10-12.** The registry and the missing handlers come first: seven of
+ten sensor types have no handler, so their readings are stored unnormalised and
+raise nothing — a smoke detector reporting smoke raises no alert. Two parts are
+deferred out of this milestone. The protocol adapters (MQTT, REST, WebSocket)
+are the transport question the sensor kit has to answer, and built ahead of it
+they would likely be the wrong abstraction. `CameraStreamHandler` belongs with
+the Switchboard: a camera's frames reach the system over the frame contract, not
+as readings.
+
 - [ ] Create `sensors/registry.py` with `HandlerRegistry` class
 - [ ] Implement entry point-based plugin discovery
 - [ ] Add class-level metadata to `BaseSensorHandler` (`SENSOR_TYPES`, `PROTOCOLS`, `VERSION`)
@@ -112,56 +129,70 @@ This is L7 / Sentry Intelligence territory and nothing depends on it yet.
 - [ ] Implement `GlassBreakHandler`
 - [ ] Implement `MotionHandler`
 - [ ] Implement `EnvironmentalHandler` (smoke, CO, water, temperature)
-- [ ] Implement `CameraStreamHandler` for Switchboard integration
+- [ ] Implement `CameraStreamHandler` for Switchboard integration — *deferred to Milestone 3*
 - [ ] Refactor `sensors/views.py` to use `HandlerRegistry` instead of hardcoded map
 - [ ] Refactor `sensors/serializers.py` to use `HandlerRegistry`
-- [ ] Create `devices/protocols/base.py` with `BaseProtocolAdapter`
-- [ ] Implement `MQTTProtocolAdapter`
-- [ ] Implement `RESTProtocolAdapter`
-- [ ] Implement `WebSocketProtocolAdapter`
+- [ ] Create `devices/protocols/base.py` with `BaseProtocolAdapter` — *deferred to the sensor kit*
+- [ ] Implement `MQTTProtocolAdapter` — *deferred to the sensor kit*
+- [ ] Implement `RESTProtocolAdapter` — *deferred to the sensor kit*
+- [ ] Implement `WebSocketProtocolAdapter` — *deferred to the sensor kit*
 
 ---
 
-## Milestone 3: Switchboard Foundation
+## Milestone 3: Switchboard
 
 **Priority:** HIGH - Central data routing for all sensor data
 
-### Service Setup
-- [ ] Create `estate-sentry-switchboard/` directory structure
-- [ ] Create `src/main.py` entry point
-- [ ] Create `src/config.py` configuration module
-- [ ] Add `requirements.txt` with dependencies (nats-py, minio, etc.)
-- [ ] Create `Dockerfile` for Switchboard service
+**Reconciled 2026-10-12.** This milestone first described a separate
+`estate-sentry-switchboard/` service. It was never built that way, and
+deliberately: at the reboot the transport became a small library inside
+`estate-sentry-perception/perception/transport/`, behind two protocols —
+`FrameStore` and `EventBus` — with NATS and MinIO implementations and in-memory
+doubles for tests. NATS and MinIO *are* the switchboard; the code is a thin
+client layer that the pipeline and the API both import, so the frame contract
+cannot drift between them. Read with the old checklist, everything below looked
+unbuilt. The superseded items are kept at the end, struck through.
 
-### NATS Integration
-- [ ] Set up NATS JetStream configuration
-- [ ] Implement `messaging/nats_client.py` wrapper
-- [ ] Create topic structure for sensor data routing:
-  - `sensors.{sensor_type}.{sensor_id}.readings`
-  - `sensors.{sensor_type}.{sensor_id}.status`
-  - `alerts.{severity}`
-  - `frames.{camera_id}`
-- [ ] Implement `messaging/handlers.py` for message processing
+### Built — frames, end to end
+- [x] NATS with JetStream in Compose (`--jetstream`; `task switchboard:up`)
+- [x] MinIO in Compose; buckets via `task minio:create-buckets`, and the frame
+      store creates its own on demand (`ensure_bucket`)
+- [x] Event bus — `NatsEventBus` (`perception/transport/nats_bus.py`)
+- [x] Frame store — `MinioFrameStore` (`perception/transport/minio_store.py`)
+- [x] Frame contract — `FrameRef`, `frame_key()`, `frame_subject()`, on
+      `frames.{camera_id}.raw` (`perception/transport/protocols.py`)
+- [x] In-memory doubles for both, so the pipeline's tests need no infrastructure
+- [x] Consumers — the perception service, which posts zone events to the API,
+      and the HQ dashboard's live MJPEG and SSE
 
-### Media Storage
-- [ ] Set up MinIO for S3-compatible object storage
-- [ ] Implement `storage/minio_client.py` wrapper
-- [ ] Implement `storage/frame_store.py` for camera frame storage
-- [ ] Create bucket structure for media organization
+### Remaining
+- [ ] **Sensor readings over NATS** (`sensors.{type}.{id}.readings`). Today they
+      go over REST to `/api/sensors/{id}/readings/`. Moving them would let
+      JetStream absorb outages for devices on the far side of the internet.
+      *Conflicts with signing as built:* a signed reading is refused once
+      `signed_at` is more than five minutes old, so a device replaying a buffered
+      backlog would be rejected. Design that before readings move to a buffered
+      transport.
+- [ ] Sensor status subjects (`sensors.{type}.{id}.status`)
+- [ ] Alert fan-out (`alerts.{severity}`)
+- [ ] Switchboard status endpoints in the API — listed under Milestone 9
+- [ ] **Edge agent — now a "sensor kit"**: one lightweight daemon per device
+      hosting several sensors, which would replace `mock-estate` as the
+      producer. *Not yet specified.* First target is the Raspberry Pi 4B test
+      device, whose USB camera emits MJPEG natively (up to 960x720, 15 fps), so
+      capture needs no encode step. Milestone 2's protocol adapters belong to
+      this design rather than ahead of it.
 
-### Routing
-- [ ] Implement `routing/router.py` message routing logic
-- [ ] Implement `routing/topics.py` topic definitions
-
-### Edge Agent
-- [ ] Create `edge/agent.py` lightweight edge agent
-- [ ] Implement `edge/camera.py` for camera frame capture
-- [ ] Add frame compression and encoding
-
-### Integration
-- [ ] Add Docker Compose configuration for Switchboard
-- [ ] Create API endpoints for Switchboard status
-- [ ] Integrate Switchboard events with Django API
+### Superseded by the library design
+- ~~Create `estate-sentry-switchboard/` directory structure~~
+- ~~Create `src/main.py`, `src/config.py`, `requirements.txt` and a `Dockerfile`
+  for a Switchboard service~~
+- ~~`messaging/nats_client.py`, `storage/minio_client.py`,
+  `storage/frame_store.py`~~ — built as the transport package above
+- ~~`routing/router.py`, `routing/topics.py`~~ — NATS subjects do the routing;
+  the contract lives in `protocols.py`
+- ~~Add frame compression and encoding~~ — moot for MJPEG cameras, which
+  compress in hardware; revisit only for a camera limited to YUYV
 
 ---
 

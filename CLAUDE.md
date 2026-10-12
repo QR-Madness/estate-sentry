@@ -261,8 +261,8 @@ are single-process; anything serving concurrently needs `REDIS_URL`.
 |----------|------|---------|
 | PostgreSQL (TimescaleDB 16) | 5432 | Relational data, sensor readings, alerts |
 | Neo4j 5 | 7474/7687 | Graph relationships, threat patterns (configured, not yet integrated) |
-| NATS 2.10 | 4222/8222 | Message bus with JetStream (configured, not yet integrated) |
-| MinIO | 9000/9001 | Object storage for frames/media (configured, not yet integrated) |
+| NATS 2.10 | 4222/8222 | Message bus with JetStream — carries frame references on `frames.{camera_id}.raw` |
+| MinIO | 9000/9001 | Object storage — holds the frame bytes those references point to |
 | ChromaDB | 8001 | Vector embeddings (configured, not yet integrated) |
 | Redis 7 | 6379 | Django cache — holds DRF rate-limit counters |
 
