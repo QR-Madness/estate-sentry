@@ -54,6 +54,11 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # Directly after SecurityMiddleware, as WhiteNoise requires, so a static
+    # request is answered before the rest of the stack runs. In DEBUG it reads
+    # straight from each app's static/ directory (WHITENOISE_USE_FINDERS follows
+    # DEBUG), so local development needs no collectstatic.
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -175,7 +180,7 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 1 * 1024 * 1024  # 1 MiB
 # This is load-bearing for security, not just performance. DRF keeps rate-limit
 # counters here, so the cache is what makes the throttle rates below mean what
 # they say. LocMemCache is per-process: under the Dockerfile's
-# `gunicorn --workers 3` it gives each worker a private set of counters, which
+# `uvicorn --workers 3` it gives each worker a private set of counters, which
 # multiplies every limit by the worker count and makes which bucket a request
 # lands in a function of load balancing. Compose therefore always sets
 # REDIS_URL for the api service.

@@ -31,13 +31,16 @@ dependencies = [
     "pillow>=10.4.0",
     # PostgreSQL support
     "psycopg2-binary>=2.9.9",
-    # Production server. Both: gunicorn serves the WSGI app, uvicorn the ASGI one.
-    # The HQ streaming endpoints (MJPEG, SSE) hold a connection open for as long
-    # as a viewer is watching, which under WSGI pins one worker per viewer and
-    # deadlocks the API at three of them. Those endpoints are async, so they need
-    # the ASGI server.
-    "gunicorn>=21.0.0",
+    # Production server: ASGI only. The HQ streaming endpoints (MJPEG, SSE) hold a
+    # connection open for as long as a viewer is watching. Under WSGI that pins
+    # one sync worker per viewer, and three viewers deadlocked the API outright —
+    # measured: /api/health/ unanswered after 8s, against 30ms under uvicorn with
+    # four. gunicorn was only here to serve the WSGI app, and went with it.
     "uvicorn[standard]>=0.30.0",
+    # Static files in the container. With DEBUG off nothing else serves them, and
+    # every dashboard asset is local — htmx, its SSE extension, the overlay, the
+    # CSS. All four 404'd until this served them from STATIC_ROOT.
+    "whitenoise>=6.0",
     # Neo4j driver
     "neo4j>=5.15.0",
     # NATS client

@@ -251,7 +251,7 @@ DATABASE_ENGINE=postgresql  # Docker/production
 **The cache is a security dependency, not just a performance one.** DRF keeps
 rate-limit counters in the Django cache, so a per-process cache gives each
 worker its own counters and multiplies every limit by the worker count — the
-Dockerfile runs `gunicorn --workers 3`, so the auth and ingest limits would all
+Dockerfile runs `uvicorn --workers 3`, so the auth and ingest limits would all
 be three times looser than they read. Compose always sets `REDIS_URL` for the
 api service. Settings fall back to LocMemCache when it is unset, which is
 correct only because the dev servers (`task hq:dev`, `hq:serve`, `runserver`)
@@ -323,6 +323,33 @@ task docker:shell:neo4j     # Cypher shell
 ```
 
 All persistent data writes to `./data/` subdirectories.
+
+**The API image builds from the repository root** — `docker build -f
+estate-sentry-api/Dockerfile .` — because the API depends on
+`../estate-sentry-perception` and a build context cannot reach outside itself.
+It was unbuildable from 4 Sep until that was fixed. `Dockerfile.dockerignore`
+beside it is an allowlist: admit nothing, then only the two projects, so the
+perception `.venv` (torch, gigabytes) and `data/` never enter the context. uv
+runs with `UV_PYTHON_DOWNLOADS=0` so the venv uses the base image's interpreter,
+which the runtime stage also has, and `--no-editable` so perception is installed
+as a package rather than as a pointer to a source tree.
+
+It serves **ASGI**: `uvicorn --workers 3`, made PID 1 by `exec` so `docker stop`
+reaches it, with a bounded graceful shutdown because the MJPEG and SSE streams
+never end on their own. Under the WSGI command it replaced, three dashboard
+viewers left `/api/health/` unanswered after 8s. Static files come from
+WhiteNoise out of `STATIC_ROOT`, filled by `collectstatic` at build time — which
+now fails the build if it fails. WhiteNoise is sync-only middleware, so Django
+adapts it with a thread hop per request; measured with four SSE viewers open,
+`/api/health/` still answered in ~10ms. ServeStatic is the async-native fork if
+that ever stops being true.
+
+The `api` service mounts nothing. A source bind mount used to hide the image's
+venv behind the host's; that venv's interpreter is a symlink into the host's home
+directory, which dangles in the container, so `python` silently fell through to
+the bare base interpreter and died on "Couldn't import Django". A named
+`staticfiles` volume would also have served stale assets after every upgrade.
+For live reload, run `task hq:dev` on the host.
 
 ## Documentation
 

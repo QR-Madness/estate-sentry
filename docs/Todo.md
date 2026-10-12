@@ -60,7 +60,7 @@ This is L7 / Sentry Intelligence territory and nothing depends on it yet.
 - RT-DETRv2 `r18vd` on CPU: ~0.42s per frame, about 2.4 fps.
 - Rate limits and the cache backend. The real `SensorReadingRateThrottle`, run
   100 times against one sensor from two separate processes — which is what two
-  gunicorn workers are. On LocMemCache both processes allowed 60, so a
+  server workers are. On LocMemCache both processes allowed 60, so a
   "60/min" limit passed 120; the Dockerfile runs three workers, so it was
   really 180. On a shared Redis the second process allowed 0 and the total was
   60. DRF counts in the Django cache, so a per-process cache multiplies every

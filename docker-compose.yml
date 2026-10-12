@@ -106,7 +106,7 @@ services:
   # =============================================================================
 
   # Shared throttle state. DRF counts rate limits in the Django cache, so with a
-  # per-process cache the api service's three gunicorn workers would each keep
+  # per-process cache the api service's three uvicorn workers would each keep
   # their own counters and every limit would be silently tripled. This is what
   # makes those limits literal.
   redis:
@@ -160,8 +160,10 @@ services:
 
   api:
     build:
-      context: ./estate-sentry-api
-      dockerfile: Dockerfile
+      # The repository root, not estate-sentry-api/: the API depends on
+      # ../estate-sentry-perception, which a narrower context cannot reach.
+      context: .
+      dockerfile: estate-sentry-api/Dockerfile
     container_name: estate-sentry-api
     restart: unless-stopped
     environment:
@@ -203,9 +205,14 @@ services:
 
       # CORS
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:8000}
-    volumes:
-      - ./estate-sentry-api:/app
-      - api-staticfiles:/app/staticfiles
+    # No volumes, deliberately. A source bind mount over /app hid the image's
+    # venv behind the host's, whose interpreter is a symlink into the host's home
+    # directory. That dangles in here, so `python` silently fell through to the
+    # base image's bare interpreter and the container died on "Couldn't import
+    # Django" — an error pointing nowhere near the cause. And a named volume for
+    # staticfiles is filled once and never refreshed from a newer image, so an
+    # upgrade would keep serving the old JS and CSS. The image is self-contained;
+    # for live reload, run `task hq:dev` on the host instead.
     ports:
       - "${API_PORT:-8000}:8000"
     depends_on:
@@ -234,9 +241,3 @@ networks:
   estate-sentry:
     driver: bridge
 
-# =============================================================================
-# VOLUMES
-# =============================================================================
-
-volumes:
-  api-staticfiles:

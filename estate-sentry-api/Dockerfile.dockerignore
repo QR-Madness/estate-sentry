@@ -1,0 +1,49 @@
+# Applies to estate-sentry-api/Dockerfile only (BuildKit reads
+# <Dockerfile>.dockerignore beside it), whose context is the repository root:
+# the API depends on ../estate-sentry-perception, and a context cannot reach
+# outside itself.
+#
+# An allowlist, because a root context otherwise sends everything — including
+# estate-sentry-perception/.venv, which carries torch and runs to gigabytes, and
+# data/, which holds live database files. Admit nothing, then only the two
+# projects the image is built from.
+*
+!estate-sentry-api
+!estate-sentry-perception
+
+# ...and nothing generated inside them.
+**/.venv
+**/venv
+**/__pycache__
+**/*.py[cod]
+**/*.so
+**/*.egg-info
+**/dist
+**/build
+**/.uv_cache
+**/.pytest_cache
+**/.ruff_cache
+**/.coverage
+**/htmlcov
+**/.tox
+
+# Django: a dev database or collected static from the host must never end up in
+# the image — collectstatic runs at build time.
+estate-sentry-api/db.sqlite3
+estate-sentry-api/db.sqlite3-journal
+estate-sentry-api/staticfiles
+estate-sentry-api/media
+**/*.log
+
+# Secrets and local environment.
+**/.env
+**/.env.local
+**/*.env
+
+# Editors and OS.
+**/.vscode
+**/.idea
+**/*.swp
+**/*.swo
+**/.DS_Store
+**/*.backup.*
